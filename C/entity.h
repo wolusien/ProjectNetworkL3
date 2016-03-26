@@ -20,6 +20,8 @@ typedef struct entity{
 }entity;
 
 entity* init_entity(char id[8], int prevudp_lport, int tcp_port, 
-char* ip_ad, int nextudp_lport, char* ipv4_ad, int cast_port);
+                    char* ip_ad, int nextudp_lport, char* ipv4_ad, int cast_port);
 
+entity* init_ring(char id[8], int udp_port, int tcp_port, 
+char* ip_ad, char* ipv4_ad, int cast_port);
 

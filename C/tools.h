@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tools.c"
 
 /*!Function taking char* str and a char delim separator and split str in terms of separator
  *\param char* str char* to split

@@ -10,3 +10,5 @@
 char** split(char* str, char delim);
 
 char* ip_addZero(char* ip);
+
+int str_arrsize(char** tab);

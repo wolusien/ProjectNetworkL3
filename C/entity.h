@@ -28,8 +28,6 @@ typedef struct entity{
  *\param int cast_port tcp port of broadcast
  *\return entity* pointer to an entity created
  */
-entity* init_entity(char id[8], int my_uport, int tcp_port, 
-                    char* ip_ad, int next_uport, char* ipv4_ad, int cast_port);
+int init_entity(entity* ent, char id[8],char* my_ip, int my_uport, int tcp_port, int prev_uport, char* next_ip, int next_uport, char* cast_ip, int cast_port);
 
-
-int insert_entity(entity* e, char* host, int tcp_e1);
+int insertion(entity* e, char* host, int tcp_e1);

@@ -1,4 +1,4 @@
-#include "entity.h";
+#include "entity.h"
 
 
 int main(int argc, char *argv[])
@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
         int recu=recv(sock2,buff,99*sizeof(char),0);
         buff[recu]='\0';
         printf("Message recu : %s\n",buff);
+        char* m = "ACKC\n";
+        send(sock2,m,strlen(m)*sizeof(char),0);
       }
       close(sock2);
     }

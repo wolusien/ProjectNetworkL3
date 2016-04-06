@@ -18,9 +18,9 @@ char** split(char* str, char delim) {
     }
   }
   if(count_space >0){
-    count_space++;
+    count_space += 2;
   }
-  printf("Val of count_space %d\n",count_space);
+  //printf("Val of count_space %d\n",count_space);
   char** tab = malloc(sizeof(char*)*(count_space));
   char* p = strtok(s,d);
   int j = 0;
@@ -30,10 +30,16 @@ char** split(char* str, char delim) {
     j++;
     p = strtok(NULL,d);
   }
-  for (i = 0; i < count_space; i++) {
-    printf("Split : Val of tab[%d] %s\n",i,tab[i]);
-  }
+  tab[count_space-1]=NULL;
   return tab;
+}
+
+int str_arrsize(char** tab){
+  int count = 0;
+  while(tab[count]!=NULL){
+    count++;
+  }
+  return count;
 }
 
 

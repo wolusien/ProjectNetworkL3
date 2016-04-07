@@ -1,10 +1,8 @@
 #include "tools.h"
 
 
-/*!Function taking char* str and a char delim separator and split str in terms of separator
- *\param char* str char* to split
- *\param char delim separator of the tokens
- *\return Char** array which will contains the token gotten by the split
+/*
+Function taking char* str and a char delim separator and split str in terms of separator
  */
 char** split(char* str, char delim) {
   int i = 0;
@@ -82,7 +80,7 @@ int free_tport(char* host){
   struct hostent* h;
   h=gethostbyname(host);
   if(h==NULL){
-    printf("free_tcport : Unknown host given\n");
+    printf("free_tport : Unknown host given\n");
     return -1;
   }
   char* host_addr;
@@ -111,8 +109,55 @@ int free_tport(char* host){
       }
     }
   }else{
-    printf("free_tcport : All the address are NULL for this host\n");
+    printf("free_tport : All the address are NULL for this host\n");
     return -1;
   }
   return -1;
 }
+
+/*
+Allow to get a free udp port on a host
+ */
+int free_uport(char* host){
+  int i;
+  
+  int sock = socket(PF_INET,SOCK_DGRAM,0);
+  
+  struct hostent* h;
+  h=gethostbyname(host);
+  if(h==NULL){
+    printf("free_uport : Unknown host given\n");
+    return -1;
+  }
+  char* host_addr;
+  //Get list of addresses of the host
+  struct in_addr **addresses = (struct in_addr**)h->h_addr_list;
+  //We take the first address for testing the port
+  while(*addresses != NULL){
+    //inet_ntoa traduce struct in_addr to char*
+    host_addr = inet_ntoa(**addresses);
+    break;
+  }
+  
+  if(host_addr!=NULL){
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    int port = 9999;
+    
+    for (i = 0; i < 65535-9999; i++) {
+      port += i;
+      adress_sock.sin_port = htons(port);
+      inet_aton(host_addr,&adress_sock.sin_addr);
+      int con = connect(sock, (struct sockaddr *)&adress_sock, 
+                        sizeof(struct sockaddr_in));
+      if(con != 0){
+        return port;
+      }
+    }
+  }else{
+    printf("free_uport : All the address are NULL for this host\n");
+    return -1;
+  }
+  return -1;
+}
+

@@ -28,3 +28,9 @@ int str_arrsize(char** tab);
 Function that allow to get free tcp port for an host
 */
 int free_tport(char* host);
+
+
+/*
+Function that allow to get free udp port for an host
+*/
+int free_uport(char* host);

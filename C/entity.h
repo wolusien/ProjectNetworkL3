@@ -1,7 +1,7 @@
 #include "tools.h"
 
 typedef struct entity{
-  char id[8];
+  char* id;
   char* my_ip;
   int my_uport;
   int tcp_port;

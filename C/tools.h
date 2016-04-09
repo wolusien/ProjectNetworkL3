@@ -44,3 +44,8 @@ int free_tport(char* host);
 Function that allow to get free udp port for an host
 */
 int free_uport(char* host);
+
+/*
+Function that verify an ip_address
+ */
+int check_ip(char* ip);

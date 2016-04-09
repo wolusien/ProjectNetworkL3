@@ -102,7 +102,7 @@ char* get_ip(char* host){
 Generate a unique code(normally)
  */
 char* gen_code(){
-  int i, j;
+  int i;
   char* id = malloc(sizeof(char)*8);
   char* tab = "a1ze0rty9uio2pqs8d@f6gh5jk3lm7wxc4vbn";
   time_t t;
@@ -209,3 +209,16 @@ int free_uport(char* host){
   return -1;
 }
 
+/*
+Function that verify an ip_address
+ */
+int check_ip(char* ip){
+  struct sockaddr_in sa;
+  int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
+  if(result!=0)return 1;
+  else{
+    result = inet_pton(AF_INET6, ip, &(sa.sin_addr));
+    if(result != 0)return 1;
+  }
+  return -1;
+}

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -14,15 +15,24 @@ Function taking char* str and a char delim separator and split str depending on 
 char** split(char* str, char delim);
 
 /*
+Function act same as split in JAVA for String
+ */
+int str_arrsize(char** tab);
+
+/*
 Allow to correct ip coded on 9o to 15o
  */
 char* ip_addZero(char* ip);
 
 /*
-Function act same as split in JAVA for String
- */
-int str_arrsize(char** tab);
+Get ip adress knowing the host
+*/
+char* get_ip(char* host);
 
+/*
+Generate a unique code(normally)
+*/
+char* gen_code();
 
 /*
 Function that allow to get free tcp port for an host

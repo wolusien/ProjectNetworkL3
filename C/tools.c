@@ -32,6 +32,9 @@ char** split(char* str, char delim) {
   return tab;
 }
 
+/*
+Return length of array of char* 
+*/
 int str_arrsize(char** tab){
   int count = 0;
   while(tab[count]!=NULL){
@@ -67,6 +70,51 @@ char* ip_addZero(char* ip){
     }
   }
   return NULL;
+}
+
+
+/*
+Get ip adress knowing the host
+*/
+char* get_ip(char* host){
+  struct hostent* h;
+  h=gethostbyname(host);
+  if(h==NULL){
+    printf("get_ip : Unknown host given\n");
+    return NULL;
+  }
+  char* host_addr;
+  //Get list of addresses of the host
+  struct in_addr **addresses = (struct in_addr**)h->h_addr_list;
+  //We take the first address for testing the port
+  while(*addresses != NULL){
+    //inet_ntoa traduce struct in_addr to char*
+    host_addr = inet_ntoa(**addresses);
+    break;
+  }
+  if(host_addr!=NULL){
+    return ip_addZero(host_addr);
+  }
+  return NULL;
+}
+
+/*
+Generate a unique code(normally)
+ */
+char* gen_code(){
+  int i, j;
+  char* id = malloc(sizeof(char)*8);
+  char* tab = "a1ze0rty9uio2pqs8d@f6gh5jk3lm7wxc4vbn";
+  time_t t;
+  
+  /* Intializes random number generator */
+  srand((unsigned) time(&t));
+  
+  for (i = 0; i < 8; i++) {
+    id[i] = tab[rand()%37];
+    printf("Value of rand %d\n" ,rand()%37);
+  }
+  return id;
 }
 
 /*
@@ -148,9 +196,9 @@ int free_uport(char* host){
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
-      int con = connect(sock, (struct sockaddr *)&adress_sock, 
+      int b = bind(sock, (struct sockaddr *)&adress_sock, 
                         sizeof(struct sockaddr_in));
-      if(con != 0){
+      if(b != 0){
         return port;
       }
     }

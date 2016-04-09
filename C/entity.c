@@ -1,38 +1,21 @@
 #include "entity.h"
 
 
-/*!Function which initialize an entity
- *\param char id[8] id of the entity
- *\param int my_uport udp port of the entity
- *\param int tcp_port  tcp port of the enity
- *\param char* ip_ad ip address of the entity
- *\param int next_uport udp por of the next entity
- *\param char* ipv4_ad ipv4 adress of broadcast
- *\param int cast_port tcp port of broadcast
- *\return entity* pointer to an entity created
+/*
+Function which initialize an entity
  */
-int init_entity(entity* ent, char* id, char* my_ip, int my_uport, int tcp_port, int prev_uport, char* next_ip, int next_uport, char* cast_ip, int cast_port){
-  if(id!=NULL && next_ip!=NULL && cast_ip!=NULL
-     && strlen(next_ip)==15 && strlen(cast_ip)==15){
-    if(my_uport>9999 && my_uport<65535 
-       && tcp_port>9999 && tcp_port<65535
-       && next_uport>9999 && next_uport<65535
-       && prev_uport>9999 && prev_uport<65535
-       && cast_port>9999 && cast_port<65535){
-      //(*ent).id = id;
-      (*ent).my_ip = malloc(sizeof(char)*strlen(my_ip));
-      (*ent).my_ip = my_ip;
-      (*ent).my_uport = my_uport;
-      (*ent).tcp_port = tcp_port;
-      (*ent).prev_uport = prev_uport;
-      (*ent).next_ip = malloc(sizeof(char)*strlen(next_ip));
-      (*ent).next_ip =  next_ip;
-      (*ent).next_uport = next_uport;
-      (*ent).cast_ip = malloc(sizeof(char)*strlen(cast_ip));
-      (*ent).cast_ip = cast_ip;
-      (*ent).cast_port = cast_port;
-      return 0;
-    }
+int init_entity(entity* ent, char* host){
+  char id[8];
+  strcpy(id,gen_code());
+  char* ip = get_ip(host);
+  int uport = free_uport(host);
+  int tport = free_tport(host);
+  if(ip != NULL && uport != -1 && tport != -1){
+    (*ent).id = id;
+    (*ent).my_ip = ip;
+    (*ent).my_uport = uport;
+    (*ent).tcp_port = tport;
+    return 0;
   }
   return -1;
 }

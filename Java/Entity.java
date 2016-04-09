@@ -11,7 +11,8 @@ class Entity implements Runnable{
 	private int nextudp_sport;
 	private String ipv4_ad;
 	private int cast_port;
-
+	
+	//contructeur pour nouvel anneau
 	public Entity(String id, int prevudp_rport, int tcp_port, String ip_ad, int nextudp_sport, String ipv4_ad, int cast_port){
 		this.id=id;
 		this.prevudp_rport=prevudp_rport;
@@ -20,6 +21,14 @@ class Entity implements Runnable{
 		this.nextudp_sport=nextudp_sport;
 		this.ipv4_ad=ipv4_ad;
 		this.cast_port=cast_port;
+	}
+	
+	//contructeur pour insertion
+	public Entity(String id, int prevudp_rport, int tcp_port, String ip_ad){
+		this.id=id;
+		this.prevudp_rport=prevudp_rport;
+		this.tcp_port=tcp_port;
+		this.ip_ad=ip_ad;
 	}
 
 	public String getId(){
@@ -57,16 +66,65 @@ class Entity implements Runnable{
 	public void setNextudp_sport(int p){
 		this.nextudp_sport=p;
 	}
+	
+	//change les params d insertion
+	public boolean initInsert(String addr,int porttcp){
+		try{
+			Socket sock= new Socket(addr, porttcp);
+			BufferedReader br= new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			PrintWriter pw= new PrintWriter(sock.getOutputStream());
+			
+			String[] recu=br.readLine().trim().split(" ");
+			if(recu.length==5 && recu[0].equals("WELC")){
+				String ip=this.ip_ad;
+				this.ip_ad=recu[1];
+				this.nextudp_sport= Integer.parseInt(recu[2]);
+				this.ipv4_ad=recu[3];
+				this.cast_port=Integer.parseInt(recu[4]);
+				
+				pw.print("NEWC "+ip+" "+this.prevudp_rport+"\n");
+				pw.flush();
+				
+				String confirm= br.readLine().trim();
+				if(!confirm.equals("ACKC")) return false;
+				
+			}
+			else{
+				pw.close();
+				br.close();
+				sock.close();
+				return false;
+			}
+			pw.close();
+			br.close();
+			sock.close();
+			return true;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
 
-	public void Init(){
+	//brouillon
+	private void InitDemarre(){
 		Server sev= new Server(this, this.prevudp_rport);
 		Client cli= new Client(this, this.nextudp_sport, this.ip_ad);
 	}
-
+	
+	/*public boolean verifMessage(String mess){
+		String[] mss=mess.split(" ");
+		
+		return true;
+	}*/
+	
+	
+	/*
+	 * doit demarrer Server et client
+	 * verifie si quelqu un veut s inserer
+	 */
 	public void run() {
 		try{
-			//ServerSocket Sersock= new ServerSocket(this.prevudp_rport);
-			//Socket sock= new Socket(this.ip_ad, this.nextudp_sport);
 			ServerSocket Ssock= new ServerSocket(this.tcp_port);
 			while(true){
 				Socket socket= Ssock.accept();
@@ -74,12 +132,14 @@ class Entity implements Runnable{
 				pw.print("WELC "+this.ip_ad+" "+this.nextudp_sport+" "+this.ipv4_ad+" "+this.cast_port+"\n");
 				pw.flush();
 				BufferedReader br =new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				String[] recu= br.readLine().split(" ");
+				String[] recu= br.readLine().trim().split(" ");
 				if(recu.length==3 && recu[0].equals("NEWC")){
 					this.ip_ad=recu[1];
 					this.nextudp_sport=Integer.parseInt(recu[2]);
 					pw.print("ACKC\n");
 					pw.flush();
+					
+					System.out.println("insertion réussi");
 				}
 				else{
 					pw.print("Erreur message recu\n");

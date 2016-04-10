@@ -16,4 +16,12 @@ Function which initialize an entity
  */
 int init_entity(entity* ent, char* host);
 
+/*
+Function that manage the insertion
+*/
 int insertion(entity* e, char* host, int tcp_e1);
+
+/*
+Function that manage insertion(server part)
+*/
+int serv_tcp(entity* e);

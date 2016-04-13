@@ -3,13 +3,16 @@
 
 int main(int argc, char *argv[])
 {
-  entity* ent = malloc(sizeof(entity));
-  int r = init_entity(ent, "localhost");
+  entity* e = malloc(sizeof(entity));
+  int r = init_entity(e, "localhost");
   if (r==0) {
-    printf("Value of (*ent).my_uport %d\n" ,(*ent).my_uport);
-    insertion(ent,"localhost",49000);
+    (*e).my_ip = "localhost";
+    (*e).tcp_port = 50000;
+    pthread_t th1;
+    pthread_create(&th1,NULL,pth_insertion,e);
+    pthread_join(th1,NULL);
   }else{
-    printf("Probleme avec init_entity\n");
+    printf("Problem with init entity\n");
   }
   return 0;
 }

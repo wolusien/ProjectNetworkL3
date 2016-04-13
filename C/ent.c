@@ -3,11 +3,17 @@
 
 int main(int argc, char *argv[])
 {
-  int sock=socket(PF_INET,SOCK_STREAM,0);
+  /*int sock=socket(PF_INET,SOCK_STREAM,0);
   struct sockaddr_in address_sock;
+  
+  address_sock.sin_family = AF_INET;
+  address_sock.sin_port = htons(atoi(argv[1]));
+  inet_aton("127.0.0.1",&address_sock.sin_addr);
+  
   address_sock.sin_family=AF_INET;
   address_sock.sin_port=htons(atoi(argv[1]));
   address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+  
   int r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
   if(r==0){
     r=listen(sock,0);
@@ -27,6 +33,18 @@ int main(int argc, char *argv[])
       }
       close(sock2);
     }
+  }*/
+  
+  entity* e = malloc(sizeof(entity));
+  int r = init_entity(e, "localhost");
+  if (r==0) {
+    (*e).my_ip = "127.0.0.1";
+    (*e).tcp_port = 50000;
+    pthread_t th1;
+    pthread_create(&th1,NULL,pth_tserv,e);
+    pthread_join(th1,NULL);
+  }else{
+    printf("Problem with init entity\n");
   }
   return 0;
 }

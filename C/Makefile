@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc -pthread
 CFLAGS=-Wall
 EXEC =ent1 ent
 HEADERS= $(wildcard *.h)

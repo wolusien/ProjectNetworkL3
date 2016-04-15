@@ -93,7 +93,7 @@ char* get_ip(char* host){
     break;
   }
   if(host_addr!=NULL){
-    return ip_addZero(host_addr);
+    return host_addr;
   }
   return NULL;
 }
@@ -112,7 +112,7 @@ char* gen_code(){
   
   for (i = 0; i < 8; i++) {
     id[i] = tab[rand()%37];
-    printf("Value of rand %d\n" ,rand()%37);
+    //printf("Value of rand %d\n" ,rand()%37);
   }
   return id;
 }
@@ -144,9 +144,9 @@ int free_tport(char* host){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 9999;
+    int port = 10000;
     
-    for (i = 0; i < 65535-9999; i++) {
+    for (i = 0; i < 65535-10000; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
@@ -190,9 +190,9 @@ int free_uport(char* host){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 9999;
+    int port = 10000;
     
-    for (i = 0; i < 65535-9999; i++) {
+    for (i = 0; i < 65535-10000; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);

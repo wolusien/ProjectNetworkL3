@@ -7,9 +7,14 @@ int init_entity(entity* ent, char* host){
   char id[8];
   strcpy(id,gen_code());
   int uport = free_uport(host);
-  if(uport != -1){
+  char* ip = get_ip(host);
+  if(uport != -1 && ip!=NULL){
     (*ent).id = id;
+    (*ent).next_ip1 = ip;
     (*ent).my_uport = uport;
+    (*ent).next_uport1 = uport;
+    (*ent).cast_ip1 = ip;
+    (*ent).cast_port1 = uport;
     return 0;
   }
   return -1;
@@ -44,28 +49,29 @@ int insertion(entity* e, char* host, int e1_tcp ){
         if(recu>0){
           //Managing the message received from the previous entity [WELC␣ip␣port␣ip-diff␣port-diff\n]
           buff[recu]='\0';
-          printf("Message received from entity1 %s\n" ,buff);
+          printf("insertion : Message received from entity of the ring %s\n" ,buff);
           char** tab = split(buff,' ');
-          if (str_arrsize(tab)==5) {
+          if (str_arrsize(tab) == 5) {
             char* ip_e2 = tab[1];
             int port_e2 = atoi(tab[2]);
             char* ip_cast = tab[3];
             int port_cast = atoi(tab[4]);
             //Allocation to current entity of the information received from the previous entity
-            if(check_ip(ip_e2) != -1 && check_ip(ip_cast) != -1
+            if(strcmp("WELC",tab[0]) == 0
+               && check_ip(ip_e2) != -1 
+               && check_ip(ip_cast) != -1
                && port_e2>=9999 && port_e2<65535
                && port_cast>=9999 && port_cast<65535
-               && port_cast != port_e2
-               && strcmp(ip_cast, ip_e2)!=0){
-            
+               //&& port_cast != port_e2
+               ){
               (*e).next_ip1 = ip_e2;
               (*e).next_uport1 = port_e2;
               (*e).cast_ip1 = ip_cast;
               (*e).cast_port1 = port_cast;
               //Preparation of the current entity answer [NEWC␣ip␣port\n]
-              char mess[120];
+              char* mess = malloc(sizeof(char)*120);
               strcpy(mess,"NEWC ");
-              char my_ip[strlen((*e).my_ip)];
+              char* my_ip = malloc(sizeof(char)*strlen((*e).my_ip));
               strcpy(my_ip,(*e).my_ip);
               strcat(mess, my_ip);
               strcat(mess, " ");
@@ -75,49 +81,53 @@ int insertion(entity* e, char* host, int e1_tcp ){
               strcat(mess, "\n");
               //Sending to the previous entity the message about current entity
               send(sock,mess, strlen(mess)*sizeof(char),0);
+              free(my_ip);
+              free(my_port);
+              free(mess);
               char buff2[100];
               int recu2 =  recv(sock,buff2,99*sizeof(char),0);
               if(recu2>0){
                 buff2[recu2] = '\0';
-                printf("Value of the message received from entity 1 %s\n" ,buff2);
+                printf("insertion : Message received from the entity of the ring %s\n" ,buff2);
                 if(strcmp(buff2,"ACKC\n") == 0){
                   close(sock);
                   free(tab);
                   return 0;
                 }else {
-                  printf("recv : Problem with  message receive %s\n",buff2);
+                  printf("insertion : Problem with message received from the entity of ring %s\n",buff2);
                   return -1;
                 }
               }else{
-                printf("recv : Problem with the second message received %d\n",recu2);
+                printf("recv : Problem with the second message received from the entity of ring %d\n",recu2);
                 return -1;
               }
             }else{
-              printf("recv : Problem with the ip and ports received\n");
+              printf("insertion : Problem with the ip and ports received\n");
               return -1;
             }		
           }else{
-            printf("recv : Problem wrong message form\n");
+            printf("insertion : Problem wrong message form, lack of arguments\n");
             return -1;
           }
         }else{
-          printf("recv : Problem the number of char received %d\n",recu);
+          printf("insertion : recv : Problem the number of char received for the message%d\n",recu);
           return -1;
         }
       }else{
-        printf("connect : Problem with the connection %d\n" ,con);
+        printf("insertion : connect : Problem with the connection %d\n" ,con);
         return -1;
       } 
     }else{
-      printf("getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
+      printf("insertion : getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
       return -1;
     }
   }else{
-    printf("getaddrinfo : Problem %d\n" ,r);
+    printf("insertion : getaddrinfo : Problem %d\n" ,r);
     return -1;
   }
   return -1;
 }
+
 
 /*
 Function that manage insertion(server part)
@@ -143,10 +153,10 @@ int serv_tcp(entity* e){
         
         if(sock2>=0){
           //Preparation of the current entity answer [NEWC␣ip␣port\n]
-          char mess[120];
+          char* mess = malloc(sizeof(char)*120);
           strcpy(mess,"WELC ");
           //Establishing ip(next_ip)
-          char next_ip[strlen((*e).next_ip1)];
+          char* next_ip = malloc(strlen((*e).next_ip1)*sizeof(char));
           strcpy(next_ip,(*e).next_ip1);
           strcat(mess, next_ip);
           strcat(mess, " ");
@@ -173,6 +183,7 @@ int serv_tcp(entity* e){
           int recu=recv(sock2,buff,99*sizeof(char),0);
           buff[recu]='\0';
           if (recu>0){
+            //printf("Value of the first message received %s\n",buff);
             char** tab = split(buff,' ');
             if (str_arrsize(tab)==3){
               if(strcmp(tab[0],"NEWC")==0){
@@ -181,17 +192,11 @@ int serv_tcp(entity* e){
                 && next_uport>9999 && next_uport<=65535){
                   (*e).next_ip1 = tab[1];
                   (*e).next_uport1 = next_uport;
-                  printf("Message recu : %s\n",buff);
+                  printf("serv_tcp : Message recu : %s\n",buff);
                   char* m = "ACKC\n";
                   send(sock2,m,strlen(m)*sizeof(char),0);
                   close(sock2);
-                }else{            
-                  printf("serv_tcp : Problem with the message received wrong arguments\n");
-                  close(sock2);
                 }
-              }else{            
-                printf("serv_tcp : Problem with the message received wrong arguments\n");
-                close(sock2);
               }
             }else{            
               printf("serv_tcp : Problem with the message received wrong arguments\n");
@@ -217,6 +222,7 @@ int serv_tcp(entity* e){
   return 0;
 }
 
+
 /*Function for using thread for the insertion
  */
 void* pth_insertion(void* arg){
@@ -229,15 +235,18 @@ void* pth_insertion(void* arg){
   if(ip!=NULL && port!=-1){
     (*e).my_ip = ip;
     (*e).tcp_port = port;
+    printf("Je vais lancer l'insertion\n");
     insertion(e,host,tcp_port);
   }  
   return NULL;
 }
 
+
 /*Function for using thread for the server tcp
  */
  void* pth_tserv(void* arg){
   entity* e = (entity*)arg; 
+  printf("Je vais lancer le serveur\n");
   serv_tcp(e);
   return NULL; 
  }

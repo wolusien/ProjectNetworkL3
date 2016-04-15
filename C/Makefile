@@ -16,6 +16,5 @@ ent : $(OBJECTS) ent.o
 
 clean:
 	rm -f *.o
-	rm -f *~
-proper:	
+	rm -f *~	
 	rm -f $(EXEC)

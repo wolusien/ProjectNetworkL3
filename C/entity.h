@@ -37,16 +37,19 @@ Function that manage the insertion
 */
 int insertion(entity* e, char* host, int tcp_e1);
 
+/*Function for using thread for the insertion
+ */
+void* pth_insertion(void* arg);
+
 /*
 Function that manage insertion(server part)
 */
 int serv_tcp(entity* e);
 
-/*Function for using thread for the insertion
- */
-void* pth_insertion(void* arg);
-
-
 /*Function for using thread for the server tcp
  */
  void* pth_tserv(void* arg);
+ 
+/*Function for dupliaction into a ring
+ */
+int duplication(entity* e, char* host, int e1_tcp);

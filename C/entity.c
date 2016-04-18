@@ -92,6 +92,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                 if(strcmp(buff2,"ACKC\n") == 0){
                   close(sock);
                   free(tab);
+                  serv_tcp(e);
                   return 0;
                 }else {
                   printf("insertion : Problem with message received from the entity of ring %s\n",buff2);

@@ -1,5 +1,5 @@
 CC=gcc -pthread
-CFLAGS=-Wall
+CFLAGS=-Wall 
 EXEC =ent1 ent
 HEADERS= $(wildcard *.h)
 OBJECTS = entity.o tools.o  

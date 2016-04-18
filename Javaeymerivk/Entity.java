@@ -12,7 +12,7 @@ class Entity {
 	private String cast_ip;
 	private int cast_port;
 
-/*	public Entity(String id, int prevudp_rport, int tcp_port, String ip_ad, int nextudp_sport, String ipv4_ad, int cast_port){
+	/*	public Entity(String id, int prevudp_rport, int tcp_port, String ip_ad, int nextudp_sport, String ipv4_ad, int cast_port){
 		this.id=id;
 		this.udp_port=prevudp_rport;
 		this.tcp_port=tcp_port;
@@ -21,92 +21,115 @@ class Entity {
 		this.ipv4_ad=ipv4_ad;
 		this.cast_port=cast_port;
 	}
-*/
-        
+	 */
+
 	public String getNextIp(){
 		return this.id;
 	}
-        public void setNextIp(String ip1){
-                    next_ip=ip1;
+	public void setNextIp(String ip1){
+		next_ip=ip1;
 	}
 
-            public int getNextudp(){
+	public int getNextudp(){
 		return this.next_udp;
 	}
-	 public void setNextudp(int udp){
-                    next_udp=udp;
+	public void setNextudp(int udp){
+		next_udp=udp;
 	}
 	public int getTcp_port(){
 		return this.tcp_port;
 	}
-        public void setTcp_port(int port){
-		port=this.tcp_port;
+	public void setTcp_port(int port){
+		this.tcp_port=port;
 	}
-        public int getUdp_port(){
-		return this.tcp_port;
+	public int getUdp_port(){
+		return this.udp_port;
 	}
- public void setUdp_port(int port){
+	public void setUdp_port(int port){
 		this.udp_port=port;
 	}
 
-	
+
 	public int getCastPort(){
 		return this.cast_port;
 	}
-        public void setCastPort(int port){
-		 this.cast_port=port;
+	public void setCastPort(int port){
+		this.cast_port=port;
 	}
-        public String getCastIP(){
+	public String getCastIP(){
 		return this.cast_ip;
 	}
-        public void setCastIp(String ip){
-		 this.cast_ip=ip;
+	public void setCastIp(String ip){
+		this.cast_ip=ip;
 	}
 
-	
+
 	public void Init(){
-                
-                this.setNextudp(udp_port);
-                this.setNextIp(tools.ip());
+
+		this.setNextudp(udp_port);
+		this.setNextIp(tools.ip());
 		Server sev= new Server(this);
 		message cli= new message(this);
+		System.out.println(this.next_ip);
+		
+		Multidiffusion muldiff=new Multidiffusion(this);
+		this.cast_ip="226.0.0.0";
+		muldiff.setIp(this.cast_ip);
+		this.cast_port=muldiff.portlibre();
+		
+		lance_entity(sev,cli);
+		lance_multidiffusion(muldiff);
 	}
-        public void lance_entity(Server sev,message m){
-            try{
-     Thread t1=new Thread(sev);
-        Thread t2=new Thread( m);
-//t.    setDaemon(true);
-           t1.start();
-        t2.start();
-    }
-    catch(Exception e){
-    System.out.println(e);
-    e.printStackTrace();
-}
-            
-            
-        }
+	
+	public void lance_multidiffusion(Multidiffusion muldiff){
+		try{
+			Thread t3= new Thread(muldiff);
+			t3.start();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void lance_entity(Server sev,message m){
+		try{
+			Thread t1=new Thread(sev);
+			//Thread t2=new Thread( m);
+			//t.    setDaemon(true);
+			t1.start();
+			//t2.start();
+		}
+		catch(Exception e){
+			System.out.println(e);
+			e.printStackTrace();
+		}
+
+
+	}
 
 	public void insertion(String ip,int port) {
 		try{
-Socket socket=new Socket(ip,port);
-Server sev= new Server(this);
-message cli= new message(this);
-lance_entity( sev, cli);
-BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-PrintWriter pw=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-pw.print("NEWC "+tools.ip()+" "+this.getTcp_port()+"\n");
-pw.flush();
-String mess=br.readLine();
-if(tools.verif_mess_server(mess, this)) System.out.println("ceci ne correspond pas a un message d'insertion");
-pw.close();
-br.close();
-socket.close();
-}
-catch(Exception e){
-System.out.println(e);
-e.printStackTrace();
-}
+			Socket socket=new Socket(ip,port);
+			Server sev= new Server(this);
+			message cli= new message(this);
+			lance_entity( sev, cli);
+			System.out.println("entity ok");
+			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter pw=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+			pw.print("NEWC "+tools.ip()+" "+this.getTcp_port()+"\n");
+			pw.flush();
+			System.out.println("flush");
+			String mess=br.readLine();
+			System.out.println("mess recu");
+			if(tools.verif_mess_server(mess, this)) System.out.println("ceci ne correspond pas a un message d'insertion");
+			pw.close();
+			br.close();
+			socket.close();
+		}
+		catch(Exception e){
+			System.out.println(e);
+			e.printStackTrace();
+		}
 
 	}
 }

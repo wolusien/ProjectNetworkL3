@@ -5,6 +5,7 @@ import java.net.*;
 public class Multidiffusion implements Runnable{
 	int port;
 	String ip;
+	Entity ent;
 
 	public Multidiffusion(int port, String ip){
 		this.port=port;
@@ -12,12 +13,16 @@ public class Multidiffusion implements Runnable{
 		//listEnt= new ArrayList<Entity>();
 	}
 	
-	public Multidiffusion(){
-		
+	public Multidiffusion(Entity ent){
+		this.ent=ent;
 	}
 	
 	public void setIp(String ip){
 		this.ip=ip;
+	}
+	
+	public void setPort(int port){
+		this.port=port;
 	}
 	
 	public int portlibre(){
@@ -40,6 +45,7 @@ public class Multidiffusion implements Runnable{
 	public void run() {
 		try{
 			MulticastSocket mso=new MulticastSocket(port);
+			System.out.println(ip);
 			mso.joinGroup(InetAddress.getByName(ip));
 			byte[]data=new byte[512];
 			DatagramPacket paquet=new DatagramPacket(data,data.length);

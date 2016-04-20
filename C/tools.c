@@ -198,7 +198,7 @@ int free_uport(char* host){
       inet_aton(host_addr,&adress_sock.sin_addr);
       int b = bind(sock, (struct sockaddr *)&adress_sock, 
                         sizeof(struct sockaddr_in));
-      if(b != 0){
+      if(b == 0){
         return port;
       }
     }
@@ -221,4 +221,42 @@ int check_ip(char* ip){
     if(result != 0)return 1;
   }
   return -1;
+}
+
+int port_libre_multi(){
+  int sock=socket(PF_INET,SOCK_DGRAM,0);
+  sock=socket(PF_INET,SOCK_DGRAM,0);
+  int ok=1;
+  int r=setsockopt(sock,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
+  struct sockaddr_in address_sock;
+  address_sock.sin_family=AF_INET;
+  int port=1024;
+  int i;
+  for( i =0;i<9999;i++){
+    port=port+i;
+   address_sock.sin_port=htons(9999);
+   address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+   r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
+   if(r==0)break;
+  }
+ 
+  struct ip_mreq mreq;
+  mreq.imr_multiaddr.s_addr=inet_addr("225.1.2.4");
+  mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+  r=setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+  return port;
+  
+}
+int main(){
+  int r=free_uport("localhost");
+  printf("%d\n",r);
+   int r2=free_uport("localhost");
+  printf("%d\n",r2);
+ int r3=free_uport("localhost");
+ printf("%d\n",r3);
+ int r4= port_libre_multi();
+ printf("%d\n",r4);
+
+  
+
 }

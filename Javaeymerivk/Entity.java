@@ -22,9 +22,12 @@ class Entity {
 		this.cast_port=cast_port;
 	}
 	 */
+        public String getId(){
+		return this.id;
+	}
 
 	public String getNextIp(){
-		return this.id;
+		return this.next_ip;
 	}
 	public void setNextIp(String ip1){
 		next_ip=ip1;

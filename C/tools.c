@@ -1,6 +1,5 @@
 #include "tools.h"
-
-
+#include "entity.h"
 /*
 Function taking char* str and a char delim separator and split str in terms of separator
  */
@@ -33,7 +32,7 @@ char** split(char* str, char delim) {
 }
 
 /*
-Return length of array of char* 
+Return length of array of char*
 */
 int str_arrsize(char** tab){
   int count = 0;
@@ -106,10 +105,10 @@ char* gen_code(){
   char* id = malloc(sizeof(char)*8);
   char* tab = "a1ze0rty9uio2pqs8d@f6gh5jk3lm7wxc4vbn";
   time_t t;
-  
+
   /* Intializes random number generator */
   srand((unsigned) time(&t));
-  
+
   for (i = 0; i < 8; i++) {
     id[i] = tab[rand()%37];
     //printf("Value of rand %d\n" ,rand()%37);
@@ -122,9 +121,9 @@ Allow to get a free tcp port on a host
  */
 int free_tport(char* host){
   int i;
-  
+
   int sock = socket(PF_INET,SOCK_STREAM,0);
-  
+
   struct hostent* h;
   h=gethostbyname(host);
   if(h==NULL){
@@ -140,17 +139,17 @@ int free_tport(char* host){
     host_addr = inet_ntoa(**addresses);
     break;
   }
-  
+
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
     int port = 10000;
-    
+
     for (i = 0; i < 65535-10000; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
-      int con = connect(sock, (struct sockaddr *)&adress_sock, 
+      int con = connect(sock, (struct sockaddr *)&adress_sock,
                         sizeof(struct sockaddr_in));
       if(con != 0){
         return port;
@@ -168,9 +167,9 @@ Allow to get a free udp port on a host
  */
 int free_uport(char* host){
   int i;
-  
+
   int sock = socket(PF_INET,SOCK_DGRAM,0);
-  
+
   struct hostent* h;
   h=gethostbyname(host);
   if(h==NULL){
@@ -186,17 +185,17 @@ int free_uport(char* host){
     host_addr = inet_ntoa(**addresses);
     break;
   }
-  
+
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
     int port = 10000;
-    
+
     for (i = 0; i < 65535-10000; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
-      int b = bind(sock, (struct sockaddr *)&adress_sock, 
+      int b = bind(sock, (struct sockaddr *)&adress_sock,
                         sizeof(struct sockaddr_in));
       if(b == 0){
         return port;
@@ -239,14 +238,44 @@ int port_libre_multi(){
    r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
    if(r==0)break;
   }
- 
+
   struct ip_mreq mreq;
   mreq.imr_multiaddr.s_addr=inet_addr("225.1.2.4");
   mreq.imr_interface.s_addr=htonl(INADDR_ANY);
   r=setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
   return port;
-  
+
 }
+char * mess_appl(char *id_app,char *mess){
+char *idm="";
+return strcat(strcat(strcat(strcat(strcat("APPL ",idm)," "),id_app)," "),mess);
+
+}/*
+char * mess_memb(entity *e){
+return strcat(strcat(strcat(strcat(strcat(strcat(strcat("MEMB ",idm)," "),e->id)," "),e-> my_ip)," "),e->next_uport1);
+}
+char * mess_gbye(entity *e,char *ip ,char *port){
+return strcat(strcat(strcat(strcat(strcat(strcat(strcat(strcat(strcat("GBYE ",idm)," "),ip)," "),port)," "),e->next_ip1)," "),e->next_uport1);
+}
+char * mess_test(entity *e){
+char *idm="";
+return strcat(strcat(strcat(strcat(strcat("TEST ",idm)," "),e->cast_ip1)," "),e-> cast_port1);
+
+}
+char * mess_who(){
+char *idm="";
+return strcat("WHO ",idm);
+
+}
+char * mess_eybg(){
+char *idm="";
+return strcat("EYBG ",idm);
+
+}
+char * mess_down(){
+return"DOWN";
+
+}*/
 int main(){
   int r=free_uport("localhost");
   printf("%d\n",r);
@@ -257,6 +286,6 @@ int main(){
  int r4= port_libre_multi();
  printf("%d\n",r4);
 
-  
+
 
 }

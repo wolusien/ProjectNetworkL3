@@ -98,39 +98,39 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     serv_tcp(e);
                     return 0;
                   }else {
-                    printf("insertion : Problem with message received from the entity of ring %s\n",buff2);
+                    fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);
                     return -1;
                   }
                 }else{
-                  printf("recv : Problem with the second message received from the entity of ring %d\n",recu2);
+                  fprintf(stderr,"recv : Problem with the second message received from the entity of ring %d\n",recu2);
                   return -1;
                 }
               }else{
-                printf("insertion : Problem with the ip and ports received\n");
+                fprintf(stderr,"insertion : Problem with the ip and ports received\n");
                 return -1;
               }		
             }else{
-              printf("insertion : Problem wrong message form, lack of arguments\n");
+              fprintf(stderr,"insertion : Problem wrong message form, lack of arguments\n");
               return -1;
             }
           }else{
-            printf("insertion : recv : Problem the number of char received for the message%d\n",recu);
+            fprintf(stderr,"insertion : recv : Problem the number of char received for the message%d\n",recu);
             return -1;
           }
         }else{
-          printf("insertion : connect : Problem with the connection %d\n" ,con);
+          fprintf(stderr,"insertion : connect : Problem with the connection %d\n" ,con);
           return -1;
         } 
       }else{
-        printf("insertion : getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
+        fprintf(stderr,"insertion : getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
         return -1;
       }
     }else{
-      printf("insertion : getaddrinfo : Problem %d\n" ,r);
+      fprintf(stderr,"insertion : getaddrinfo : Problem %d\n" ,r);
       return -1;
     }
   }else{
-    printf("insertion : Number of insertions authorized overpassed\n");
+    fprintf(stderr,"insertion : Number of insertions authorized overpassed\n");
     return -1;
   }
   return -1;
@@ -168,7 +168,7 @@ int serv_tcp(entity* e){
     address_sock.sin_port = htons((*e).tcp_port);
     inet_aton((*e).my_ip,&address_sock.sin_addr);
 
-    int r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
+    int r=bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
 
     if(r==0){
       r=listen(sock,0);
@@ -258,37 +258,37 @@ int serv_tcp(entity* e){
                     (*e).nb_insert = 2;
                     close(sock2);
                   }else{
-                    printf("serv_tcp : Wrong arguments given for duplication\n");
+                    fprintf(stderr,"serv_tcp : Wrong arguments given for duplication\n");
                     return -1;
                   }
                 }else{
-                  printf("serv_tcp : Problem with the message received\n");
+                  fprintf(stderr,"serv_tcp : Problem with the message received\n");
                   return -1;
                 }
               }else{
-                printf("serv_tcp : Number of duplications authorized is overpassed\n");
+                fprintf(stderr,"serv_tcp : Number of duplications authorized is overpassed\n");
                 return -1;
               }
               
             }else{            
-              printf("serv_tcp : Problem with the message received wrong arguments\n");
+              fprintf(stderr,"serv_tcp : Problem with the message received wrong arguments\n");
               close(sock2);
             }
           }else{
-            printf("serv_tcp : Problem with the message received wrong form\n");
+            fprintf(stderr,"serv_tcp : Problem with the message received wrong form\n");
             close(sock2);
           }
         }else{
-          printf("serv_tcp : Problem with the connection to the server\n");
+          fprintf(stderr,"serv_tcp : Problem with the connection to the server\n");
           close(sock2);
         }
       }
     }else{
-      printf("serv_tcp : Problem with the bind of the server socket\n");
+      fprintf(stderr,"serv_tcp : Problem with the bind of the server socket\n");
       return -1;    
     }  
   }else{
-    printf("serv_tcp : Wrong tcp port given %d\n",(*e).tcp_port);
+    fprintf(stderr,"serv_tcp : Wrong tcp port given %d\n",(*e).tcp_port);
     return -1;
   }
   return 0;
@@ -396,46 +396,46 @@ int duplication(entity* e, char* host, int e1_tcp ){
                         serv_tcp(e);
                         return 0;
                       }else{
-                        printf("duplication : Probleme with the port received\n");
+                        fprintf(stderr,"duplication : Probleme with the port received\n");
                         return -1;
                       }
                     }else{
-                      printf("duplication : Wrong message received\n");
+                      fprintf(stderr,"duplication : Wrong message received\n");
                     }
                   }else {
-                    printf("duplication : Problem with message received from the entity of ring %s\n",buff2);
+                    fprintf(stderr,"duplication : Problem with message received from the entity of ring %s\n",buff2);
                     return -1;
                   }
                 }else{
-                  printf("duplication recv : Problem with the second message received from the entity of ring %d\n",recu2);
+                  fprintf(stderr,"duplication recv : Problem with the second message received from the entity of ring %d\n",recu2);
                   return -1;
                 }
               }else{
-                printf("duplication : Problem with the ip and ports received\n");
+                fprintf(stderr,"duplication : Problem with the ip and ports received\n");
                 return -1;
               }		
             }else{
-              printf("duplication : Problem wrong message form, lack of arguments\n");
+              fprintf(stderr,"duplication : Problem wrong message form, lack of arguments\n");
               return -1;
             }
           }else{
-            printf("duplication : recv : Problem the number of char received for the message%d\n",recu);
+            fprintf(stderr,"duplication : recv : Problem the number of char received for the message%d\n",recu);
             return -1;
           }
         }else{
-          printf("duplication : connect : Problem with the connection %d\n" ,con);
+          fprintf(stderr,"duplication : connect : Problem with the connection %d\n" ,con);
           return -1;
         } 
       }else{
-        printf("duplication : getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
+        fprintf(stderr,"duplication : getaddrinfo : Problem the struct addrinfo finfo is NULL\n");
         return -1;
       }
     }else{
-      printf("duplication : getaddrinfo : Problem %d\n" ,r);
+      fprintf(stderr,"duplication : getaddrinfo : Problem %d\n" ,r);
       return -1;
     }
   }else{
-    printf("duplication : Number of duplication authorized is not what is required\n");
+    fprintf(stderr,"duplication : Number of duplication authorized is not what is required\n");
   }
   return -1;
 }

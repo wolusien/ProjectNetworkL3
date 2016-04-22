@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
+
+typedef struct message{
+  char ip[15];
+  char ip_diff[15];
+  char ip_succ[15];
+  char port[4];    
+char port_diff[4];        
+char port_succ[4];      
+char idm[8];     
+char  ip_app[8];
+char  id [15];
+char  size_nom[15];char  size_mess[15];
+char  size_content[15];
+char  num_mess[15];
+}message;
+
+message* creat_message(char *ip, char *ip_diff,char *ip_succ,char *port,char *port_diff,char *port_succ,char *idm,char *id_app,char *size_mess,char *size_nom,char *num_mess,char *size_content);
+
+entity* init_ring(char id[8], int udp_port, int tcp_port, 
+char* ip_ad, char* ipv4_ad, int cast_port);
+

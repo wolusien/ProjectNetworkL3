@@ -35,7 +35,7 @@ public class Server implements Runnable{
 				Socket socket= Ssock.accept();
 				System.out.println("socket accepte");
 				PrintWriter pw= new PrintWriter(socket.getOutputStream());
-				pw.print("WELC "+" "+ent.getNextIp()+" "+ent.getUdp_port()+" "+ent.getCastIP()+" "+ent.getCastPort()+"\n");
+				pw.print("WELC "+ent.getNextIp()+" "+ent.getUdp_port()+" "+ent.getCastIP()+" "+ent.getCastPort()+"\n");
 				pw.flush();
 				System.out.println("flush");
 				BufferedReader br =new BufferedReader(new InputStreamReader(socket.getInputStream()));

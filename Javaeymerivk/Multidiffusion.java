@@ -27,7 +27,7 @@ public class Multidiffusion implements Runnable{
 	
 	public int portlibre(){
 		MulticastSocket mso=null;
-		this.port=1024;
+		this.port=4000;
 		while(true){
 			try{
 				mso=new MulticastSocket(port);
@@ -41,14 +41,35 @@ public class Multidiffusion implements Runnable{
 		}
 		return port;
 	}
+	
+	//trouve une ip libre
+	public String iplibre(){
+		for(int i=0 ; i<256; i++){
+			for(int j=0 ; j<256 ; j++){
+				for(int k=0 ; k<256 ;k++){
+					try{
+						String s="226."+Integer.toString(i)+"."+Integer.toString(j)+"."+Integer.toString(k);
+						MulticastSocket mso=new MulticastSocket(port);
+						mso.joinGroup(InetAddress.getByName(s));
+						return tools.remplissageIp(s);
+					}catch(Exception e){
+						
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	public void run() {
+		System.out.println("multicast demarré");
 		try{
 			MulticastSocket mso=new MulticastSocket(port);
-			System.out.println(ip);
 			mso.joinGroup(InetAddress.getByName(ip));
 			byte[]data=new byte[512];
+			System.out.println(ip);
 			DatagramPacket paquet=new DatagramPacket(data,data.length);
+			System.out.println("multicast port et address "+port+" "+ip);
 			while(true){
 				mso.receive(paquet);
 				String st=new String(paquet.getData(),0,paquet.getLength());

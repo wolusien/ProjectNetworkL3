@@ -22,7 +22,7 @@ class Entity {
 		this.cast_port=cast_port;
 	}
 	 */
-        public String getId(){
+	public String getId(){
 		return this.id;
 	}
 
@@ -68,22 +68,23 @@ class Entity {
 
 
 	public void Init(){
-
 		this.setNextudp(udp_port);
 		this.setNextIp(tools.ip());
 		Server sev= new Server(this);
 		message cli= new message(this);
 		System.out.println(this.next_ip);
-		
+
 		Multidiffusion muldiff=new Multidiffusion(this);
-		this.cast_ip="226.0.0.0";
-		muldiff.setIp(this.cast_ip);
+		//this.cast_ip="226.0.0.0";
+		//muldiff.setIp(this.cast_ip);
 		this.cast_port=muldiff.portlibre();
-		
+		this.cast_ip=muldiff.iplibre();
+		muldiff.setIp(this.cast_ip);
+
 		lance_entity(sev,cli);
 		lance_multidiffusion(muldiff);
 	}
-	
+
 	public void lance_multidiffusion(Multidiffusion muldiff){
 		try{
 			Thread t3= new Thread(muldiff);
@@ -93,14 +94,14 @@ class Entity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void lance_entity(Server sev,message m){
 		try{
 			Thread t1=new Thread(sev);
-			//Thread t2=new Thread( m);
+			Thread t2=new Thread( m);
 			//t.    setDaemon(true);
 			t1.start();
-			//t2.start();
+			t2.start();
 		}
 		catch(Exception e){
 			System.out.println(e);
@@ -124,7 +125,7 @@ class Entity {
 			System.out.println("flush");
 			String mess=br.readLine();
 			System.out.println("mess recu");
-			if(tools.verif_mess_server(mess, this)) System.out.println("ceci ne correspond pas a un message d'insertion");
+			if(!tools.verif_mess_server(mess, this)) System.out.println("ceci ne correspond pas a un message d'insertion");
 			pw.close();
 			br.close();
 			socket.close();

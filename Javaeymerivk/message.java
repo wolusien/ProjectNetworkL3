@@ -53,46 +53,76 @@ public class message implements Runnable {
 		String[] decomp=mess.split(" ");
 		byte[] data= new byte[512];
 		data=mess.getBytes();
-		if(tools.verif_mess_down(decomp)){
+
+		//pas besoin de verifier down ici car c est dans multidiff
+		/*if(tools.verif_mess_down(decomp)){
 			return true;
 		}
-		else{
-			if(decomp.length<2 || contientid(decomp[1])){
-				System.out.println("message deja recu");
-				return false;
-			}
-			if(tools.verif_mess_app(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
-			if(tools.verif_mess_eybg(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
-			if(tools.verif_mess_gbye(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
-			if(tools.verif_mess_memb(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
-			if(tools.verif_mess_test(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
-			if(tools.verif_mess_who(decomp)){
-				listidm.add(decomp[1]);
-				sendMessage(data);
-				return true;
-			}
+		else{*/
+		
+		//message deja recu
+		if(decomp.length<2 || contientid(decomp[1])){
+			System.out.println("message deja recu");
+			return false;
 		}
-		return false;
+		//utilise une application
+		if(tools.verif_mess_app(decomp)){
+			listidm.add(decomp[1]);
+			sendMessage(data);
+			return true;
+		}
+		
+		//sort de l anneau
+		if(tools.verif_mess_eybg(decomp)){
+			listidm.add(decomp[1]);
+			ent.quit();
+			return true;
+		}
+		//indique que l entitee souhaite sortir de l anneau
+		if(tools.verif_mess_gbye(decomp)){
+			/*
+			 * 1 : idm
+			 * 2 : ip
+			 * 3 : port
+			 * 4 : ip-succ
+			 * 5 : port-succ
+			 */
+			listidm.add(decomp[1]);
+			if(decomp[2].equals(ent.getNextIp()) && decomp[3].equals(Integer.toString(ent.getNextudp()))){
+				ent.setNextIp(decomp[4]);
+				ent.setNextudp(Integer.parseInt(decomp[5]));
+				String s=tools.mess_eybg();
+				byte[] data2= new byte[512];
+				data2=s.getBytes();
+				sendMessage(data2);
+			}
+			sendMessage(data);
+			return true;
+		}
+		//dit qui il est
+		if(tools.verif_mess_memb(decomp)){
+			listidm.add(decomp[1]);
+			sendMessage(data);
+			return true;
+		}
+		//verifie si l anneau est casse
+		if(tools.verif_mess_test(decomp)){
+			listidm.add(decomp[1]);
+			sendMessage(data);
+			return true;
+		}
+		//indique qui se trouve dans l anneau
+		if(tools.verif_mess_who(decomp)){
+			listidm.add(decomp[1]);
+			sendMessage(data);
+			String s=tools.mess_memb(ent);
+			byte[] data2= new byte[512];
+			data2 =s.getBytes();
+			sendMessage(data2);
+			return true;
+		}
+		//}
+	return false;
 	}
 
 	public void run() {
@@ -127,8 +157,25 @@ public class message implements Runnable {
 			dso.close();
 		}
 		catch(Exception e){
-			System.out.println(ent.getNextIp()+" "+ent.getNextudp());
+			//e.printStackTrace();
+			down();
+		}
+	}
+	
+	public void down(){
+		try{
+			DatagramSocket dso=new DatagramSocket();
+			byte[]data = new byte[255];
+			String s= "DOWN";
+			data=s.getBytes();
+			InetSocketAddress ia=new InetSocketAddress(ent.getCastIP(),ent.getCastPort());
+			DatagramPacket paquet=new DatagramPacket(data,data.length,ia);
+			dso.send(paquet);
+			dso.close();
+
+		} catch(Exception e){
 			e.printStackTrace();
 		}
+
 	}
 }

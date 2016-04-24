@@ -73,7 +73,10 @@ public class Multidiffusion implements Runnable{
 			while(true){
 				mso.receive(paquet);
 				String st=new String(paquet.getData(),0,paquet.getLength());
-				System.out.println("message recu : "+st);
+				if(tools.verif_mess_down(st.trim().split(" "))){
+					this.ent.quit();
+				}
+				//System.out.println("message recu : "+st);
 			}
 		} catch(Exception e){
 			e.printStackTrace();
@@ -81,13 +84,14 @@ public class Multidiffusion implements Runnable{
 	}
 
 	//envoie multicast
+	/* deplacer dans message
 	public void down(){
 		try{
 			DatagramSocket dso=new DatagramSocket();
 			byte[]data = new byte[255];
 			String s= "DOWN";
 			data=s.getBytes();
-			InetSocketAddress ia=new InetSocketAddress(ip,port);
+			InetSocketAddress ia=new InetSocketAddress(ent.getCastIP(),ent.getCastPort());
 			DatagramPacket paquet=new DatagramPacket(data,data.length,ia);
 			dso.send(paquet);
 			dso.close();
@@ -96,5 +100,5 @@ public class Multidiffusion implements Runnable{
 			e.printStackTrace();
 		}
 
-	}
+	}*/
 }

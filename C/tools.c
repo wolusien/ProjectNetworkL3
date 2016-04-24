@@ -246,46 +246,4 @@ int port_libre_multi(){
   return port;
 
 }
-char * mess_appl(char *id_app,char *mess){
-char *idm="";
-return strcat(strcat(strcat(strcat(strcat("APPL ",idm)," "),id_app)," "),mess);
 
-}/*
-char * mess_memb(entity *e){
-return strcat(strcat(strcat(strcat(strcat(strcat(strcat("MEMB ",idm)," "),e->id)," "),e-> my_ip)," "),e->next_uport1);
-}
-char * mess_gbye(entity *e,char *ip ,char *port){
-return strcat(strcat(strcat(strcat(strcat(strcat(strcat(strcat(strcat("GBYE ",idm)," "),ip)," "),port)," "),e->next_ip1)," "),e->next_uport1);
-}
-char * mess_test(entity *e){
-char *idm="";
-return strcat(strcat(strcat(strcat(strcat("TEST ",idm)," "),e->cast_ip1)," "),e-> cast_port1);
-
-}
-char * mess_who(){
-char *idm="";
-return strcat("WHO ",idm);
-
-}
-char * mess_eybg(){
-char *idm="";
-return strcat("EYBG ",idm);
-
-}
-char * mess_down(){
-return"DOWN";
-
-}*/
-int main(){
-  int r=free_uport("localhost");
-  printf("%d\n",r);
-   int r2=free_uport("localhost");
-  printf("%d\n",r2);
- int r3=free_uport("localhost");
- printf("%d\n",r3);
- int r4= port_libre_multi();
- printf("%d\n",r4);
-
-
-
-}

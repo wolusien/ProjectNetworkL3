@@ -4,12 +4,10 @@
 Function which initialize an entity, and prepare it for insertion
  */
 int init_entity(entity* ent, char* host){
-  char id[8];
-  strcpy(id,gen_code());
   int uport = free_uport(host);
   char* ip = get_ip(host);
   if(uport != -1 && ip!=NULL){
-    (*ent).id = id;
+    strcpy((*ent).id,gen_code());
     (*ent).nb_insert = 0;
     (*ent).next_ip1 = ip;
     (*ent).my_uport = uport;

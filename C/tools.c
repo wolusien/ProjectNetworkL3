@@ -1,8 +1,10 @@
 #include "tools.h"
 #include "entity.h"
+
+
 /*
-Function taking char* str and a char delim separator and split str in terms of separator
- */
+  Function taking char* str and a char delim separator and split str in terms of separator
+*/
 char** split(char* str, char delim) {
   int i = 0;
   int count_space = 0;
@@ -32,7 +34,7 @@ char** split(char* str, char delim) {
 }
 
 /*
-Return length of array of char*
+  Return length of array of char*
 */
 int str_arrsize(char** tab){
   int count = 0;
@@ -44,13 +46,15 @@ int str_arrsize(char** tab){
 
 
 /*
-Function taking ip address of form "127.0.0.1" and change it to "127.000.000.001"
+  Function taking ip address of form "127.0.0.1" and change it to "127.000.000.001"
 */
 char* ip_addZero(char* ip){
   int i;
+  //printf("ip à traiter %s\n",ip);
   if(strlen(ip)==9){
     if(ip[3]=='.' && '.'==ip[5] && '.'==ip[7]){
-      char* ip_final = malloc(sizeof(char)*15);
+      char ip_final[15];
+      bzero(ip_final,sizeof(char)*15);
       for (i = 0; i < 4; i++) {
         ip_final[i] = ip[i];
       }
@@ -65,15 +69,19 @@ char* ip_addZero(char* ip){
       ip_final[12]='0';
       ip_final[13]='0';
       ip_final[14]=ip[8];
-      return ip_final;
+      char* ip_f = malloc(sizeof(char)*15);
+      strcpy(ip_f,ip_final);
+      return ip_f;
     }
+  }else if(strlen(ip)==15){
+    return ip;
   }
   return NULL;
 }
 
 
 /*
-Get ip adress knowing the host
+  Get ip adress knowing the host
 */
 char* get_ip(char* host){
   struct hostent* h;
@@ -98,8 +106,8 @@ char* get_ip(char* host){
 }
 
 /*
-Generate a unique code(normally)
- */
+  Generate a unique code for id entity or application(normally)
+*/
 char* gen_code(){
   int i;
   char* id = malloc(sizeof(char)*8);
@@ -117,8 +125,8 @@ char* gen_code(){
 }
 
 /*
-Allow to get a free tcp port on a host
- */
+  Allow to get a free tcp port on a host
+*/
 int free_tport(char* host){
   int i;
 
@@ -163,8 +171,8 @@ int free_tport(char* host){
 }
 
 /*
-Allow to get a free udp port on a host
- */
+  Allow to get a free udp port on a host
+*/
 int free_uport(char* host){
   int i;
 
@@ -189,14 +197,14 @@ int free_uport(char* host){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 10000;
+    int port = 1;
 
-    for (i = 0; i < 65535-10000; i++) {
+    for (i = 0; i <= 9999; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
       int b = bind(sock, (struct sockaddr *)&adress_sock,
-                        sizeof(struct sockaddr_in));
+                   sizeof(struct sockaddr_in));
       if(b == 0){
         return port;
       }
@@ -209,14 +217,29 @@ int free_uport(char* host){
 }
 
 /*
-Function that verify an ip_address
- */
+  Function that verify an ip_address
+*/
 int check_ip(char* ip){
+  int i=0;
+  char* test = malloc(sizeof(char)*9);
+  if(strlen(ip)==15){
+    for (i = 0; i < 4; i++)
+    {
+      test[i]=ip[i];
+    }
+    test[4]=ip[6];
+    test[5]=ip[7];
+    test[6]=ip[10];
+    test[7]=ip[11];
+    test[8]=ip[14];
+  }else{
+    test = ip;
+  }
   struct sockaddr_in sa;
-  int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
+  int result = inet_pton(AF_INET, test, &(sa.sin_addr));
   if(result!=0)return 1;
   else{
-    result = inet_pton(AF_INET6, ip, &(sa.sin_addr));
+    result = inet_pton(AF_INET6, test, &(sa.sin_addr));
     if(result != 0)return 1;
   }
   return -1;
@@ -233,10 +256,10 @@ int port_libre_multi(){
   int i;
   for( i =0;i<9999;i++){
     port=port+i;
-   address_sock.sin_port=htons(9999);
-   address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
-   r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
-   if(r==0)break;
+    address_sock.sin_port=htons(9999);
+    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+    r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
+    if(r==0)break;
   }
 
   struct ip_mreq mreq;
@@ -245,5 +268,47 @@ int port_libre_multi(){
   r=setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
   return port;
 
+}
+
+
+/* Function that generate id of UDP messages */
+char* gen_idmess(){
+  time_t t;
+  char* tmp = malloc(sizeof(char)*7);
+  struct timespec start;
+  int r = clock_gettime(CLOCK_REALTIME,&start);
+  if(r==0){
+    char* idm = malloc(sizeof(char)*8);
+    char* tab = "azertyuiopqsdfghjklmwxcvbn";
+    srand((unsigned) time(&t));
+    idm[0] = tab[rand()%26];
+    int i = (int)start.tv_nsec;
+    sprintf(tmp,"%d",i);
+    strcat(idm,tmp);
+    return idm;
+  }
+  return NULL;
+}
+
+
+/*Fonction convert int a into char* of size b if it is possible else return NULL*/
+char* intchar(int a, int b){
+  int i;
+  char* tmp = malloc(sizeof(char)*b);
+  sprintf(tmp,"%d",a);
+  if(strlen(tmp)<b){
+    char* res = malloc(sizeof(char)*b);
+    for(i=0; i<strlen(tmp); i++){
+      res[i]=tmp[i];  
+    }
+    for(i=strlen(tmp); i<strlen(res); i++){
+      res[i]='0';
+    }
+    free(tmp);
+    return res;
+  }else if(strlen(tmp)==b){
+    return tmp;
+  }
+  return NULL;
 }
 

@@ -7,6 +7,7 @@ typedef struct entity{
    * previous entity in the ring where it will be insert
    */
   char* my_ip;
+  //<=9999 and >0
   int my_uport;
   /*Contains before the insertion the tcp port of 
    * previous entity in the ring where it will be insert
@@ -16,18 +17,20 @@ typedef struct entity{
   int nb_insert;
   
   char* next_ip1;
+  //<=9999 and >0
   int next_uport1;
   char* cast_ip1;
+  //<=9999 and >0
   int cast_port1;
   
   
   char* next_ip2;
+  //<=9999 and >0
   int next_uport2;
   char* cast_ip2;
+  //<=9999 and >0
   int cast_port2;
 
-  //id of the application support by the entity
-  char id_app[8];
 }entity;
 
 /*

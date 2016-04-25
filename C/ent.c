@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   int r = init_entity(e, "localhost");
   if (r==0) {
     (*e).my_ip = "127.0.0.1";
-    (*e).tcp_port = 50000;
+    (*e).tcp_port = 50001;
     //printf("Value of (*e).tcp_port %d\n",(*e).tcp_port);
     pthread_t th1;
     pthread_create(&th1,NULL,pth_tserv,e);
@@ -49,3 +49,4 @@ int main(int argc, char *argv[])
   }
   return 0;
 }
+ 

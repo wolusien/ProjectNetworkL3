@@ -48,30 +48,20 @@ int main(int argc, char *argv[]){
   /*   strcat(idm,tmp); */
   /*   printf("Value of imd %s\n",idm); */
   /* } */
-  int r=0;
+  int r = 0;
+  size_t* tab = malloc(sizeof(size_t)*3);
+  tab[0]=0;
+  tab[1]=17;
   char* ip = "127.000.000.001";
+  tab[2]=&ip;
   int i;
-  char* test = malloc(sizeof(char)*9);
-  if(strlen(ip)==15){
-    for (i = 0; i < 4; i++)
-    {
-      test[i]=ip[i];
+  for (i = 0; i < 3; i++) {
+    printf("Valeur en cours de traitement %d\n",tab[i]);
+    if(tab[i]==20){
+      r=0;
+      printf("La valeur est dans le tableau\n");
+      break;
     }
-    test[4]=ip[6];
-    test[5]=ip[7];
-    test[6]=ip[10];
-    test[7]=ip[11];
-    test[8]=ip[14];
-  }else{
-    test = ip;
   }
-  struct sockaddr_in sa;
-  int result = inet_pton(AF_INET, test, &(sa.sin_addr));
-  if(result!=0) r = 1;
-  else{
-    result = inet_pton(AF_INET6, test, &(sa.sin_addr));
-    if(result != 0) r = 1;
-  }
-  printf("Value of r %d\n",r);
   return 0;
 }

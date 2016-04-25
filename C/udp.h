@@ -4,15 +4,15 @@
 typedef struct uEntity{
   entity* ent;
   /* Number of case in the array rec */
-  int rec_size = 100;
+  int rec_size;
   /* First case in the array rec which is NULL */
-  int rec_pos = 0;
-  char** rec = malloc(sizeof(char*)*rec_size);
+  int rec_pos;
+  char** rec;
   /* Number of case in the array env */
-  int env_size = 100;
+  int env_size;
   /* First case in the array env which is NULL */
-  int env_pos = 0;
-  char** env = malloc(sizeof(char*)*env_size);
+  int env_pos;
+  char** env;
 
   /* Id of application host by an entity */
   char id_app[8];
@@ -33,17 +33,17 @@ int add_umess(uEntity* u, int option, char* mess);
 int isin(uEntity* u, char* idm);
 
 /* Function initialising structure app_message */
-int init_appmess(app_message* m, char* id_app, char* mess);
+//int init_appmess(app_message* m, char* id_app, char* mess);
 
 /* Function for initialising an entity */
 int init_uEntity(uEntity* u, entity* e);
 
 
 /*Global fonction for udp message*/
-int rec_udp(uEntity* u);
+void* rec_udp(void* u);
 
 /*Manage application message*/
-int app_mess(char* buff, uEntity* u);
+int app_mess(uEntity* u, char* buff);
 
 
 /*Manage WHOS message*/

@@ -58,7 +58,7 @@ int isin(uEntity* u, char* idm){
 
 
 /* Function initialising structure app_message */
-int init_appmess(app_message* m, char* id_app, char* mess){
+/*int init_appmess(app_message* m, char* id_app, char* mess){
   if (strlen(id_app)==8 && strlen(mess)==512) {
     (*m).idm = gen_idmess();
     strcpy((*m).id_app,id_app);
@@ -68,9 +68,10 @@ int init_appmess(app_message* m, char* id_app, char* mess){
     return -1;
   }
 }
+*/
 
 int init_uEntity(uEntity* u, entity* e){
-  if(ent!=NULL){
+  if((*u).ent!=NULL){
     (*u).ent = e;
     return 0; 
   }
@@ -81,7 +82,7 @@ int init_uEntity(uEntity* u, entity* e){
 int app_mess(uEntity* u, char* buff){
   if(strlen(buff)<=512){
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct sockaddrinfo *finfo;
+    struct addrinfo *finfo;
     struct addrinfo hints;
     
     bzero(&hints,sizeof(struct addrinfo));
@@ -89,9 +90,9 @@ int app_mess(uEntity* u, char* buff){
     hints.ai_socktype = SOCK_DGRAM;
     
     char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->e)).next_uport1);
+    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
 		
-    int r = getaddrinfo((*(u->e)).next_ip1,next_port,&hints,&finfo);    
+    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);    
     char** tab = split(buff,' ');
     if(str_arrsize(tab)==4){
       if (strcmp(tab[0],"APPL")==0) {
@@ -143,7 +144,7 @@ int app_mess(uEntity* u, char* buff){
 int whos(uEntity* u, char* buff){
   if(strlen(buff)==13){
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct sockaddrinfo *finfo;
+    struct addrinfo *finfo;
     struct addrinfo hints;
     
     bzero(&hints,sizeof(struct addrinfo));
@@ -151,13 +152,14 @@ int whos(uEntity* u, char* buff){
     hints.ai_socktype = SOCK_DGRAM;
     
     char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->e)).next_uport1);
+    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
 		
-    int r = getaddrinfo((*(u->e)).next_ip1,next_port,&hints,&finfo);
+    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);
     if(r==0)
     {
       if(finfo!=NULL)
       {
+        struct sockaddr *saddr = finfo->ai_addr;
         char** tab = split(buff,' ');
         if(str_arrsize(tab)==2)
         {
@@ -170,11 +172,11 @@ int whos(uEntity* u, char* buff){
                 char* idm = gen_idmess();
                 strcat(tampon,idm);
                 strcat(tampon," ");
-                strcat(tampon,(*u).e->id);
+                strcat(tampon,(*u).ent->id);
                 strcat(tampon," ");
-                strcat(tampon,(*u).e->my_ip);
+                strcat(tampon,(*u).ent->my_ip);
                 strcat(tampon," ");
-                char* udp = intchar((*u).e->my_uport,4);
+                char* udp = intchar((*u).ent->my_uport,4);
                 if(udp != NULL){
                   //We send message WHOS
                   sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
@@ -206,7 +208,7 @@ int whos(uEntity* u, char* buff){
   }else if (strlen(buff)==43)
   {
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct sockaddrinfo *finfo;
+    struct addrinfo *finfo;
     struct addrinfo hints;
     
     bzero(&hints,sizeof(struct addrinfo));
@@ -214,13 +216,14 @@ int whos(uEntity* u, char* buff){
     hints.ai_socktype = SOCK_DGRAM;
     
     char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->e)).next_uport1);
+    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
 		
-    int r = getaddrinfo((*(u->e)).next_ip1,next_port,&hints,&finfo);
+    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);
     if (r==0)
     {
       if (finfo!=NULL)
       {
+        //struct sockaddr *saddr = finfo->ai_addr;
         char** tab = split(buff,' ');
         if(str_arrsize(tab)==5)
         {
@@ -251,20 +254,92 @@ int whos(uEntity* u, char* buff){
 int gbye(uEntity* u, char* buff){
   if(strlen(buff)==55)
   {
-  
+    int sock = socket(PF_INET,SOCK_DGRAM,0);
+    struct addrinfo *finfo;
+    struct addrinfo hints;
+    bzero(&hints,sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    
+    char* next_uport = intchar((*u).ent->next_uport1,4);
+    int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
+    if (r==0)
+    {
+      if (finfo!=NULL)
+      {
+        struct sockaddr *saddr = finfo->ai_addr;
+        char** tab = split(buff,' ');
+        if(str_arrsize(tab)==6)
+        {
+          if(strcmp(tab[0],"GBYE")==0)
+          {
+            if (strlen(tab[1])==8)
+            {
+              if(isin(u,tab[1])==-1){
+                //Case where the message has never been seen
+                char* ip = tab[2];
+                int port = atoi(tab[3]);
+                char* ipsucc = tab[4];
+                int portsucc = atoi(tab[5]);
+                if(strlen(ip)==8 && strlen(ipsucc)==8
+                  && port>0 && port<=9999
+                  && portsucc>0 && portsucc<=9999)
+                {
+                  if (check_ip(ip)==0 && check_ip(ipsucc)==0)
+                  {
+                    if (strcmp(ip,(*u).ent->next_ip1)==0 
+                    && (*u).ent->next_uport1==port)
+                    {
+                      //Case previous entity
+                      strcpy((*u).ent->next_ip1,ipsucc);
+                      (*u).ent->next_uport1=portsucc;
+                      char* tampon = malloc(sizeof(char)*120);
+                      strcat(tampon,"EYBG ");
+                      char* idm = gen_idmess();
+                      strcat(tampon,idm);
+                      sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
+                      free(tab);
+                      free(tampon);
+                      close(sock);
+                      return 0;
+                    }else{
+                      //Case where entity is not concern by the message
+                      sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
+                      free(tab);
+                      free(saddr);
+                      free(finfo);
+                      close(sock);
+                      return 0;
+                    }
+                  }else{
+                    fprintf(stderr,"gbye : Unvalid ip %s or ipsucc %s\n",ip,ipsucc);
+                  }
+                }else{
+                  fprintf(stderr,"gbye : Wrong form of the message received, containing invalid arguments %s\n",buff);
+                }
+              }
+            }
+          }
+        }
+      }else{
+        fprintf(stderr,"gbye : Problem with getaddrinfo struct sockaddrinfo *finfo is NULL\n");
+      }
+    }else{
+      fprintf(stderr,"gbye : Problem with getaddrinfo %d\n",r);    
+    }
   }
   return -1;
 }
 
 /*Global fonction for udp message*/
-void rec_udp(void* uent){
+void* rec_udp(void* uent){
   uEntity* u = (uEntity*)uent;
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
-  if((*u).(*e).my_uport>9999 && (*u).(*e).my_uport<=65535){
-    address_sock.sin_port = htons((*u).(*e).my_uport);
-    inet_aton((*e).my_ip,&address_sock.sin_addr);
+  if((*u).ent->my_uport>9999 && (*u).ent->my_uport<=65535){
+    address_sock.sin_port = htons((*u).ent->my_uport);
+    inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
     
     int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
     if (r==0) {
@@ -279,10 +354,9 @@ void rec_udp(void* uent){
       }
     }else {
       fprintf(stderr,"rec_udp bind: Problem with socket binding %d\n",r);
-      return -1;
     }
   }else{
     fprintf(stderr,"rec_udp : Wrong udp port entity\n");
   }
-  return -1;
+  return NULL;
 }

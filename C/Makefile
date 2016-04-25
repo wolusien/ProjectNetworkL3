@@ -2,7 +2,7 @@ CC=gcc -pthread
 CFLAGS=-Wall 
 EXEC =ent1 ent
 HEADERS= $(wildcard *.h)
-OBJECTS = entity.o tools.o  
+OBJECTS = udp.o entity.o tools.o  
 all: $(EXEC)
 
 

@@ -49,3 +49,11 @@ int free_uport(char* host);
 Function that verify an ip_address
  */
 int check_ip(char* ip);
+
+
+/* Function that generate id of UDP messages */
+char* gen_idmess();
+
+
+/*Fonction convert int a into char* of size b if it is possible else return NULL*/
+char* intchar(int a, int b);

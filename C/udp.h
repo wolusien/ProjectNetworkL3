@@ -38,13 +38,25 @@ int isin(uEntity* u, char* idm);
 /* Function for initialising an entity */
 int init_uEntity(uEntity* u, char* host);
 
+////////////////////////////////////////////////////////////////////////
+/////////////////////UDP RECEPTION//////////////////////////////////////
+
+/* Function managing application udp message protocol
+ */
+int app_mess(uEntity* u, char* buff);
+
+/* Function managing WHOS udp message protocol
+ */
+int whos(uEntity* u, char* buff);
+
+/* Function managing GBYE udp message protocol
+ */
+int gbye(uEntity* u, char* buff);
+
+/* Function managing TEST udp message protocol
+ */
+int testring(uEntity* u, char* buff);
+
 
 /*Global fonction for udp message*/
 void* rec_udp(void* u);
-
-/*Manage application message*/
-int app_mess(uEntity* u, char* buff);
-
-
-/*Manage WHOS message*/
-int whos(uEntity* u, char* buff);

@@ -36,7 +36,7 @@ int isin(uEntity* u, char* idm);
 //int init_appmess(app_message* m, char* id_app, char* mess);
 
 /* Function for initialising an entity */
-int init_uEntity(uEntity* u, entity* e);
+int init_uEntity(uEntity* u, char* host);
 
 
 /*Global fonction for udp message*/

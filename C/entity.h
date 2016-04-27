@@ -2,7 +2,7 @@
 #include "tools.h"
 
 typedef struct entity{
-  char id[8];
+  char* id;
   /*Contains before the insertion the name of the host machine of
    * previous entity in the ring where it will be insert
    */

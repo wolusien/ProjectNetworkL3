@@ -5,12 +5,13 @@ Function which initialize an entity, and prepare it for insertion
  */
 int init_entity(entity* ent, char* host){
   int uport = free_uport(host);
-  char* ip = get_ip(host);
+  char* ip = ip_addZero(get_ip(host));
   if(uport != -1 && ip!=NULL){
-    strcpy((*ent).id,gen_code());
+    (*ent).id = gen_code();
     (*ent).nb_insert = 0;
-    (*ent).next_ip1 = ip;
+    (*ent).my_ip = ip;
     (*ent).my_uport = uport;
+    (*ent).next_ip1 = ip;
     (*ent).next_uport1 = uport;
     (*ent).cast_ip1 = ip;
     (*ent).cast_port1 = uport;
@@ -94,6 +95,8 @@ int insertion(entity* e, char* host, int e1_tcp ){
                       close(sock);
                       free(tab);
                       (*e).nb_insert = 1;
+                      (*e).tcp_port = free_tport((*e).my_ip);
+                      printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
                       serv_tcp(e);
                       return 0;
                     }else {

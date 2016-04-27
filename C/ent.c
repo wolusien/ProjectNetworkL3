@@ -1,40 +1,9 @@
-#include "entity.h"
+#include "udp.h"
 
 
 int main(int argc, char *argv[])
 {
-  /*int sock=socket(PF_INET,SOCK_STREAM,0);
-  struct sockaddr_in address_sock;
-  
-  address_sock.sin_family = AF_INET;
-  address_sock.sin_port = htons(atoi(argv[1]));
-  inet_aton("127.0.0.1",&address_sock.sin_addr);
-  
-  address_sock.sin_family=AF_INET;
-  address_sock.sin_port=htons(atoi(argv[1]));
-  address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
-  
-  int r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
-  if(r==0){
-    r=listen(sock,0);
-    while(1){
-      struct sockaddr_in caller;
-      socklen_t size=sizeof(caller);
-      int sock2=accept(sock,(struct sockaddr *)&caller,&size);
-      if(sock2>=0){
-        char *mess="WELC 127.000.000.001 48000 127.000.000.001 48001\n";
-        send(sock2,mess,strlen(mess)*sizeof(char),0);
-        char buff[100];
-        int recu=recv(sock2,buff,99*sizeof(char),0);
-        buff[recu]='\0';
-        printf("Message recu : %s\n",buff);
-        char* m = "ACKC\n";
-        send(sock2,m,strlen(m)*sizeof(char),0);
-      }
-      close(sock2);
-    }
-  }*/
-  
+  /*
   entity* e = malloc(sizeof(entity));
   int r = init_entity(e, "localhost");
   if (r==0) {
@@ -46,6 +15,33 @@ int main(int argc, char *argv[])
     pthread_join(th1,NULL);
   }else{
     printf("Problem with init entity\n");
+  }
+  */
+  uEntity* u = malloc(sizeof(uEntity));
+  int res = init_uEntity(u,"localhost");
+  if (res==0)
+  {
+    (*u).ent->my_ip = "127.000.000.001";
+    (*u).ent->my_uport = 1700;
+    (*u).ent->next_uport1 = 1800;
+    
+    /*int sock=socket(PF_INET,SOCK_DGRAM,0);
+    sock=socket(PF_INET,SOCK_DGRAM,0);
+    struct sockaddr_in address_sock;
+    address_sock.sin_family=AF_INET;
+    address_sock.sin_port=htons(1700);
+    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+    int r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct
+                                                            sockaddr_in));
+    if(r==0){
+      char tampon[100];
+      while(1){
+        int rec=recv(sock,tampon,100,0);
+        tampon[rec]='\0';
+        printf("Message recu : %s\n",tampon);*/
+        rec_udp(u);
+      //}
+    //}
   }
   return 0;
 }

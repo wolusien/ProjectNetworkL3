@@ -15,7 +15,7 @@ typedef struct uEntity{
   char** env;
 
   /* Id of application host by an entity */
-  char id_app[8];
+  char* id_app;
 }uEntity;
 
 

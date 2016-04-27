@@ -24,7 +24,9 @@ int main(int argc, char *argv[])
     (*u).ent->my_ip = "127.000.000.001";
     (*u).ent->my_uport = 1700;
     (*u).ent->next_uport1 = 1800;
-    
+    (*u).id_app = "12345698";
+    (*u).ent->cast_ip1 = "127.000.000.001";
+    (*u).ent->cast_port1 = 2000;
     /*int sock=socket(PF_INET,SOCK_DGRAM,0);
     sock=socket(PF_INET,SOCK_DGRAM,0);
     struct sockaddr_in address_sock;

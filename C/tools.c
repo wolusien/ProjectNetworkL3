@@ -258,16 +258,18 @@ int check_ip(char* ip){
   }
   struct sockaddr_in sa;
   int result = inet_pton(AF_INET, test, &(sa.sin_addr));
-  if(result!=0)return 1;
+  if(result!=0)return 0;
   else{
     result = inet_pton(AF_INET6, test, &(sa.sin_addr));
-    if(result != 0)return 1;
+    if(result != 0)return 0;
   }
   return -1;
 }
+
+/*
 int increment(char *ip){
 
-char **buf=char** split(ip, '.');
+  char **buf=split(ip, '.');
   int p1=atoa(buf[3]);
   int p2=atoa(buf[2]);
   int p3=atoa(buf[1]);
@@ -289,7 +291,7 @@ char **buf=char** split(ip, '.');
 
 
 
-}
+}*/
 int port_libre_multi(){
   int sock=socket(PF_INET,SOCK_DGRAM,0);
   sock=socket(PF_INET,SOCK_DGRAM,0);

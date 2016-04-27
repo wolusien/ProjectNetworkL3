@@ -103,7 +103,7 @@ int app_mess(uEntity* u, char* buff){
 		
     int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);    
     char** tab = split(buff,' ');
-    if(str_arrsize(tab)==4){
+    if(str_arrsize(tab)>=4){
       if (strcmp(tab[0],"APPL")==0) {
         if (strlen(tab[1])==8)
         {
@@ -114,6 +114,7 @@ int app_mess(uEntity* u, char* buff){
               if(strcmp((*u).id_app,tab[2])==0){
                 //Case where (*u).(*e) support the application
                 //code à écrire
+                printf("Code à écrire, message de l'application %s\n",buff);
                 return 0;
               }else{
                 //Case where we transmit the message to the next entity
@@ -380,7 +381,7 @@ int whos(uEntity* u, char* buff){
  * Function managing GBYE udp message protocol
  */
 int gbye(uEntity* u, char* buff){
-  if(strlen(buff)>=55)
+  if(strlen(buff)==55)
   {
     int sock = socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *finfo;
@@ -413,7 +414,7 @@ int gbye(uEntity* u, char* buff){
                   && port>0 && port<=9999
                   && portsucc>0 && portsucc<=9999)
                 {
-                  if (check_ip(ip)==0 && check_ip(ipsucc)==0)
+                  if (check_ip(ip)!=-1 && check_ip(ipsucc)!=-1)
                   {
                     if (strcmp(ip,(*u).ent->next_ip1)==0 
                     && (*u).ent->next_uport1==port)
@@ -484,7 +485,6 @@ int gbye(uEntity* u, char* buff){
                             saddr = finfo->ai_addr;
                             sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
                             free(tab);
-                            free(saddr);
                             free(finfo);
                             close(sock);
                             return 0;
@@ -498,7 +498,6 @@ int gbye(uEntity* u, char* buff){
                         }
                       }
                       free(tab);
-                      free(saddr);
                       free(finfo);
                       close(sock);
                       return 0;
@@ -519,6 +518,20 @@ int gbye(uEntity* u, char* buff){
     }else{
       fprintf(stderr,"gbye : Problem with getaddrinfo %d\n",r);    
     }
+  }else if(strlen(buff)==13){
+    char** tab = split(buff,' ');
+    if(strcmp("EYBG",tab[0])==0)
+    {
+      if(isin(u,buff)==-1)
+      {
+        printf("gbye : Message received %s\n\tNew configuration for next on ring : ip %s\tudp port %d\n",buff,(*u).ent->next_ip1,(*u).ent->next_uport1);
+        if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+                        && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
+          printf("gbye : Message received %s\n\tNew configuration for next : ip %s\tudp port %d\n",buff,(*u).ent->next_ip2,(*u).ent->next_uport2);
+        }
+        return 0;
+      }
+    }
   }
   return -1;
 }
@@ -527,7 +540,7 @@ int gbye(uEntity* u, char* buff){
  * Function managing TEST udp message protocol
  */
 int testring(uEntity* u, char* buff){
-  if (strlen(buff)==32)
+  if (strlen(buff)==34)
   {
     char** tab = split(buff, ' ');
     if(str_arrsize(tab)==4)
@@ -563,7 +576,6 @@ int testring(uEntity* u, char* buff){
                       add_umess(u,0,tab[1]);
                       add_umess(u,1,tab[1]);
                       free(tab);
-                      free(saddr);
                       free(finfo);
                       close(sock);
                       return 0;
@@ -597,7 +609,6 @@ int testring(uEntity* u, char* buff){
                         add_umess(u,0,tab[1]);
                         add_umess(u,1,tab[1]);
                         free(tab);
-                        free(saddr);
                         free(finfo);
                         close(sock);
                         return 0;
@@ -653,7 +664,10 @@ void* rec_udp(void* uent){
             {
               if(gbye(u,buff)!=0)
               {
-                fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+                if(testring(u,buff)!=0)
+                {
+                  fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+                }
               }
             }
           }

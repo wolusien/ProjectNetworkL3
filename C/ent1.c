@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
   {
     (*u).ent->my_uport = 1800;
     (*u).ent->next_uport1 = 1700;
+    (*u).id_app = "12356789";
+    (*u).ent->cast_ip1 = "127.000.000.001";
+    (*u).ent->cast_port1 = 2000;
     int sock=socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *first_info;
     struct addrinfo hints;
@@ -32,7 +35,8 @@ int main(int argc, char *argv[])
     if(r==0){
       if(first_info!=NULL){
         struct sockaddr *saddr=first_info->ai_addr;
-        char* tampon = "WHOS 12345678";
+        char* tampon = "GBYE 12345678 127.000.000.001 1800 127.000.000.001 1700";
+        printf("Size of tampon %d\n",strlen(tampon));
         sendto(sock,tampon,strlen(tampon),0,saddr,
                (socklen_t)sizeof(struct sockaddr_in));
         printf("L'envoi a été fait %s\n",tampon);

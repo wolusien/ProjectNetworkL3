@@ -244,7 +244,31 @@ int check_ip(char* ip){
   }
   return -1;
 }
+int increment(char *ip){
 
+char **buf=char** split(ip, '.');
+  int p1=atoa(buf[3]);
+  int p2=atoa(buf[2]);
+  int p3=atoa(buf[1]);
+  if(p1!=255){p1++;}
+  else{
+    p1=0;
+   intchar(int a, int b)
+
+   if(p2!=255)p2++;
+   else{
+     p2=0;
+
+   if(p3!=255)p3++;
+   else return "null";
+ }
+
+ return strcat(strcat(strcat(strcat(strcat("226.",buf[1]),"."),buf[2]),"."),buf[3]);
+ }
+
+
+
+}
 int port_libre_multi(){
   int sock=socket(PF_INET,SOCK_DGRAM,0);
   sock=socket(PF_INET,SOCK_DGRAM,0);
@@ -299,7 +323,7 @@ char* intchar(int a, int b){
   if(strlen(tmp)<b){
     char* res = malloc(sizeof(char)*b);
     for(i=0; i<strlen(tmp); i++){
-      res[i]=tmp[i];  
+      res[i]=tmp[i];
     }
     for(i=strlen(tmp); i<strlen(res); i++){
       res[i]='0';
@@ -311,4 +335,3 @@ char* intchar(int a, int b){
   }
   return NULL;
 }
-

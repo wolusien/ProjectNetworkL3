@@ -70,9 +70,16 @@ int isin(uEntity* u, char* idm){
 }
 */
 
-int init_uEntity(uEntity* u, entity* e){
-  if((*u).ent!=NULL){
+int init_uEntity(uEntity* u, char* host){
+  entity* e = malloc(sizeof(entity));
+  int r = init_entity(e,host);
+  if(r==0){
     (*u).ent = e;
+    init_entity((*u).ent,host);
+    (*u).rec_size = (*u).env_size = 100;
+    (*u).rec_pos = (*u).env_pos = 0;
+    (*u).rec = malloc(sizeof(char*)*(*u).rec_size);
+    (*u).env = malloc(sizeof(char*)*(*u).env_size);
     return 0; 
   }
   return -1;
@@ -143,6 +150,7 @@ int app_mess(uEntity* u, char* buff){
 /*Manage WHOS message*/
 int whos(uEntity* u, char* buff){
   if(strlen(buff)==13){
+    printf("Taille du message ok\n");
     int sock = socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *finfo;
     struct addrinfo hints;
@@ -161,29 +169,34 @@ int whos(uEntity* u, char* buff){
       {
         struct sockaddr *saddr = finfo->ai_addr;
         char** tab = split(buff,' ');
+        printf("Value of firdt idm %s\n",tab[1]);
         if(str_arrsize(tab)==2)
         {
           if (strcmp(tab[0],"WHOS")==0) {
             if (strlen(tab[1])==8) {
+              printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
               if(isin(u,tab[1])==-1){
                 //Case where message never has been managed
-                char* tampon = malloc(sizeof(char)*120);
+                char tampon[520];
                 strcat(tampon,"MEMB ");
                 char* idm = gen_idmess();
                 strcat(tampon,idm);
                 strcat(tampon," ");
                 strcat(tampon,(*u).ent->id);
                 strcat(tampon," ");
-                strcat(tampon,(*u).ent->my_ip);
+                strcat(tampon,ip_addZero((*u).ent->my_ip));
                 strcat(tampon," ");
                 char* udp = intchar((*u).ent->my_uport,4);
                 if(udp != NULL){
+                  strcat(tampon,udp);
+                  
+                  printf("Value of MEMB send %s\n\n",tampon);
                   //We send message WHOS
                   sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
                   //Store idm tab[1] on array rec
                   add_umess(u,0,tab[1]);
                   add_umess(u,1,tab[1]);
-                  strcat(tampon,udp);
+                  
                   //We send the answer MEMB
                   sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
                   //Store idm on array env
@@ -252,7 +265,7 @@ int whos(uEntity* u, char* buff){
 }
 
 int gbye(uEntity* u, char* buff){
-  if(strlen(buff)==55)
+  if(strlen(buff)>=55)
   {
     int sock = socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *finfo;
@@ -337,10 +350,10 @@ void* rec_udp(void* uent){
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
-  if((*u).ent->my_uport>9999 && (*u).ent->my_uport<=65535){
+  if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
     address_sock.sin_port = htons((*u).ent->my_uport);
-    inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
-    
+    //inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
+    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
     int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
     if (r==0) {
       char buff[512];
@@ -348,8 +361,18 @@ void* rec_udp(void* uent){
         int rec = recv(sock,buff,512,0);
         if(rec>0){
           buff[rec]='\0';
+          printf("\nrec_udp : Message received %s\n\n",buff);
           /*reste à coder */
-
+          if(app_mess(u,buff)!=0)
+          {
+            if(whos(u,buff)!=0)
+            {
+              if(gbye(u,buff)!=0)
+              {
+                fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+              }
+            }
+          }
         }
       }
     }else {

@@ -8,14 +8,20 @@
 char** split(char* str, char delim) {
   int i = 0;
   int count_space = 0;
-  char* s = malloc(sizeof(char)*strlen(str));
-  strncpy(s,str,strlen(str));
+  //char* s = malloc(sizeof(char)*strlen(str));
+  char s[strlen(str)];
+  for (i = 0; i < strlen(str); i++)
+  {
+    s[i]=str[i];
+  }
+  //printf("Value of s %s\n",s);
   char* d = &delim;
   for (i = 0; i < strlen(str); i++) {
     if(str[i] == delim){
       count_space++;
     }
   }
+  //printf("Value of count_space %d\n",count_space);
   if(count_space >0){
     count_space += 2;
   }
@@ -26,6 +32,7 @@ char** split(char* str, char delim) {
   while(p!=NULL){
     tab[j] = malloc(sizeof(char)*strlen(p));
     strcpy(tab[j],p);
+    //printf("value de tab[j] dans strtok %s\n",tab[j]);
     j++;
     p = strtok(NULL,d);
   }
@@ -109,19 +116,33 @@ char* get_ip(char* host){
   Generate a unique code for id entity or application(normally)
 */
 char* gen_code(){
-  int i;
-  char* id = malloc(sizeof(char)*8);
-  char* tab = "a1ze0rty9uio2pqs8d@f6gh5jk3lm7wxc4vbn";
   time_t t;
-
-  /* Intializes random number generator */
-  srand((unsigned) time(&t));
-
-  for (i = 0; i < 8; i++) {
-    id[i] = tab[rand()%37];
-    //printf("Value of rand %d\n" ,rand()%37);
+  char* tmp = malloc(sizeof(char)*7);
+  struct timespec start;
+  int r = clock_gettime(CLOCK_REALTIME,&start);
+  if(r==0){
+    char idm[8];
+    char* tab = "azertyuiopqsdfghjklmwxcvbn";
+    srand((unsigned) time(&t));
+    idm[0] = tab[rand()%26];
+    int i = (int)start.tv_nsec;
+    sprintf(tmp,"%d",i);
+    //printf("Value of time %s\n",tmp);
+    for (i = 1; i <8 ; i++)
+    {
+      if(strlen(tmp)>7){
+        idm[i]=tmp[i+1];
+        //printf("Value of i %c\n",tmp[i+1]);
+      }else{
+        idm[i]=tmp[i];
+      }
+    }
+    char* idf = malloc(sizeof(char)*8);
+    strcpy(idf,idm);
+    printf("Value of id_entity %s\n",idf);
+    return idf;
   }
-  return id;
+  return NULL;
 }
 
 /*
@@ -278,14 +299,26 @@ char* gen_idmess(){
   struct timespec start;
   int r = clock_gettime(CLOCK_REALTIME,&start);
   if(r==0){
-    char* idm = malloc(sizeof(char)*8);
+    char idm[8];
     char* tab = "azertyuiopqsdfghjklmwxcvbn";
     srand((unsigned) time(&t));
     idm[0] = tab[rand()%26];
     int i = (int)start.tv_nsec;
     sprintf(tmp,"%d",i);
-    strcat(idm,tmp);
-    return idm;
+    //printf("Value of time %s\n",tmp);
+    for (i = 1; i <8 ; i++)
+    {
+      if(strlen(tmp)>7){
+        idm[i]=tmp[i+1];
+        //printf("Value of i %c\n",tmp[i+1]);
+      }else{
+        idm[i]=tmp[i];
+      }
+    }
+    char* idf = malloc(sizeof(char)*8);
+    strcpy(idf,idm);
+    printf("Value of idm %s\n",idf);
+    return idf;
   }
   return NULL;
 }

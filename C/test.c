@@ -9,59 +9,42 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
+char** split(char* str, char delim) {
+  int i = 0;
+  int count_space = 0;
+  char* s = malloc(sizeof(char)*strlen(str));
+  for (i = 0; i < strlen(str); i++)
+  {
+    s[i]=str[i];
+  }
+  char* d = &delim;
+  for (i = 0; i < strlen(str); i++) {
+    if(str[i] == delim){
+      count_space++;
+    }
+  }
+  printf("Value of count_space %d\n",count_space);
+  if(count_space >0){
+    count_space += 2;
+  }
+  //printf("Val of count_space %d\n",count_space);
+  char** tab = malloc(sizeof(char*)*(count_space));
+  char* p = strtok(s,d);
+  int j = 0;
+  while(p!=NULL){
+    tab[j] = malloc(sizeof(char)*strlen(p));
+    strcpy(tab[j],p);
+    printf("value de tab[j] dans strtok %s\n",tab[j]);
+    j++;
+    p = strtok(NULL,d);
+  }
+  tab[count_space-1]=NULL;
+  return tab;
+}
 
 
 int main(int argc, char *argv[]){
-  /*
-  int sock = socket(PF_INET,SOCK_DGRAM,0);
-  struct addrinfo *finfo;
-  struct addrinfo hints;
-  memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_DGRAM;
-  int r = getaddrinfo("127.000.000.001","50000",&hints,&finfo);
-  if (r==0) {
-    if (finfo!=NULL){
-      struct sockaddr *saddr=finfo->ai_addr;
-      char tampon[100];
-      int i;
-      for (i = 0; i <= 10; i++) {
-        strcpy(tampon,"Premiers test UDP ");
-        char entier[3];
-        sprintf(entier,"%d",i);
-        strcat(tampon,entier);
-        sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-      }
-    }
-  }*/
-  /* time_t t; */
-  /* char* tmp = malloc(sizeof(char)*7); */
-  /* struct timespec start; */
-  /* int r = clock_gettime(CLOCK_REALTIME,&start); */
-  /* if(r==0){ */
-  /*   char* idm = malloc(sizeof(char)*8); */
-  /*   char* tab = "azertyuiopqsdfghjklmwxcvbn"; */
-  /*   srand((unsigned) time(&t)); */
-  /*   idm[0] = tab[rand()%26]; */
-  /*   int i = (int)start.tv_nsec; */
-  /*   sprintf(tmp,"%d",i); */
-  /*   strcat(idm,tmp); */
-  /*   printf("Value of imd %s\n",idm); */
-  /* } */
-  int r = 0;
-  size_t* tab = malloc(sizeof(size_t)*3);
-  tab[0]=0;
-  tab[1]=17;
-  char* ip = "127.000.000.001";
-  tab[2]=&ip;
-  int i;
-  for (i = 0; i < 3; i++) {
-    printf("Valeur en cours de traitement %d\n",tab[i]);
-    if(tab[i]==20){
-      r=0;
-      printf("La valeur est dans le tableau\n");
-      break;
-    }
-  }
+  char** tab = split("WHOS 12345678",' ');
+  printf("Tab %s\n",tab[1]);
   return 0;
 }

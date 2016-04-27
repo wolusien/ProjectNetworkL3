@@ -40,7 +40,7 @@ public class tools{
 	 */
 	public static  String mess_app(String id_app,String mess){
 		String idm=genereIdm();//genere alea
-		return "APPL "+idm+" "+id_app+" "+mess;
+		return "APPL "+remplissageId(idm)+" "+remplissageId(id_app)+" "+mess;
 	}
 	public static  String mess_who(){
 		String idm=genereIdm();//genere alea
@@ -48,11 +48,11 @@ public class tools{
 	}
 	public static  String mess_memb(Entity e){
 		String idm=genereIdm();//genere alea
-		return "MEMB "+idm+" "+e.getId()+" "+e.getNextIp()+" "+e.getNextIp();
+		return "MEMB "+idm+" "+remplissageId(e.getId())+" "+remplissageIp2(e.getNextIp())+" "+remplissageIp2(e.getNextIp());
 	}
 	public static  String mess_gbye(Entity e,String ip,int port){
 		String idm=genereIdm();//genere alea
-		return "GBYE "+idm+" "+ip+" "+port+" "+e.getNextIp()+" "+e.getNextudp();
+		return "GBYE "+idm+" "+remplissageIp2(ip)+" "+intToOctet(port,4)+" "+remplissageIp2(e.getNextIp())+" "+intToOctet(e.getNextudp(),4);
 	}
 	public static  String mess_eybg(){
 		String idm=genereIdm();//genere alea
@@ -60,7 +60,7 @@ public class tools{
 	}
 	public static  String mess_test(Entity e){
 		String idm=genereIdm();//genere alea
-		return "TEST "+idm+" "+e.getCastIP()+" "+e.getCastPort();
+		return "TEST "+idm+" "+remplissageIp2(e.getCastIP())+" "+intToOctet(e.getCastPort(),4);
 	}
 	public static  String mess_down(){
 		return "DOWN";
@@ -171,7 +171,39 @@ fin
 		}
 		return"null";
 	}
-	
+	public static String intToOctet(int conv,int t){
+            String c=Integer.toString(conv);
+            if(c.length()==t)return c;
+            else{
+                System.out.println((t-c.length()));
+                int add=t-c.length();
+                for(int i=0;i<add;i++){
+                    c="0"+c;
+            }
+            }
+            return c;
+        }
+         public static String remplissageId(String id){
+              
+            if(id.length()==8)return id;
+            else{
+                System.out.println((8-id.length()));
+                int add=8-id.length();
+                for(int i=0;i<add;i++){
+                    id=Character.MIN_VALUE+id;
+            }
+            }
+            return id;
+         }
+        public static String remplissageIp2(String ip){
+            String[] tab=ip.split("\\.");
+            if(!(tab.length==4)){
+			System.out.println("ce n'est pas un ip");
+			return null;
+		}
+            return ""+ intToOctet(Integer.parseInt(tab[0]),3)+"."+intToOctet(Integer.parseInt(tab[1]),3)+"."+intToOctet(Integer.parseInt(tab[2]),3)+"."+intToOctet(Integer.parseInt(tab[3]),3);
+            
+        }
 	//rempli avec des 0
 	public static String remplissageIp(String ip){
 		String[] tab=ip.split("\\.");
@@ -195,19 +227,14 @@ fin
 		return ipfinal;
 	}
 	
-	/*
- public static void main (String[]argv)  {
-     System.out.println(Server.serverLibre());
-        System.out.println(Server.serverLibre());
-             System.out.println(Server.serverLibre());
-             System.out.println(Server.serverLibre());
-             try{
-            ServerSocket  Ssock= new ServerSocket(1027);
-             //ent.setUdp_port(port);
+	
+ public static void main (String[]argv)  { 
+    String r=  remplissageId("reseau");
 
-            }
-          catch(Exception e){
-			  System.out.println("pris");
-		}
- } */
+     byte[]tab=r.getBytes();
+     System.out.println(r);
+    
+      System.out.println(r.getBytes().length);
+       
+ } 
 }

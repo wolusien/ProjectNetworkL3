@@ -1,4 +1,5 @@
 import java.net.*;
+import java.util.Random;
 //import java.util.ArrayList;
 
 
@@ -26,8 +27,10 @@ public class Multidiffusion implements Runnable{
 	}
 	
 	public int portlibre(){
+                Random rand= new Random();
 		MulticastSocket mso=null;
-		this.port=4000;
+                int essaie=0;
+		this.port=rand.nextInt(9999 - 4000 + 1) +4000;
 		while(true){
 			try{
 				mso=new MulticastSocket(port);
@@ -35,8 +38,9 @@ public class Multidiffusion implements Runnable{
 				break;
 			}
 			catch(Exception e){
-				port++;
-				if(port==9999)break;
+                            essaie++;
+                            this.port=rand.nextInt(9999 - 4000 + 1) +4000;
+                           if(essaie==200)return -1;
 			}
 		}
 		return port;
@@ -44,20 +48,23 @@ public class Multidiffusion implements Runnable{
 	
 	//trouve une ip libre
 	public String iplibre(){
-		for(int i=0 ; i<256; i++){
-			for(int j=0 ; j<256 ; j++){
-				for(int k=0 ; k<256 ;k++){
+            Random r= new Random();
+            int r1=r.nextInt(257);
+            int r2=r.nextInt(257);
+            int r3=r.nextInt(257);
+	
 					try{
-						String s="226."+Integer.toString(i)+"."+Integer.toString(j)+"."+Integer.toString(k);
+						String s="226."+Integer.toString(r1)+"."+Integer.toString(r2)+"."+Integer.toString(r3);
 						MulticastSocket mso=new MulticastSocket(port);
 						mso.joinGroup(InetAddress.getByName(s));
 						return tools.remplissageIp(s);
 					}catch(Exception e){
+                                            iplibre();
 						
 					}
-				}
-			}
-		}
+				
+			
+		
 		return null;
 	}
 

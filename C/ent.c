@@ -3,7 +3,6 @@
 
 int main(int argc, char *argv[])
 {
-  /*
   entity* e = malloc(sizeof(entity));
   int r = init_entity(e, "localhost");
   if (r==0) {
@@ -16,7 +15,15 @@ int main(int argc, char *argv[])
   }else{
     printf("Problem with init entity\n");
   }
+  
+  /*
+  char* test = "128.0.8.1";
+  char** tab = split(test, '.');
+  printf("Value of split %s\n",tab[3]);
+  printf("Value of ip %s\n",ip_addZero("127.54.9.1"));
   */
+  
+  /*
   uEntity* u = malloc(sizeof(uEntity));
   int res = init_uEntity(u,"localhost");
   if (res==0)
@@ -29,6 +36,7 @@ int main(int argc, char *argv[])
     (*u).ent->cast_port1 = 2000;
     rec_udp(u);
   }
+  */
   return 0;
 }
  

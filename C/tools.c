@@ -29,13 +29,26 @@ char** split(char* str, char delim) {
   char** tab = malloc(sizeof(char*)*(count_space));
   char* p = strtok(s,d);
   int j = 0;
+  int copie = count_space-2;
   while(p!=NULL){
     tab[j] = malloc(sizeof(char)*strlen(p));
     strcpy(tab[j],p);
-    //printf("value de tab[j] dans strtok %s\n",tab[j]);
+    copie += strlen(p);
+    //printf("value de tab[j] dans strtok %s et taille %d\n",tab[j],strlen(tab[j]));
     j++;
     p = strtok(NULL,d);
   }
+  if(copie>strlen(str)){
+    int diff = copie - strlen(str);
+    char* t= malloc(sizeof(char)*(strlen(tab[j-1])-diff));
+    for (i = 0; i < (strlen(tab[j-1])-diff); i++)
+    {
+      t[i]=tab[j-1][i];
+    }
+    //printf("Value of t %s\n",t);
+    strcpy(tab[j-1],t);
+  }
+  //printf("Value of copie %d\n",copie);
   tab[count_space-1]=NULL;
   return tab;
 }
@@ -58,7 +71,7 @@ int str_arrsize(char** tab){
 char* ip_addZero(char* ip){
   int i;
   //printf("ip à traiter %s\n",ip);
-  if(strlen(ip)==9){
+  /*if(strlen(ip)==9){
     if(ip[3]=='.' && '.'==ip[5] && '.'==ip[7]){
       char ip_final[15];
       bzero(ip_final,sizeof(char)*15);
@@ -79,7 +92,26 @@ char* ip_addZero(char* ip){
       char* ip_f = malloc(sizeof(char)*15);
       strcpy(ip_f,ip_final);
       return ip_f;
+    }*/
+    
+  if(strlen(ip)>0 && strlen(ip)<15){
+    char** tab = split(ip,'.');
+    int size = str_arrsize(tab);
+    char* ip_final = malloc(sizeof(char)*15);
+    for (i = 0; i < size; i++)
+    {
+      if(strlen(tab[i])==2){
+        strcat(ip_final,"0");
+      }
+      else if(strlen(tab[i])==1){
+        strcat(ip_final,"00");
+      }
+      strcat(ip_final,tab[i]);
+      if(i!=size-1){
+        strcat(ip_final,".");
+      }
     }
+    return ip_final;
   }else if(strlen(ip)==15){
     return ip;
   }

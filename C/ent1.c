@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
       if(first_info!=NULL){
         struct sockaddr *saddr=first_info->ai_addr;
         char* tampon = "GBYE 12345678 127.000.000.001 1800 127.000.000.001 1700";
-        printf("Size of tampon %d\n",strlen(tampon));
+        //printf("Size of tampon %d\n",strlen(tampon));
         sendto(sock,tampon,strlen(tampon),0,saddr,
                (socklen_t)sizeof(struct sockaddr_in));
         printf("L'envoi a été fait %s\n",tampon);

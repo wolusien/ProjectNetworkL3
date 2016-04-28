@@ -12,9 +12,21 @@ class Entity {
 	private  int next_udp;
 	private String cast_ip;
 	private int cast_port;
-	Thread t1; //server
-	Thread t2; //message
-	Thread t3; //multidiff
+	private Server sev;
+	private message cli;
+	private Multidiffusion muldiff;
+	public boolean actif=true;
+	
+	//debut duplication
+	private int dupl_udp_port;
+	private String dupl_udp_ip;
+	private int dupl_cast_port;
+	private String dupl_cast_ip;
+	private boolean dupl=false;
+	private Multidiffusion duplmuldiff;
+	public boolean duplactif=false;
+	
+	
 
 	/*	public Entity(String id, int prevudp_rport, int tcp_port, String ip_ad, int nextudp_sport, String ipv4_ad, int cast_port){
 		this.id=id;
@@ -26,6 +38,51 @@ class Entity {
 		this.cast_port=cast_port;
 	}
 	 */
+	
+	public boolean getdupl(){
+		return this.dupl;
+	}
+	public void duplication(){
+		dupl=true;
+		duplactif=true;
+	}
+	
+	public void setdupl_muldiff(Multidiffusion muldiff){
+		this.duplmuldiff=muldiff;
+	}
+	
+	public int getdupl_udp_port(){
+		return dupl_udp_port;
+	}
+	
+	public int getdupl_cast_port(){
+		return dupl_cast_port;
+	}
+	
+	public String getdupl_udp_ip(){
+		return dupl_udp_ip;
+	}
+	
+	public String getdupl_cast_ip(){
+		return dupl_cast_ip;
+	}
+	
+	public void setdupl_udp_port(int port){
+		this.dupl_udp_port=port;
+	}
+	
+	public void setdupl_udp_ip(String ip){
+		this.dupl_udp_ip=ip;
+	}
+	
+	public void setdupl_cast_port(int port){
+		this.dupl_cast_port=port;
+	}
+	
+	public void setdupl_cast_ip(String ip){
+		this.dupl_cast_ip=ip;
+	}
+	
 	public String getId(){
 		return this.id;
 	}
@@ -69,15 +126,20 @@ class Entity {
 	public void setCastIp(String ip){
 		this.cast_ip=ip;
 	}
-
-
+	public void setMuldiff(Multidiffusion mult){
+		this.muldiff=mult;
+	}
+	
+	public void lanceDupl(){
+		
+	}
 	public void Init(){
 		this.setNextudp(udp_port);
 		this.setNextIp(tools.ip());
-		Server sev= new Server(this);
-		message cli= new message(this);
+		sev= new Server(this);
+		cli= new message(this);
 		System.out.println(this.next_ip);
-		Multidiffusion muldiff=new Multidiffusion(this);
+		muldiff=new Multidiffusion(this);
 		//this.cast_ip="226.0.0.0";
 		//muldiff.setIp(this.cast_ip);
 		this.cast_port=muldiff.portlibre();
@@ -87,10 +149,20 @@ class Entity {
 		lance_entity(sev,cli);
 		lance_multidiffusion(muldiff);
 	}
+	
+	public void lance_dupl_multidiffusion(Multidiffusion muldiff){
+		try{
+			Thread t4=new Thread(muldiff);
+			t4.start();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 
 	public void lance_multidiffusion(Multidiffusion muldiff){
 		try{
-			t3= new Thread(muldiff);
+			Thread t3= new Thread(muldiff);
 			t3.start();
 		}
 		catch(Exception e){
@@ -100,12 +172,11 @@ class Entity {
 
 	public void lance_entity(Server sev,message m){
 		try{
-			t1=new Thread(sev);
-			t2=new Thread( m);
+			Thread t1=new Thread(sev);
+			Thread t2=new Thread( m);
 			//t.    setDaemon(true);
 			t1.start();
 			t2.start();
-			
 			System.out.println("next udp : "+this.next_udp+" udp "+this.getUdp_port());
 			
 		}
@@ -117,20 +188,26 @@ class Entity {
 
 	}
 	
-	//interrompt les threads
+	//interrompt tout
 	public void quit(){
-		t1.interrupt();
-		t2.interrupt();
-		t3.interrupt();
-		
+		this.actif=false;
+		this.duplactif=false;
+		if(cli!=null)
+			cli.quit();
+		if(sev!=null)
+			sev.quit();
+		if(muldiff!=null)
+			muldiff.quit();
+		if(duplmuldiff!=null)
+			duplmuldiff.quit();
 	}
 
 
 	public void insertion(String ip,int port) {
 		try{
 			Socket socket=new Socket(ip,port);
-			Server sev= new Server(this);
-			message cli= new message(this);
+			sev= new Server(this);
+			cli= new message(this);
 			lance_entity( sev, cli);
 			System.out.println("entity ok");
 			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -139,8 +216,11 @@ class Entity {
 			pw.flush();
 			System.out.println("flush ");
 			String mess=br.readLine();
-			System.out.println("mess recu");
-			if(!tools.verif_mess_server(mess, this)) System.out.println("ceci ne correspond pas a un message d'insertion");
+			System.out.println("mess recu : "+mess);
+			if(!tools.verif_mess_server(mess.trim(), this)){
+				System.out.println("ceci ne correspond pas a un message d'insertion");
+				quit();
+			}
 			pw.close();
 			br.close();
 			socket.close();

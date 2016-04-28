@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @author netbook
  */
 public class message implements Runnable {
-
+	private boolean quit=false;
 	Entity ent;
 	ArrayList<String> listidm;
 
@@ -23,6 +23,10 @@ public class message implements Runnable {
 		this.ent=ent;
 		listidm=new ArrayList<String>();
 
+	}
+	
+	public void quit(){
+		quit=true;
 	}
 	public  DatagramSocket  portlibre(){
 		DatagramSocket dso=null;
@@ -76,6 +80,7 @@ public class message implements Runnable {
 		//sort de l anneau
 		if(tools.verif_mess_eybg(decomp)){
 			listidm.add(decomp[1]);
+			quit();
 			ent.quit();
 			return true;
 		}
@@ -89,14 +94,14 @@ public class message implements Runnable {
 			 * 5 : port-succ
 			 */
 			listidm.add(decomp[1]);
-			System.out.println("je suis pas sur donc : "+decomp[2]+" = "+ent.getNextIp()+ " / "+decomp[3]+" = "+ent.getNextudp());
+			//System.out.println("je suis pas sur donc : "+decomp[2]+" = "+ent.getNextIp()+ " / "+decomp[3]+" = "+ent.getNextudp());
 			if(decomp[2].equals(ent.getNextIp()) && decomp[3].equals(Integer.toString(ent.getNextudp()))){
-				ent.setNextIp(decomp[4]);
-				ent.setNextudp(Integer.parseInt(decomp[5]));
 				String s=tools.mess_eybg();
 				byte[] data2= new byte[512];
 				data2=s.getBytes();
 				sendMessage(data2);
+				ent.setNextIp(decomp[4]);
+				ent.setNextudp(Integer.parseInt(decomp[5]));
 			}
 			sendMessage(data);
 			return true;
@@ -132,7 +137,7 @@ public class message implements Runnable {
 			DatagramSocket dso=portlibre();
 			byte[]data=new byte[512];
 			DatagramPacket paquet=new DatagramPacket(data,data.length);
-			while(true){
+			while(!quit){
 				dso.receive(paquet);
 				String st=new String(paquet.getData(),0,paquet.getLength());
 				if(verif_message(st.trim())){
@@ -141,6 +146,8 @@ public class message implements Runnable {
 					//System.out.println("mauvais message "+st);
 				}
 			}
+			dso.close();
+			System.out.println("message fermer");
 
 		}
 		catch(Exception e){
@@ -153,9 +160,16 @@ public class message implements Runnable {
 		try{
 			System.out.println("envoye a :"+ent.getNextudp());
 			DatagramSocket dso= new DatagramSocket();
-			InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(), ent.getNextudp());
-			DatagramPacket packet= new DatagramPacket(data, data.length, ia);
-			dso.send(packet);
+			if(ent.actif){
+				InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(), ent.getNextudp());
+				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
+				dso.send(packet);
+			}
+			if(ent.getdupl() && ent.duplactif){
+				InetSocketAddress ia= new InetSocketAddress(ent.getdupl_udp_ip(), ent.getdupl_udp_port());
+				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
+				dso.send(packet);
+			}
 			dso.close();
 		}
 		catch(Exception e){
@@ -170,9 +184,16 @@ public class message implements Runnable {
 			byte[]data = new byte[255];
 			String s= "DOWN";
 			data=s.getBytes();
-			InetSocketAddress ia=new InetSocketAddress(ent.getCastIP(),ent.getCastPort());
-			DatagramPacket paquet=new DatagramPacket(data,data.length,ia);
-			dso.send(paquet);
+			if(ent.actif){
+				InetSocketAddress ia=new InetSocketAddress(ent.getCastIP(),ent.getCastPort());
+				DatagramPacket paquet=new DatagramPacket(data,data.length,ia);
+				dso.send(paquet);
+			}
+			if(ent.getdupl() && ent.duplactif){
+				InetSocketAddress ia=new InetSocketAddress(ent.getdupl_cast_ip(), ent.getdupl_cast_port());
+				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
+				dso.send(packet);
+			}
 			dso.close();
 
 		} catch(Exception e){

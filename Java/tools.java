@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.util.Date;
 
 public class tools{
-	public static  boolean verif_mess_server(String mess, Entity ent){
+	public static boolean verif_mess_server(String mess, Entity ent){
 		String[] decomp=mess.split(" ");
 		if (decomp.length!=5)return false;
 		if(!decomp[0].equals("WELC"))return false;
@@ -16,11 +16,40 @@ public class tools{
 		Multidiffusion multidiff= new Multidiffusion(ent);
 		multidiff.setIp(ent.getCastIP());
 		multidiff.setPort(ent.getCastPort());
+		ent.setMuldiff(multidiff);
 		ent.lance_multidiffusion(multidiff);
+		return true;
+	}
+
+	public static boolean verif_mess_client(String mess, Entity ent){
+		String[] decomp=mess.split(" ");
+		if (decomp.length!=3)return false;
+		if(!decomp[0].equals("NEWC"))return false;
+		ent.setNextIp(decomp[1]);
+		ent.setNextudp(Integer.parseInt(decomp[2]));
 		return true;
 
 	}
-	
+
+	public static boolean verif_mess_dupl(String mess, Entity ent){
+		String[] decomp=mess.split(" ");
+		if(!ent.getdupl()) return false;
+		if(decomp.length!=5) return false;
+		if(!decomp[0].equals("DUPL")) return false;
+		ent.duplication();
+		ent.setdupl_udp_ip(decomp[1]);
+		ent.setdupl_udp_port(Integer.parseInt(decomp[2]));
+		ent.setdupl_cast_ip(decomp[3]);
+		ent.setdupl_cast_port(Integer.parseInt(decomp[3]));
+		
+		Multidiffusion multidiff= new Multidiffusion(ent);
+		multidiff.setIp(ent.getdupl_cast_ip());
+		multidiff.setPort(ent.getdupl_cast_port());
+		ent.lance_dupl_multidiffusion(multidiff);
+		ent.setdupl_muldiff(multidiff);
+		return true;
+	}
+
 	//genere un idm
 	public static String genereIdm(){
 		Date d= new Date();
@@ -33,10 +62,9 @@ public class tools{
 		String s= Long.toString(d.getTime());
 		return s.substring(s.length()-8);
 	}
-	
+
 	//message dans l'anneau
 	/*###############################################"###########################################################"
-
 	 */
 	public static  String mess_app(String id_app,String mess){
 		String idm=genereIdm();//genere alea
@@ -150,17 +178,7 @@ verif les message circulant sur l'anneau
 
 	/*
 fin
-
 	 */
-	public static  boolean verif_mess_client(String mess, Entity ent){
-		String[] decomp=mess.split(" ");
-		if (decomp.length!=3)return false;
-		if(!decomp[0].equals("NEWC"))return false;
-		ent.setNextIp(decomp[1]);
-		ent.setNextudp(Integer.parseInt(decomp[2]));
-		return true;
-
-	}
 
 	public static String ip(){
 		try{
@@ -172,38 +190,38 @@ fin
 		return"null";
 	}
 	public static String intToOctet(int conv,int t){
-            String c=Integer.toString(conv);
-            if(c.length()==t)return c;
-            else{
-                System.out.println((t-c.length()));
-                int add=t-c.length();
-                for(int i=0;i<add;i++){
-                    c="0"+c;
-            }
-            }
-            return c;
-        }
-         public static String remplissageId(String id){
-              
-            if(id.length()==8)return id;
-            else{
-                System.out.println((8-id.length()));
-                int add=8-id.length();
-                for(int i=0;i<add;i++){
-                    id=Character.MIN_VALUE+id;
-            }
-            }
-            return id;
-         }
-        public static String remplissageIp2(String ip){
-            String[] tab=ip.split("\\.");
-            if(!(tab.length==4)){
+		String c=Integer.toString(conv);
+		if(c.length()==t)return c;
+		else{
+			System.out.println((t-c.length()));
+			int add=t-c.length();
+			for(int i=0;i<add;i++){
+				c="0"+c;
+			}
+		}
+		return c;
+	}
+	public static String remplissageId(String id){
+
+		if(id.length()==8)return id;
+		else{
+			System.out.println((8-id.length()));
+			int add=8-id.length();
+			for(int i=0;i<add;i++){
+				id=Character.MIN_VALUE+id;
+			}
+		}
+		return id;
+	}
+	public static String remplissageIp2(String ip){
+		String[] tab=ip.split("\\.");
+		if(!(tab.length==4)){
 			System.out.println("ce n'est pas un ip");
 			return null;
 		}
-            return ""+ intToOctet(Integer.parseInt(tab[0]),3)+"."+intToOctet(Integer.parseInt(tab[1]),3)+"."+intToOctet(Integer.parseInt(tab[2]),3)+"."+intToOctet(Integer.parseInt(tab[3]),3);
-            
-        }
+		return ""+ intToOctet(Integer.parseInt(tab[0]),3)+"."+intToOctet(Integer.parseInt(tab[1]),3)+"."+intToOctet(Integer.parseInt(tab[2]),3)+"."+intToOctet(Integer.parseInt(tab[3]),3);
+
+	}
 	//rempli avec des 0
 	public static String remplissageIp(String ip){
 		String[] tab=ip.split("\\.");
@@ -223,18 +241,18 @@ fin
 				ipfinal=ipfinal+tab[i]+".";
 			}
 		}
-		
+
 		return ipfinal;
 	}
-	
-	
- public static void main (String[]argv)  { 
-    String r=  remplissageId("reseau");
 
-     byte[]tab=r.getBytes();
-     System.out.println(r);
-    
-      System.out.println(r.getBytes().length);
-       
- } 
+
+	public static void main (String[]argv)  { 
+		String r=  remplissageId("reseau");
+
+		byte[]tab=r.getBytes();
+		System.out.println(r);
+
+		System.out.println(r.getBytes().length);
+
+	} 
 }

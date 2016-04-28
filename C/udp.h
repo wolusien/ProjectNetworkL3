@@ -60,3 +60,15 @@ int testring(uEntity* u, char* buff);
 
 /*Global fonction for udp message*/
 void* rec_udp(void* u);
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////UDP ENVOI////////////////////////////////////////////////////////
+
+int gen_appmess(uEntity* u, char* mess);
+
+int gen_whosmess(uEntity* u);
+
+int gen_gbyemess(uEntity* u, int ring);
+
+int gen_testmess(uEntity* u, int ring);

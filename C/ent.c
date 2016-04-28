@@ -27,23 +27,7 @@ int main(int argc, char *argv[])
     (*u).id_app = "12345698";
     (*u).ent->cast_ip1 = "127.000.000.001";
     (*u).ent->cast_port1 = 2000;
-    /*int sock=socket(PF_INET,SOCK_DGRAM,0);
-    sock=socket(PF_INET,SOCK_DGRAM,0);
-    struct sockaddr_in address_sock;
-    address_sock.sin_family=AF_INET;
-    address_sock.sin_port=htons(1700);
-    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
-    int r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct
-                                                            sockaddr_in));
-    if(r==0){
-      char tampon[100];
-      while(1){
-        int rec=recv(sock,tampon,100,0);
-        tampon[rec]='\0';
-        printf("Message recu : %s\n",tampon);*/
-        rec_udp(u);
-      //}
-    //}
+    rec_udp(u);
   }
   return 0;
 }

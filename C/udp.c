@@ -182,7 +182,7 @@ int app_mess(uEntity* u, char* buff){
  */
 int whos(uEntity* u, char* buff){
   if(strlen(buff)==13){
-    printf("Taille du message ok\n");
+    //printf("Taille du message ok\n");
     int sock = socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *finfo;
     struct addrinfo hints;
@@ -201,12 +201,12 @@ int whos(uEntity* u, char* buff){
       {
         struct sockaddr *saddr = finfo->ai_addr;
         char** tab = split(buff,' ');
-        printf("Value of firdt idm %s\n",tab[1]);
+        //printf("Value of firdt idm %s\n",tab[1]);
         if(str_arrsize(tab)==2)
         {
           if (strcmp(tab[0],"WHOS")==0) {
             if (strlen(tab[1])==8) {
-              printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
+              //printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
               if(isin(u,tab[1])==-1){
                 //Case where message never has been managed
                 char tampon[520];
@@ -222,7 +222,7 @@ int whos(uEntity* u, char* buff){
                 if(udp != NULL){
                   strcat(tampon,udp);
                   
-                  printf("Value of MEMB send %s\n\n",tampon);
+                  //printf("Value of MEMB send %s\n\n",tampon);
                   //We send message WHOS
                   sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
                   

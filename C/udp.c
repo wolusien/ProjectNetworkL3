@@ -651,8 +651,8 @@ void* rec_udp(void* uent){
   address_sock.sin_family = AF_INET;
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
     address_sock.sin_port = htons((*u).ent->my_uport);
-    //inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
-    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+    inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
+    //address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
     int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
     if (r==0) {
       char buff[512];

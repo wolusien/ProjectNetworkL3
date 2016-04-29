@@ -75,3 +75,5 @@ int gen_whosmess(uEntity* u);
 int gen_gbyemess(uEntity* u, int ring);
 
 int gen_testmess(uEntity* u, int ring);
+
+void* envoi_udp(void* e);

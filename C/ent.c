@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[])
 {
+  /*
   entity* e = malloc(sizeof(entity));
   int r = init_entity(e);
   if (r==0) {
@@ -25,29 +26,20 @@ int main(int argc, char *argv[])
       pthread_join(th1,NULL);
       pthread_join(th2,NULL);
     }
+  }*/
+  uEntity* u= malloc(sizeof(uEntity));
+  int r = init_uEntity(u);
+  if (r==0) {
+    (*u).ent->my_ip = "127.0.0.1";
+    (*u).ent->tcp_port = 1025;
+    //printf("Value of (*e).tcp_port %d\n",(*e).tcp_port);
+    pthread_t th1;
+    pthread_t th2;
+    pthread_create(&th1,NULL,pth_tserv,(*u).ent);
+    pthread_create(&th2,NULL, rec_udp,u);
+   
+    pthread_join(th1,NULL);
   }
-
-  /*
-  char* test = "128.0.8.1";
-  char** tab = split(test, '.');
-  printf("Value of split %s\n",tab[3]);
-  printf("Value of ip %s\n",ip_addZero("127.54.9.1"));
-  */
-  
-  /*
-  uEntity* u = malloc(sizeof(uEntity));
-  int res = init_uEntity(u,"localhost");
-  if (res==0)
-  {
-    (*u).ent->my_ip = "127.000.000.001";
-    (*u).ent->my_uport = 1700;
-    (*u).ent->next_uport1 = 1800;
-    (*u).id_app = "12345698";
-    (*u).ent->cast_ip1 = "127.000.000.001";
-    (*u).ent->cast_port1 = 2000;
-    rec_udp(u);
-  }
-  */
   return 0;
 }
  

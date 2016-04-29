@@ -69,8 +69,6 @@ int str_arrsize(char** tab){
 */
 char* ip_addZero(char* ip){
   int i;
-  printf("Add Zero a recu %s\n",ip);
-
   if(strlen(ip)>0 && strlen(ip)<15){
     char** tab = split(ip,'.');
     int size = str_arrsize(tab);
@@ -78,7 +76,6 @@ char* ip_addZero(char* ip){
     bzero(ip_final,sizeof(char)*15);
     for (i = 0; i < size; i++)
     {
-      printf("Value of tab[%d] %s\n",i,tab[i]);
       if(strlen(tab[i])==2){
         strcat(ip_final,"0");
       }
@@ -89,9 +86,8 @@ char* ip_addZero(char* ip){
       if(i!=size-1){
         strcat(ip_final,".");
       }
-      printf("VAlue after strcat %s\n",ip_final);
     }
-    printf("Value of ip addzero %s\n",ip_final);
+    //printf("Value of ip addzero %s\n",ip_final);
     return ip_final;
   }else if(strlen(ip)==15){
     return ip;

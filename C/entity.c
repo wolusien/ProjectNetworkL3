@@ -337,7 +337,7 @@ int serv_tcp(entity* e){
  * Pas encore tester, à tester après avoir compris le sujet
  */
 int duplication(entity* e, char* host, int e1_tcp ){
-  if((*e).nb_insert==1){
+  if((*e).nb_insert==0){
     
     //Settings structures needed later
     int sock = socket(PF_INET,SOCK_STREAM,0);
@@ -377,12 +377,7 @@ int duplication(entity* e, char* host, int e1_tcp ){
                  && check_ip(ip_cast) != -1
                  && port_e2<=9999 && port_e2>0
                  && port_cast<=9999 && port_cast>0
-                 //&& port_cast != port_e2 && strcmp(ip_e2,ip_cast)!=0
                  ){
-                (*e).next_ip2 = ip_e2;
-                (*e).next_uport2 = port_e2;
-                (*e).cast_ip2 = ip_cast;
-                (*e).cast_port2 = port_cast;
                 //Preparation of the current entity answer [NEWC␣ip␣port\n]
                 char* mess = malloc(sizeof(char)*120);
                 strcpy(mess,"DUPL ");
@@ -417,7 +412,7 @@ int duplication(entity* e, char* host, int e1_tcp ){
                       int port = 0;
                       port = atoi(tab[1]);
                       if (port<=9999 && port>0){
-                        
+                        (*e).next_uport1 = port;  
                         close(sock);
                         free(tab);
                         (*e).nb_insert = 2;

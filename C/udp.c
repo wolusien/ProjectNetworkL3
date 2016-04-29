@@ -1026,3 +1026,34 @@ int gen_testmess(uEntity* u, int ring){
   }
   return -1;
 }
+
+
+
+void* envoi_udp(void* e){
+  uEntity* u = (uEntity*) e; 
+  char** tab;
+  int taille;
+  int ring;
+     
+  while(1){
+    char *buff=malloc(sizeof(char)*512);
+    read(STDIN_FILENO, buff, 512);
+    
+    printf("message recu %s",buff);
+    tab = split(buff,' ');
+    taille=str_arrsize(tab);
+    if(taille==2){
+      if(strcmp(tab[0],"APP")) {gen_appmess( u, tab[1]);}
+      ring= atoi(tab[1]);
+       if(ring==1||ring==2){
+	if(strcmp(tab[0],"GBYE")) gen_gbyemess( u,ring);
+	if(strcmp(tab[0],"TEST")) gen_testmess( u,ring);
+	
+      }
+      
+    }
+    if(taille==1){
+      if(strcmp(tab[0],"WHO"))  gen_whosmess( u);
+    }
+  }
+}

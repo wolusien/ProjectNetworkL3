@@ -12,7 +12,15 @@
 /*
 Function taking char* str and a char delim separator and split str depending on separator
  */
-char** split(char* str, char delim);
+char ** split(char *rep, char delim);
+
+/*Count the number of delim in char* rep
+ */
+int count_space(char *rep,char delim);
+
+/*Concatenation of a char* rep and a char c
+ */
+char * concat(char *rep,char c);
 
 /*
 Function act same as split in JAVA for String

@@ -11,11 +11,22 @@ int main(int argc, char *argv[])
     //printf("Value of (*e).tcp_port %d\n",(*e).tcp_port);
     pthread_t th1;
     pthread_create(&th1,NULL,pth_tserv,e);
-    pthread_join(th1,NULL);
-  }else{
-    printf("Problem with init entity\n");
+    //pthread_join(th1,NULL);
+    
+
+    entity* ent = malloc(sizeof(entity));
+    int r2 = init_entity(ent, "localhost");
+    if (r2==0) {
+      (*ent).my_ip = "127.0.0.1";
+      (*ent).tcp_port = 50001;
+      pthread_t th2;
+      //pthread_create(&th1,NULL,pth_tserv,e);
+      pthread_create(&th2,NULL,pth_insertion,ent);
+      pthread_join(th1,NULL);
+      pthread_join(th2,NULL);
+    }
   }
-  
+
   /*
   char* test = "128.0.8.1";
   char** tab = split(test, '.');

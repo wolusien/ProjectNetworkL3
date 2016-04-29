@@ -2,11 +2,63 @@
 #include "entity.h"
 
 
+
+char * concat(char *rep,char c){
+  int len;
+  len=strlen(rep);
+  char *newstr=malloc(len+sizeof(char));
+  sprintf(newstr, "%s%c", rep, c);
+  // printf("new chaine %s",newstr);
+  return newstr;
+}
+int count_space(char *rep,char delim){
+  int i;
+  int space;
+  space=0;
+    
+  // printf("rentre");
+  for(i=0;i<strlen(rep);i++){
+    //  printf("lettre %c",rep[i]);
+    if( rep[i]==delim)space++;
+  } 
+  //  printf("nb espace %d",space);
+  return space;
+   
+}
+
 /*
   Function taking char* str and a char delim separator and split str in terms of separator
 */
-char** split(char* str, char delim) {
-  int i = 0;
+char ** split(char *rep, char delim){
+  //printf("rentre2");
+  int i;
+  int taille;
+  int index;
+  index=0;
+  taille=count_space(rep,delim)+2;
+  char ** split=malloc(taille*sizeof(char *));
+  split[0]="";
+  for(i=0;i<strlen(rep);i++){
+    if( rep[i]==delim ){
+      //printf("%s \n",split[index]);
+      index++;
+      split[index]="";
+      //printf("%d \n",index);
+    }
+    else split[index]=concat(split[index],rep[i]);
+  }
+  split[taille-1]=NULL;
+  //  printf("%s\n",split[2]);
+  return split;
+}
+
+
+
+/*
+  Function taking char* str and a char delim separator and split str in terms of separator
+*/
+char** splite(char* str, char delim) {
+  /*int i = 0;
   int count_space = 0;
   //char* s = malloc(sizeof(char)*strlen(str));
   char s[strlen(str)];
@@ -50,7 +102,8 @@ char** split(char* str, char delim) {
   }
   //printf("Value of copie %d\n",copie);
   tab[count_space-1]=NULL;
-  return tab;
+  return tab;*/
+  return NULL;
 }
 
 /*
@@ -70,36 +123,16 @@ int str_arrsize(char** tab){
 */
 char* ip_addZero(char* ip){
   int i;
-  //printf("ip à traiter %s\n",ip);
-  /*if(strlen(ip)==9){
-    if(ip[3]=='.' && '.'==ip[5] && '.'==ip[7]){
-      char ip_final[15];
-      bzero(ip_final,sizeof(char)*15);
-      for (i = 0; i < 4; i++) {
-        ip_final[i] = ip[i];
-      }
-      ip_final[4]='0';
-      ip_final[5]='0';
-      ip_final[6]=ip[4];
-      ip_final[7]=ip[5];
-      ip_final[8]='0';
-      ip_final[9]='0';
-      ip_final[10]=ip[6];
-      ip_final[11]=ip[7];
-      ip_final[12]='0';
-      ip_final[13]='0';
-      ip_final[14]=ip[8];
-      char* ip_f = malloc(sizeof(char)*15);
-      strcpy(ip_f,ip_final);
-      return ip_f;
-    }*/
-    
+  printf("Add Zero a recu %s\n",ip);
+
   if(strlen(ip)>0 && strlen(ip)<15){
     char** tab = split(ip,'.');
     int size = str_arrsize(tab);
     char* ip_final = malloc(sizeof(char)*15);
+    bzero(ip_final,sizeof(char)*15);
     for (i = 0; i < size; i++)
     {
+      printf("Value of tab[%d] %s\n",i,tab[i]);
       if(strlen(tab[i])==2){
         strcat(ip_final,"0");
       }
@@ -110,7 +143,9 @@ char* ip_addZero(char* ip){
       if(i!=size-1){
         strcat(ip_final,".");
       }
+      printf("VAlue after strcat %s\n",ip_final);
     }
+    printf("Value of ip addzero %s\n",ip_final);
     return ip_final;
   }else if(strlen(ip)==15){
     return ip;

@@ -16,6 +16,9 @@ typedef struct uEntity{
 
   /* Id of application host by an entity */
   char* id_app;
+  
+  //Compteur de temps
+  double count_time;
 }uEntity;
 
 
@@ -36,7 +39,7 @@ int isin(uEntity* u, char* idm);
 //int init_appmess(app_message* m, char* id_app, char* mess);
 
 /* Function for initialising an entity */
-int init_uEntity(uEntity* u, char* host);
+int init_uEntity(uEntity* u);
 
 ////////////////////////////////////////////////////////////////////////
 /////////////////////UDP RECEPTION//////////////////////////////////////

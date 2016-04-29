@@ -11,6 +11,7 @@ char * concat(char *rep,char c){
   // printf("new chaine %s",newstr);
   return newstr;
 }
+
 int count_space(char *rep,char delim){
   int i;
   int space;
@@ -23,7 +24,6 @@ int count_space(char *rep,char delim){
   } 
   //  printf("nb espace %d",space);
   return space;
-   
 }
 
 /*
@@ -50,60 +50,6 @@ char ** split(char *rep, char delim){
   split[taille-1]=NULL;
   //  printf("%s\n",split[2]);
   return split;
-}
-
-
-
-/*
-  Function taking char* str and a char delim separator and split str in terms of separator
-*/
-char** splite(char* str, char delim) {
-  /*int i = 0;
-  int count_space = 0;
-  //char* s = malloc(sizeof(char)*strlen(str));
-  char s[strlen(str)];
-  for (i = 0; i < strlen(str); i++)
-  {
-    s[i]=str[i];
-  }
-  //printf("Value of s %s\n",s);
-  char* d = &delim;
-  for (i = 0; i < strlen(str); i++) {
-    if(str[i] == delim){
-      count_space++;
-    }
-  }
-  //printf("Value of count_space %d\n",count_space);
-  if(count_space >0){
-    count_space += 2;
-  }
-  //printf("Val of count_space %d\n",count_space);
-  char** tab = malloc(sizeof(char*)*(count_space));
-  char* p = strtok(s,d);
-  int j = 0;
-  int copie = count_space-2;
-  while(p!=NULL){
-    tab[j] = malloc(sizeof(char)*strlen(p));
-    strcpy(tab[j],p);
-    copie += strlen(p);
-    //printf("value de tab[j] dans strtok %s et taille %d\n",tab[j],strlen(tab[j]));
-    j++;
-    p = strtok(NULL,d);
-  }
-  if(copie>strlen(str)){
-    int diff = copie - strlen(str);
-    char* t= malloc(sizeof(char)*(strlen(tab[j-1])-diff));
-    for (i = 0; i < (strlen(tab[j-1])-diff); i++)
-    {
-      t[i]=tab[j-1][i];
-    }
-    //printf("Value of t %s\n",t);
-    strcpy(tab[j-1],t);
-  }
-  //printf("Value of copie %d\n",copie);
-  tab[count_space-1]=NULL;
-  return tab;*/
-  return NULL;
 }
 
 /*
@@ -157,25 +103,29 @@ char* ip_addZero(char* ip){
 /*
   Get ip adress knowing the host
 */
-char* get_ip(char* host){
-  struct hostent* h;
-  h=gethostbyname(host);
-  if(h==NULL){
-    printf("get_ip : Unknown host given\n");
+char* get_ip(){
+  struct ifaddrs *myaddrs, *ifa;
+  struct sockaddr_in *s4;
+  int status;
+  char *ip=(char *)malloc(64*sizeof(char));
+  status = getifaddrs(&myaddrs);
+  if (status != 0){
+    perror("get_ip : Probleme de recuperation d'adresse IP");
     return NULL;
   }
-  char* host_addr;
-  //Get list of addresses of the host
-  struct in_addr **addresses = (struct in_addr**)h->h_addr_list;
-  //We take the first address for testing the port
-  while(*addresses != NULL){
-    //inet_ntoa traduce struct in_addr to char*
-    host_addr = inet_ntoa(**addresses);
-    break;
+  for (ifa = myaddrs; ifa != NULL; ifa = ifa->ifa_next){
+    if (ifa->ifa_addr == NULL) continue;
+    if ((ifa->ifa_flags & IFF_UP) == 0) continue;
+    if ((ifa->ifa_flags & IFF_LOOPBACK) != 0) continue;
+    if (ifa->ifa_addr->sa_family == AF_INET){
+      s4 = (struct sockaddr_in *)(ifa->ifa_addr);
+      if (inet_ntop(ifa->ifa_addr->sa_family, (void *)&(s4->sin_addr),
+      ip, 64*sizeof(char)) != NULL){
+          return ip;
+      }
+    }
   }
-  if(host_addr!=NULL){
-    return host_addr;
-  }
+  freeifaddrs(myaddrs);
   return NULL;
 }
 
@@ -215,9 +165,9 @@ char* gen_code(){
 /*
   Allow to get a free tcp port on a host
 */
-int free_tport(char* host){
+int free_tport(){
   int i;
-
+  char* host = get_ip();
   int sock = socket(PF_INET,SOCK_STREAM,0);
 
   struct hostent* h;
@@ -239,9 +189,9 @@ int free_tport(char* host){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 10000;
+    int port = 1024;
 
-    for (i = 0; i < 65535-10000; i++) {
+    for (i = 0; i < 9999-1024; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
@@ -261,9 +211,9 @@ int free_tport(char* host){
 /*
   Allow to get a free udp port on a host
 */
-int free_uport(char* host){
+int free_uport(){
   int i;
-
+  char* host = get_ip();
   int sock = socket(PF_INET,SOCK_DGRAM,0);
 
   struct hostent* h;
@@ -285,9 +235,9 @@ int free_uport(char* host){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 1;
+    int port = 1024;
 
-    for (i = 0; i <= 9999; i++) {
+    for (i = 0; i <= 9999-1024; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
@@ -333,32 +283,7 @@ int check_ip(char* ip){
   return -1;
 }
 
-/*
-int increment(char *ip){
 
-  char **buf=split(ip, '.');
-  int p1=atoa(buf[3]);
-  int p2=atoa(buf[2]);
-  int p3=atoa(buf[1]);
-  if(p1!=255){p1++;}
-  else{
-    p1=0;
-   intchar(int a, int b)
-
-   if(p2!=255)p2++;
-   else{
-     p2=0;
-
-   if(p3!=255)p3++;
-   else return "null";
- }
-
- return strcat(strcat(strcat(strcat(strcat("226.",buf[1]),"."),buf[2]),"."),buf[3]);
- }
-
-
-
-}*/
 int port_libre_multi(){
   int sock=socket(PF_INET,SOCK_DGRAM,0);
   sock=socket(PF_INET,SOCK_DGRAM,0);

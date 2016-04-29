@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   }
   */
   uEntity* u = malloc(sizeof(uEntity));
-  int res = init_uEntity(u,"localhost");
+  int res = init_uEntity(u);
   if (res==0)
   {
     (*u).ent->my_uport = 1800;

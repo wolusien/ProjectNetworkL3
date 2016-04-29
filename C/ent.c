@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
   entity* e = malloc(sizeof(entity));
-  int r = init_entity(e, "localhost");
+  int r = init_entity(e);
   if (r==0) {
     (*e).my_ip = "127.0.0.1";
     (*e).tcp_port = 50001;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     
 
     entity* ent = malloc(sizeof(entity));
-    int r2 = init_entity(ent, "localhost");
+    int r2 = init_entity(ent);
     if (r2==0) {
       (*ent).my_ip = "127.0.0.1";
       (*ent).tcp_port = 50001;

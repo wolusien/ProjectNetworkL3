@@ -8,6 +8,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <linux/if_link.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+
+
 
 /*
 Function taking char* str and a char delim separator and split str depending on separator
@@ -35,7 +41,7 @@ char* ip_addZero(char* ip);
 /*
 Get ip adress knowing the host
 */
-char* get_ip(char* host);
+char* get_ip();
 
 /*
 Generate a unique code(normally)
@@ -45,13 +51,13 @@ char* gen_code();
 /*
 Function that allow to get free tcp port for an host
 */
-int free_tport(char* host);
+int free_tport();
 
 
 /*
 Function that allow to get free udp port for an host
 */
-int free_uport(char* host);
+int free_uport();
 
 /*
 Function that verify an ip_address

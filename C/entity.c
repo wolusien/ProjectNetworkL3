@@ -3,18 +3,25 @@
 /*
 Function which initialize an entity, and prepare it for insertion
  */
-int init_entity(entity* ent, char* host){
-  int uport = free_uport(host);
-  char* ip = ip_addZero(get_ip(host));
-  if(uport != -1 && ip!=NULL){
+int init_entity(entity* ent){
+  int uport = free_uport(get_ip());
+  int tport = free_tport(get_ip());
+  char* ip = ip_addZero(get_ip());
+  if(uport != -1 && ip!=NULL && tport!=-1){
     (*ent).id = gen_code();
+    printf("\n################Entity####################################\n\ninit_entity : Id de l'entité %s\n",(*ent).id);
     (*ent).nb_insert = 0;
+    (*ent).tcp_port = tport;
+    printf("init_entity : Port TCP l'entité %d\n",(*ent).tcp_port);
     (*ent).my_ip = ip;
+    printf("init_entity : Ip de l'entité %s\n",(*ent).my_ip);
     (*ent).my_uport = uport;
+    printf("init_entity : Port UDP de l'entité %d\n",(*ent).my_uport);
     (*ent).next_ip1 = ip;
     (*ent).next_uport1 = uport;
     (*ent).cast_ip1 = ip;
     (*ent).cast_port1 = uport;
+    printf("\n##########################################################\n\n");
     return 0;
   }
   return -1;

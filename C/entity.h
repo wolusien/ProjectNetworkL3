@@ -36,7 +36,7 @@ typedef struct entity{
 /*
 Function which initialize an entity
  */
-int init_entity(entity* ent, char* host);
+int init_entity(entity* ent);
 
 /*
 Function that manage the insertion

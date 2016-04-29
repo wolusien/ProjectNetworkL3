@@ -70,16 +70,16 @@ int isin(uEntity* u, char* idm){
 }
 */
 
-int init_uEntity(uEntity* u, char* host){
+int init_uEntity(uEntity* u){
   entity* e = malloc(sizeof(entity));
-  int r = init_entity(e,host);
+  int r = init_entity(e);
   if(r==0){
     (*u).ent = e;
-    init_entity((*u).ent,host);
     (*u).rec_size = (*u).env_size = 100;
     (*u).rec_pos = (*u).env_pos = 0;
     (*u).rec = malloc(sizeof(char*)*(*u).rec_size);
     (*u).env = malloc(sizeof(char*)*(*u).env_size);
+    (*u).count_time = 0;
     return 0; 
   }
   return -1;
@@ -661,6 +661,10 @@ void* rec_udp(void* uent){
         if(rec>0){
           buff[rec]='\0';
           printf("\nrec_udp : Message received %s\n\n",buff);
+          double var = (*u).count_time;
+          if((*u).count_time!=0){
+            (*u).count_time = (double)(clock()-var)/CLOCKS_PER_SEC;
+          }
           /*reste à coder */
           if(app_mess(u,buff)!=0)
           {
@@ -959,8 +963,10 @@ int gen_testmess(uEntity* u, int ring){
           sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
           printf("gen_testmess : Message sent %s\n",buff);
           
+          (*u).count_time = (double) clock()/CLOCKS_PER_SEC;
+                    
           add_umess(u,0,idm);
-          add_umess(u,1,idm);
+          //add_umess(u,1,idm);
           free(finfo);
           close(sock);
           return 0;

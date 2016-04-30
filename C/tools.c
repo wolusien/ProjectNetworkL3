@@ -16,12 +16,12 @@ int count_space(char *rep,char delim){
   int i;
   int space;
   space=0;
-    
+
   // printf("rentre");
   for(i=0;i<strlen(rep);i++){
     //  printf("lettre %c",rep[i]);
     if( rep[i]==delim)space++;
-  } 
+  }
   //  printf("nb espace %d",space);
   return space;
 }
@@ -278,9 +278,37 @@ int check_ip(char* ip){
   }
   return -1;
 }
+int rand_a_b(int a, int b){
+  time_t t;
 
+  struct timespec start;
+  clock_gettime(CLOCK_REALTIME,&start);
+  srand((unsigned) time(&t));
+  int nombre_aleatoire = (int)start.tv_nsec;
+  return 	nombre_aleatoire%(b-a) +a;
+}
 
-int port_libre_multi(){
+char * ip_libre_multi(){
+
+  int p1=rand_a_b(0,255);
+   int p2=rand_a_b(0, 255);
+  int p3=rand_a_b(0, 255);
+  char *buff=intchar( 226, 3);
+  strcat(buff,".");
+  printf("Check %s\n",buff);
+  strcat(buff,intchar( p1, 3));
+  printf("Check2 %s\n",buff);
+  strcat(buff,".");
+  strcat(buff,intchar( p2, 3));
+  printf("Check3 %s\n",buff);
+  strcat(buff,".");
+  strcat(buff,intchar( p3, 3));
+
+  printf("Je suis dans ip port libre %s\n",buff);
+  return buff;
+}
+
+int port_libre_multi(char* ip){
   int sock=socket(PF_INET,SOCK_DGRAM,0);
   sock=socket(PF_INET,SOCK_DGRAM,0);
   int ok=1;
@@ -289,20 +317,21 @@ int port_libre_multi(){
   address_sock.sin_family=AF_INET;
   int port=1024;
   int i;
-  for( i =0;i<9999;i++){
-    port=port+i;
-    address_sock.sin_port=htons(9999);
+  i=0;
+  while( 1){
+    port=rand_a_b(1024, 10000);
+    address_sock.sin_port=htons(port);
     address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
     r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
-    if(r==0)break;
+    if(r==0||i==20)break;
+    else{i++; }
   }
-
+  
   struct ip_mreq mreq;
-  mreq.imr_multiaddr.s_addr=inet_addr("225.1.2.4");
+  mreq.imr_multiaddr.s_addr=inet_addr(ip);
   mreq.imr_interface.s_addr=htonl(INADDR_ANY);
   r=setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
   return port;
-
 }
 
 

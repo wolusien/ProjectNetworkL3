@@ -19,8 +19,10 @@ int init_entity(entity* ent){
     printf("init_entity : Port UDP de l'entité %d\n",(*ent).my_uport);
     (*ent).next_ip1 = ip;
     (*ent).next_uport1 = uport;
-    (*ent).cast_ip1 = ip;
-    (*ent).cast_port1 = uport;
+    (*ent).cast_ip1 = ip_libre_multi();
+    printf("init_entity : Adresse IP MULTI de l'entité %s\n",(*ent).cast_ip1);
+    (*ent).cast_port1 = port_libre_multi((*ent).cast_ip1);
+    printf("init_entity : Port UDP MULTI de l'entité %d\n",(*ent).cast_port1);
     printf("\n##########################################################\n\n");
     return 0;
   }
@@ -38,7 +40,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
        
     adressin.sin_family = AF_INET;
     adressin.sin_port = htons(e1_tcp);
-    int inet = inet_aton((*e).my_ip,&(adressin.sin_addr));
+    int inet = inet_aton(host,&(adressin.sin_addr));
     if(inet == 1){
       int con = connect(sock,(struct sockaddr*)&adressin,(socklen_t)sizeof(struct sockaddr_in));
     
@@ -95,7 +97,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     (*e).nb_insert = 1;
                     (*e).tcp_port = free_tport((*e).my_ip);
                     printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
-                    serv_tcp(e);
+                    //serv_tcp(e);
                     return 0;
                   }else {
                     fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);
@@ -141,10 +143,10 @@ int insertion(entity* e, char* host, int e1_tcp ){
 void* pth_insertion(void* arg){
   entity* e = (entity*)arg;
   char* host = (*e).my_ip;
-  char* ip = get_ip(host);
+  char* ip = get_ip();
   
   int tcp_port = (*e).tcp_port;
-  int port = free_tport(host);
+  int port = free_tport();
   if(ip!=NULL && port!=-1){
     (*e).my_ip = ip;
     (*e).tcp_port = port;

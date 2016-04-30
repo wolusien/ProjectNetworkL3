@@ -645,14 +645,17 @@ int testring(uEntity* u, char* buff){
 
 /*Global fonction for udp message*/
 void* rec_udp(void* uent){
+  printf("Je lance le serveur de reception udp\n");
   uEntity* u = (uEntity*)uent;
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
+    printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->my_uport);
-    inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
-    //address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
+    //int inet = inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
+    //printf("Value de inet_aton %d\n",inet);
+    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
     int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
     if (r==0) {
       char buff[512];

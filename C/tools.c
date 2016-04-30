@@ -285,6 +285,7 @@ int rand_a_b(int a, int b){
   clock_gettime(CLOCK_REALTIME,&start);
   srand((unsigned) time(&t));
   int nombre_aleatoire = (int)start.tv_nsec;
+  //printf("Je suis dans rand %d\n",nombre_aleatoire%(b-a) +a);
   return 	nombre_aleatoire%(b-a) +a;
 }
 
@@ -295,16 +296,18 @@ char * ip_libre_multi(){
   int p3=rand_a_b(0, 255);
   char *buff=intchar( 226, 3);
   strcat(buff,".");
-  printf("Check %s\n",buff);
-  strcat(buff,intchar( p1, 3));
-  printf("Check2 %s\n",buff);
+  char* t1 = malloc(sizeof(char)*4);
+  sprintf(t1,"%d",p1);
+  strcat(buff,t1);
   strcat(buff,".");
-  strcat(buff,intchar( p2, 3));
-  printf("Check3 %s\n",buff);
+  
+  sprintf(t1,"%d",p2);
+  strcat(buff,t1);
+  
   strcat(buff,".");
-  strcat(buff,intchar( p3, 3));
-
-  printf("Je suis dans ip port libre %s\n",buff);
+  sprintf(t1,"%d",p3);
+  strcat(buff,t1);
+  free(t1);
   return buff;
 }
 

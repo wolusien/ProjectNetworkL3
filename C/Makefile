@@ -6,6 +6,7 @@ OBJECTS = udp.o entity.o tools.o
 all: $(EXEC)
 
 
+ent2 : $(OBJECTS) ent2.o
 
 ent1 : $(OBJECTS) ent1.o
 

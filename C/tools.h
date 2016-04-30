@@ -72,6 +72,9 @@ char* gen_idmess();
 /*Fonction convert int a into char* of size b if it is possible else return NULL*/
 char* intchar(int a, int b);
 
+
+int rand_a_b(int a, int b);
+
 char * ip_libre_multi();
 
 int port_libre_multi();

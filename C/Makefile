@@ -1,6 +1,6 @@
 CC=gcc -pthread
 CFLAGS=-Wall 
-EXEC =ent1 ent
+EXEC =ent2 ent1 ent
 HEADERS= $(wildcard *.h)
 OBJECTS = udp.o entity.o tools.o  
 all: $(EXEC)

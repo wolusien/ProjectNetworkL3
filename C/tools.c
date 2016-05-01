@@ -95,6 +95,21 @@ char* ip_addZero(char* ip){
   return NULL;
 }
 
+/*
+char* ip_removeZero(char* ip){
+  if(ip!=NULL){
+    if(strlen(ip)==15){
+      char** tab = split(ip,'.');
+      if(str_arrsize(tab)==4)
+      char* ip_f = tab[0];
+      
+    }else{
+      return ip;
+    }
+  }
+  return NULL;
+}
+*/
 
 /*
   Get ip adress knowing the host
@@ -117,7 +132,7 @@ char* get_ip(){
       s4 = (struct sockaddr_in *)(ifa->ifa_addr);
       if (inet_ntop(ifa->ifa_addr->sa_family, (void *)&(s4->sin_addr),
       ip, 64*sizeof(char)) != NULL){
-          return ip;
+        return ip;
       }
     }
   }

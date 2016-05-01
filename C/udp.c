@@ -186,7 +186,7 @@ int app_mess(uEntity* u, char* buff){
  */
 int whos(uEntity* u, char* buff){
   if(strlen(buff)==13){
-    //printf("Taille du message ok\n");
+    printf("Taille du message ok\n");
     int sock = socket(PF_INET,SOCK_DGRAM,0);
     struct addrinfo *finfo;
     struct addrinfo hints;
@@ -777,7 +777,7 @@ int gen_appmess(uEntity* u, char* mess){
 }
 
 int gen_whosmess(uEntity* u){
-  if((*u).id_app!=NULL && (*u).ent->next_ip1!=NULL &&
+  if((*u).ent->next_ip1!=NULL &&
        (*u).ent->next_uport1>0 ){
     char* idm = gen_idmess();
     int sock = socket(PF_INET,SOCK_DGRAM,0);
@@ -843,7 +843,7 @@ int gen_whosmess(uEntity* u){
 
 int gen_gbyemess(uEntity* u, int ring){
   if(ring==1){
-    if((*u).id_app!=NULL && (*u).ent->my_ip!=NULL && (*u).ent->next_ip1!=NULL &&
+    if((*u).ent->my_ip!=NULL && (*u).ent->next_ip1!=NULL &&
          (*u).ent->next_uport1>0 && (*u).ent->my_uport>0
          && (*u).ent->next_uport1<=9999 && (*u).ent->my_uport<=9999){
       char* idm = gen_idmess();
@@ -889,7 +889,7 @@ int gen_gbyemess(uEntity* u, int ring){
       fprintf(stderr,"gen_gbyemess : Problem with arguments of entity\n");
     }
   }else if(ring==2){
-    if((*u).id_app!=NULL && (*u).ent->my_ip!=NULL && (*u).ent->next_ip2!=NULL &&
+    if((*u).ent->my_ip!=NULL && (*u).ent->next_ip2!=NULL &&
          (*u).ent->next_uport2>0 && (*u).ent->my_uport>0
          && (*u).ent->next_uport2<=9999 && (*u).ent->my_uport<=9999){
       char* idm = gen_idmess();
@@ -1044,21 +1044,23 @@ void* envoi_udp(void* e){
     char *buff=malloc(sizeof(char)*512);
     read(STDIN_FILENO, buff, 512);
     
-    printf("message recu %s",buff);
+    printf("envoi_udp : Message recu %s",buff);
     tab = split(buff,' ');
     taille=str_arrsize(tab);
     if(taille==2){
       if(strcmp(tab[0],"APP")) {gen_appmess( u, tab[1]);}
       ring= atoi(tab[1]);
-       if(ring==1||ring==2){
-	if(strcmp(tab[0],"GBYE")) gen_gbyemess( u,ring);
-	if(strcmp(tab[0],"TEST")) gen_testmess( u,ring);
-	
+      if(ring==1||ring==2){
+        if(strcmp(tab[0],"GBYE")) gen_gbyemess( u,ring);
+        if(strcmp(tab[0],"TEST")) gen_testmess( u,ring);
       }
-      
     }
     if(taille==1){
-      if(strcmp(tab[0],"WHO"))  gen_whosmess( u);
+      
+      if(strcmp(tab[0],"WHOS")){  
+        //printf("I will use whose\n");
+        gen_whosmess( u);
+      }
     }
   }
 }

@@ -39,6 +39,11 @@ Allow to correct ip coded on 9o to 15o
 char* ip_addZero(char* ip);
 
 /*
+Allow to transform ip coded on 15o to 9o
+ */
+char* ip_removeZero(char* ip);
+
+/*
 Get ip adress knowing the host
 */
 char* get_ip();

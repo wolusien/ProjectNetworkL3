@@ -95,21 +95,31 @@ char* ip_addZero(char* ip){
   return NULL;
 }
 
-/*
+
 char* ip_removeZero(char* ip){
+  int i;
   if(ip!=NULL){
     if(strlen(ip)==15){
       char** tab = split(ip,'.');
-      if(str_arrsize(tab)==4)
-      char* ip_f = tab[0];
-      
+      if(str_arrsize(tab)==4){
+        char* ip_f = tab[0];
+        int size = str_arrsize(tab);
+        for (i = 1; i < size; i++)
+        {
+          strcat(ip_f,".");
+          int r = atoi(tab[i]);
+          char* t = malloc(sizeof(char)*3);
+          sprintf(t,"%d",r);
+          strcat(ip_f,t);
+        }
+        return ip_f;
+      }
     }else{
       return ip;
     }
   }
   return NULL;
 }
-*/
 
 /*
   Get ip adress knowing the host
@@ -200,9 +210,9 @@ int free_tport(){
   if(host_addr!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
-    int port = 1024;
+    int port = 1025;
 
-    for (i = 0; i < 9999-1024; i++) {
+    for (i = 0; i < 9999-1025; i++) {
       port += i;
       adress_sock.sin_port = htons(port);
       inet_aton(host_addr,&adress_sock.sin_addr);
@@ -269,21 +279,7 @@ int free_uport(){
   Function that verify an ip_address
 */
 int check_ip(char* ip){
-  int i=0;
-  char* test = malloc(sizeof(char)*9);
-  if(strlen(ip)==15){
-    for (i = 0; i < 4; i++)
-    {
-      test[i]=ip[i];
-    }
-    test[4]=ip[6];
-    test[5]=ip[7];
-    test[6]=ip[10];
-    test[7]=ip[11];
-    test[8]=ip[14];
-  }else{
-    test = ip;
-  }
+  char* test = ip_removeZero(ip);
   struct sockaddr_in sa;
   int result = inet_pton(AF_INET, test, &(sa.sin_addr));
   if(result!=0)return 0;

@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     pthread_t th2;
     pthread_t th3;
     pthread_create(&th2,NULL,pth_insertion,(*u).ent);
-    //pthread_create(&th3,NULL,rec_udp,u);
+    pthread_create(&th3,NULL,rec_udp,u);
     pthread_join(th2,NULL);
-    //pthread_join(th3,NULL);
+    pthread_join(th3,NULL);
   }else{
     printf("Problem with init entity\n");
   }

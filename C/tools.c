@@ -106,7 +106,7 @@ char* get_ip(){
   char *ip=(char *)malloc(64*sizeof(char));
   status = getifaddrs(&myaddrs);
   if (status != 0){
-    perror("get_ip : Probleme de recuperation d'adresse IP");
+    fprintf(stderr,"get_ip : Probleme de recuperation d'adresse IP");
     return NULL;
   }
   for (ifa = myaddrs; ifa != NULL; ifa = ifa->ifa_next){

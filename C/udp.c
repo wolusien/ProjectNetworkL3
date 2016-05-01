@@ -150,7 +150,7 @@ int app_mess(uEntity* u, char* buff){
                           return -1;
                         }
                       }else{
-                        fprintf(stderr,"app_mess : Problem with getaddrinfo for the second ring %d\n",r);
+                        perror("app_mess : Problem with getaddrinfo for the second ring ");
                         return -1;
                       }
                     }
@@ -165,7 +165,7 @@ int app_mess(uEntity* u, char* buff){
                     fprintf(stderr,"app_mess : Problem with getaddrinfo : struct sockaddrinfo finfo is NULL\n");
                   }
                 }else{
-                  fprintf(stderr,"app_mess : Problem with getaddrinfo %d\n",r);
+                  perror("app_mess : Problem with getaddrinfo  ");
                 }
               }
             }else{
@@ -266,7 +266,7 @@ int whos(uEntity* u, char* buff){
                         return -1;
                       }
                     }else{
-                      fprintf(stderr,"whos : Problem with get_addrinfo for the second ring %d\n",r);
+                      perror("whos : Problem with get_addrinfo for the second ring  ");
                       return -1;
                     }
                   }
@@ -291,7 +291,7 @@ int whos(uEntity* u, char* buff){
         fprintf(stderr,"whos : Problem with get_addrinfo struct sockaddrinfo *finfo is NULL \n");
       }
     }else{
-      fprintf(stderr,"whos : Problem with get_addrinfo %d\n",r);
+      perror("whos : Problem with get_addrinfo  ");
     }
   }else if (strlen(buff)==43)
   {
@@ -353,7 +353,7 @@ int whos(uEntity* u, char* buff){
                       return -1;
                     }
                   }else{
-                    fprintf(stderr,"whos_answer : Problem with getaddrinfo for the second ring %d\n",r);
+                    perror("whos_answer : Problem with getaddrinfo for the second ring  ");
                     return -1;
                   }                  
                 }
@@ -375,7 +375,7 @@ int whos(uEntity* u, char* buff){
         fprintf(stderr,"whos_answer : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
       }      
     }else{
-      fprintf(stderr,"whos_answer : Problem with getaddrinfo %d\n",r);
+      perror("whos_answer : Problem with getaddrinfo ");
     }
   }
   return -1;
@@ -466,7 +466,7 @@ int gbye(uEntity* u, char* buff){
                             return -1;
                           }
                         }else{
-                          fprintf(stderr,"gbye : Problem with getaddrinfo for the second ring %d\n",r);    
+                          perror("gbye : Problem with getaddrinfo for the second ring  ");    
                           return -1;
                         }
                       }
@@ -497,7 +497,7 @@ int gbye(uEntity* u, char* buff){
                             return -1;
                           }
                         }else{
-                          fprintf(stderr,"gbye : Problem with getaddrinfo for the second ring %d\n",r);    
+                          perror("gbye : Problem with getaddrinfo for the second ring  ");    
                           return -1;
                         }
                       }
@@ -520,7 +520,7 @@ int gbye(uEntity* u, char* buff){
         fprintf(stderr,"gbye : Problem with getaddrinfo struct sockaddrinfo *finfo is NULL\n");
       }
     }else{
-      fprintf(stderr,"gbye : Problem with getaddrinfo %d\n",r);    
+      perror("gbye : Problem with getaddrinfo  ");    
     }
   }else if(strlen(buff)==13){
     char** tab = split(buff,' ');
@@ -588,7 +588,7 @@ int testring(uEntity* u, char* buff){
                       return -1;
                     }
                   }else{
-                    fprintf(stderr,"testring : Problem with getaddrinfo %d\n",r);
+                    perror("testring : Problem with getaddrinfo  \n");
                     return -1;
                   }
                 }else if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
@@ -621,7 +621,7 @@ int testring(uEntity* u, char* buff){
                         return -1;
                       }
                     }else{
-                      fprintf(stderr,"testring : Problem with getaddrinfo for the second ring %d\n",r);
+                      perror("testring : Problem with getaddrinfo for the second ring ");
                       return -1;
                     }
                   }else{
@@ -651,41 +651,43 @@ void* rec_udp(void* uent){
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
-    printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
+    //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->my_uport);
-    //int inet = inet_aton((*u).ent->my_ip,&address_sock.sin_addr);
-    //printf("Value de inet_aton %d\n",inet);
-    address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
-    int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
-    if (r==0) {
-      char buff[512];
-      while (1) {
-        int rec = recv(sock,buff,512,0);
-        if(rec>0){
-          buff[rec]='\0';
-          printf("\nrec_udp : Message received %s\n\n",buff);
-          double var = (*u).count_time;
-          if((*u).count_time!=0){
-            (*u).count_time = (double)(clock()-var)/CLOCKS_PER_SEC;
-          }
-          /*reste à coder */
-          if(app_mess(u,buff)!=0)
-          {
-            if(whos(u,buff)!=0)
+    int inet = inet_aton((*u).ent->my_ip,&(address_sock.sin_addr));
+    if(inet == 1){
+      int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
+      if (r==0) {
+        char buff[512];
+        while (1) {
+          int rec = recv(sock,buff,512,0);
+          if(rec>0){
+            buff[rec]='\0';
+            printf("\nrec_udp : Message received %s\n\n",buff);
+            double var = (*u).count_time;
+            if((*u).count_time!=0){
+              (*u).count_time = (double)(clock()-var)/CLOCKS_PER_SEC;
+            }
+            /*reste à coder */
+            if(app_mess(u,buff)!=0)
             {
-              if(gbye(u,buff)!=0)
+              if(whos(u,buff)!=0)
               {
-                if(testring(u,buff)!=0)
+                if(gbye(u,buff)!=0)
                 {
-                  fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+                  if(testring(u,buff)!=0)
+                  {
+                    fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+                  }
                 }
               }
             }
           }
         }
+      }else {
+        perror("rec_udp bind: Problem with socket binding");
       }
-    }else {
-      fprintf(stderr,"rec_udp bind: Problem with socket binding %d\n",r);
+    }else{
+      fprintf(stderr,"rec_udp : Problem for inet_aton with ip\n");
     }
   }else{
     fprintf(stderr,"rec_udp : Wrong udp port entity\n");

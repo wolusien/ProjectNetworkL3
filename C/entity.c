@@ -124,11 +124,11 @@ int insertion(entity* e, char* host, int e1_tcp ){
           return -1;
         }
       }else{
-        fprintf(stderr,"insertion : connect : Problem with the connection %d\n" ,con);
+        perror("insertion : connect : Problem with the connection  ");
         return -1;
       }
     }else{
-      fprintf(stderr,"insertion : Problem for inet_aton with ip\n");
+      perror("insertion : Problem for inet_aton with ip ");
     }
   }else{
     fprintf(stderr,"insertion : Number of insertions authorized overpassed\n");
@@ -297,16 +297,16 @@ int serv_tcp(entity* e){
               fprintf(stderr,"serv_tcp : Problem with next ip1 %s\n",(*e).next_ip1);
             }
           }else{
-            fprintf(stderr,"serv_tcp : Problem with the connection to the server\n");
+            perror("serv_tcp : Problem with the connection to the server ");
             close(sock2);
           }
         }
       }else{
-        fprintf(stderr,"serv_tcp : Problem with the bind of the server socket\n");
+        perror("serv_tcp : Problem with the bind of the server socket ");
         return -1;    
       }
     }else{
-      fprintf(stderr,"serv_tcp : Problem for inet_aton with ip\n");
+      perror("serv_tcp : Problem for inet_aton with ip ");
     }
   }else{
     fprintf(stderr,"serv_tcp : Wrong tcp port given %d\n",(*e).tcp_port);
@@ -412,7 +412,7 @@ int duplication(entity* e, char* host, int e1_tcp ){
                   fprintf(stderr,"duplication : Problem with message received from the entity of ring %s\n",buff2);
                 }
               }else{
-                fprintf(stderr,"duplication recv : Problem with the second message received from the entity of ring %d\n",recu2);
+                perror("duplication recv : Problem with the second message received from the entity of ring  ");
               }
             }else{
               fprintf(stderr,"duplication : Problem with the ip and ports received\n");
@@ -421,10 +421,10 @@ int duplication(entity* e, char* host, int e1_tcp ){
             fprintf(stderr,"duplication : Problem wrong message form, lack of arguments\n");
           }
         }else{
-          fprintf(stderr,"duplication : recv : Problem the number of char received for the message%d\n",recu);
+          perror("duplication : recv : Problem the number of char received for the message  ");
         }
       }else{
-        fprintf(stderr,"duplication : connect : Problem with the connection %d\n" ,con);
+        perror("duplication : connect : Problem with the connection  ");
       }
     }else{
       fprintf(stderr,"duplication : Problem for inet_aton with ip\n");

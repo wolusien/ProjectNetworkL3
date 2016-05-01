@@ -212,9 +212,9 @@ class Entity {
 			System.out.println("entity ok");
 			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintWriter pw=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-			pw.print("NEWC "+tools.ip()+" "+this.getTcp_port()+"\n");
+			pw.print("NEWC "+tools.ip()+" "+this.getUdp_port()+"\n");
 			pw.flush();
-			System.out.println("flush ");
+			System.out.println("flush "+this.getUdp_port());
 			String mess=br.readLine();
 			System.out.println("mess recu : "+mess);
 			if(!tools.verif_mess_server(mess.trim(), this)){
@@ -231,4 +231,32 @@ class Entity {
 		}
 
 	}
+	
+
+	public void duplication(String ip,int port) {
+		try{
+			Socket socket=new Socket(ip,port);
+			System.out.println("entity ok");
+			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter pw=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+			pw.print("DUPL "+tools.ip()+" "+this.getUdp_port()+" "+this.getCastIP()+" "+this.getCastPort()+"\n");
+			pw.flush();
+			System.out.println("flush "+this.getUdp_port());
+			String mess=br.readLine();
+			System.out.println("mess recu : "+mess);
+			if(!tools.verif_dupl(mess.trim(), this)){
+				System.out.println("ceci ne correspond pas a un message d'insertion");
+				quit();
+			}
+			pw.close();
+			br.close();
+			socket.close();
+		}
+		catch(Exception e){
+			System.out.println(e);
+			e.printStackTrace();
+		}
+
+	}
+
 }

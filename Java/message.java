@@ -30,7 +30,7 @@ public class message implements Runnable {
 	}
 	public  DatagramSocket  portlibre(){
 		DatagramSocket dso=null;
-		int port=1024;
+		int port=2048;
 		while(true){
 			try{
 				dso=new DatagramSocket(port);
@@ -158,14 +158,15 @@ public class message implements Runnable {
 
 	public void sendMessage(byte[] data){
 		try{
-			System.out.println("envoye a :"+ent.getNextudp());
 			DatagramSocket dso= new DatagramSocket();
 			if(ent.actif){
+				System.out.println("envoye a :"+ent.getNextudp());
 				InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(), ent.getNextudp());
 				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
 				dso.send(packet);
 			}
 			if(ent.getdupl() && ent.duplactif){
+				System.out.println("envoye a :"+ent.getdupl_udp_port());
 				InetSocketAddress ia= new InetSocketAddress(ent.getdupl_udp_ip(), ent.getdupl_udp_port());
 				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
 				dso.send(packet);

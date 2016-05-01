@@ -1,9 +1,23 @@
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Random;
 
 public class tools{
+
+	public static boolean verif_dupl(String mess, Entity ent){
+		String[] decomp=mess.split(" ");
+		if (decomp.length!=5)return false;
+		if(!decomp[0].equals("WELC"))return false;
+		ent.setNextIp(decomp[1]);
+		ent.setNextudp(Integer.parseInt(decomp[2]));
+		return true;
+	}
+
 	public static boolean verif_mess_server(String mess, Entity ent){
 		String[] decomp=mess.split(" ");
 		if (decomp.length!=5)return false;
@@ -33,34 +47,45 @@ public class tools{
 
 	public static boolean verif_mess_dupl(String mess, Entity ent){
 		String[] decomp=mess.split(" ");
-		if(!ent.getdupl()) return false;
-		if(decomp.length!=5) return false;
-		if(!decomp[0].equals("DUPL")) return false;
+		if(ent.getdupl()) {
+			System.out.println("deja duplique");
+			return false;
+		}
+		if(decomp.length!=5){
+			System.out.println("longueur : "+decomp.length);
+			return false;
+		}
+		if(!decomp[0].equals("DUPL")){
+			System.out.println("pas de dupl");
+			return false;
+		}
 		ent.duplication();
 		ent.setdupl_udp_ip(decomp[1]);
 		ent.setdupl_udp_port(Integer.parseInt(decomp[2]));
+		System.out.println("dupl udp ok");
 		ent.setdupl_cast_ip(decomp[3]);
-		ent.setdupl_cast_port(Integer.parseInt(decomp[3]));
-		
+		ent.setdupl_cast_port(Integer.parseInt(decomp[4]));
+		System.out.println("dupl cast ok");
 		Multidiffusion multidiff= new Multidiffusion(ent);
 		multidiff.setIp(ent.getdupl_cast_ip());
 		multidiff.setPort(ent.getdupl_cast_port());
 		ent.lance_dupl_multidiffusion(multidiff);
 		ent.setdupl_muldiff(multidiff);
+		System.out.println("end");
 		return true;
 	}
 
 	//genere un idm
 	public static String genereIdm(){
 		Date d= new Date();
-		try{
-			Thread.sleep(1);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+		int r= (int)(Math.random()*5+1);
+		int r2=(int)(Math.random()*26);
+		String as="azertyuiopqsdfghjklmwxcvbn";
 		String s= Long.toString(d.getTime());
-		return s.substring(s.length()-8);
+		s= s.substring(s.length()-8);
+		s=(String)s.substring(0, r-1)+as.charAt(r2)+s.substring(r);
+		return s;
+
 	}
 
 	//message dans l'anneau
@@ -182,8 +207,27 @@ fin
 
 	public static String ip(){
 		try{
-			InetAddress ia=InetAddress.getLocalHost();
-			return remplissageIp(ia.getHostAddress());
+			Enumeration<NetworkInterface>
+			listNi=NetworkInterface.getNetworkInterfaces();
+			while(listNi.hasMoreElements()){
+				NetworkInterface nic=listNi.nextElement();
+				System.out.println("Network Interface :");
+				System.out.println(nic.toString());
+				Enumeration<InetAddress> listIa=nic.getInetAddresses();
+				while(listIa.hasMoreElements()){
+					InetAddress iac=listIa.nextElement();
+					//System.out.println("++++++ InetAddress :");
+					//System.out.println("++++++ "+iac.toString());
+					/*if(iac instanceof Inet4Address){
+						System.out.println("IPV4");
+						System.out.println(iac.toString());
+					}*/
+					if(!iac.isLoopbackAddress()){
+						System.out.println("Loop Back Address");
+						return remplissageIp(iac.getHostAddress());
+					}
+				}
+			}
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -202,7 +246,7 @@ fin
 		return c;
 	}
 	public static String remplissageId(String id){
-
+		if(id==null) return null;
 		if(id.length()==8)return id;
 		else{
 			System.out.println((8-id.length()));

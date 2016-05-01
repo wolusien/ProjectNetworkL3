@@ -7,7 +7,7 @@ public class MainInsert {
 
 	public static void main(String[] args) {
 		Entity ent= new Entity();
-		ent.insertion("192.168.233.001", 1024);
+		ent.insertion("172.28.2.52", 1024);
 		/*try{
 			DatagramSocket dso=new DatagramSocket();
 			byte[]data = new byte[512];

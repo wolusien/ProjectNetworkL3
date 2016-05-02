@@ -374,7 +374,7 @@ char* gen_idmess(){
     }
     char* idf = malloc(sizeof(char)*8);
     strcpy(idf,idm);
-    printf("Value of idm %s\n",idf);
+    //printf("Value of idm %s\n",idf);
     return idf;
   }
   return NULL;

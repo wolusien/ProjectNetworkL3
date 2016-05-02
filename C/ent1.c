@@ -20,10 +20,12 @@ int main(int argc, char *argv[])
   int r = init_uEntity(u);
   if (r==0) {
     (*u).ent->my_ip = argv[1];
-    (*u).ent->tcp_port = atoi(argv[2]);
+    (*u).ent->my_uport = atoi(argv[2]);
+    (*u).id_app = "12345679";
+    (*u).ent->next_uport1 = 1025;
     pthread_t th2;
     //pthread_t th3;
-    pthread_create(&th2,NULL,pth_insertion,(*u).ent);
+    pthread_create(&th2,NULL,rec_udp,u);
     pthread_join(th2,NULL);
   }else{
     printf("Problem with init entity\n");

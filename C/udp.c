@@ -89,438 +89,379 @@ int init_uEntity(uEntity* u){
 //////////////////////////////////////////////////////////////////////
 ///////////////////RECEPTION//////////////////////////////////////////
 
-/*
- * Function managing application udp message protocol
- */
+//Function managing application udp message protocol
 int app_mess(uEntity* u, char* buff){
   if(strlen(buff)<=512){
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct addrinfo *finfo;
-    struct addrinfo hints;
     
-    bzero(&hints,sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    
-    char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
-		
-    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);    
-    char** tab = split(buff,' ');
-    if(str_arrsize(tab)>=4){
-      if (strcmp(tab[0],"APPL")==0) {
-        if (strlen(tab[1])==8)
-        {
-          if (isin(u,tab[1])==-1)
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    adress_sock.sin_port = htons((*u).ent->next_uport1);
+    int inet = inet_aton((*u).ent->next_ip1,&(adress_sock.sin_addr));
+    if(inet == 1)
+    {
+      //char* next_uport = intchar((*u).ent->next_uport1,4);
+      char** tab = split(buff,' ');
+      if(str_arrsize(tab)>3){
+        if (strcmp(tab[0],"APPL")==0) {
+          if (strlen(tab[1])==8)
           {
-            //Case where mess has never been managed
-            if (strlen(tab[2])==8) {
-              if(strcmp((*u).id_app,tab[2])==0){
-                //Case where (*u).(*e) support the application
-                //code à écrire
-                printf("Code à écrire, message de l'application %s\n",buff);
-                return 0;
-              }else{
-                //Case where we transmit the message to the next entity
-                if(r==0){
-                  if(finfo!=NULL){
-                    struct sockaddr *saddr = finfo->ai_addr;
-                    sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                    
-                    //Case for the second ring (duplication)
-                    if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
-                    {    
-                      sprintf(next_uport,"%d",(*(u->ent)).next_uport2);
-                
-                      r = getaddrinfo((*(u->ent)).next_ip2,next_uport,&hints,&finfo);    
-                      if(r==0){
-                        if(finfo!=NULL){
-                          saddr = finfo->ai_addr;
-                          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                          
-                          add_umess(u,0,tab[0]);
-                          add_umess(u,0,tab[1]);
-                    
-                          close(sock);
-                          free(tab);
-                          free(finfo);
-                          return 0;
-                        }else{
-                          fprintf(stderr,"app_mess : Problem with getaddrinfo for second ring : struct sockaddrinfo finfo is NULL\n");
-                          return -1;
-                        }
-                      }else{
-                        perror("app_mess : Problem with getaddrinfo for the second ring ");
-                        return -1;
-                      }
-                    }
-                    add_umess(u,0,tab[0]);
-                    add_umess(u,0,tab[1]);
-                    
-                    close(sock);
-                    free(tab);
-                    free(finfo);
-                    return 0;
-                  }else{
-                    fprintf(stderr,"app_mess : Problem with getaddrinfo : struct sockaddrinfo finfo is NULL\n");
-                  }
+            if (isin(u,tab[1])==-1)
+            {
+              //Case where mess has never been managed
+              if (strlen(tab[2])==8) {
+                if(strcmp((*u).id_app,tab[2])==0){
+                  //Case where (*u).(*e) support the application
+                  //code à écrire
+                  printf("Code à écrire, message de l'application %s\n",buff);
+                  return 0;
                 }else{
-                  perror("app_mess : Problem with getaddrinfo  ");
+                  //Case where we transmit the message to the next entity
+                  
+                  sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+                  printf("app_mess : Message send %s\n",buff);
+                  
+                  //Case for the second ring (duplication)
+                  if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
+                  { 
+                    adress_sock.sin_port = htons((*u).ent->next_uport2);
+                    inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                    //char* next_uport = intchar((*u).ent->next_uport2,4);
+                    
+                    if(inet == 1)
+                    {
+                      sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                      printf("app_mess :  Message send on the second ring %s\n",buff);
+                      
+                      add_umess(u,0,tab[0]);
+                      add_umess(u,0,tab[1]);
+                
+                      close(sock);
+                      free(tab);
+                      printf("J'ai fini");
+                      return 0;
+                    
+                    }else{
+                      perror("app_mess : ");
+                    }
+                  }
+                  add_umess(u,0,tab[0]);
+                  add_umess(u,0,tab[1]);
+                  
+                  close(sock);
+                  free(tab);
+                  return 0;                    
                 }
+              }else{
+                fprintf(stderr,"app_mess ; Wrong application id %s\n",tab[2]);
               }
-            }else{
-              fprintf(stderr,"app_mess ; Wrong application id %s\n",tab[2]);
             }
+          }else{
+            fprintf(stderr,"app_mess ; Wrong message id %s\n",tab[1]);
           }
-        }else{
-          fprintf(stderr,"app_mess ; Wrong message id %s\n",tab[1]);
-        }
-      }    
+        }    
+      }
+    }else{
+      perror("app_mess : ");
     }
   }
   return -1;
 }
 
-/*
- * Function managing WHOS udp message protocol
- */
+
+//Function managing WHOS udp message protocol
 int whos(uEntity* u, char* buff){
   if(strlen(buff)==13){
-    printf("Taille du message ok\n");
+    //printf("Taille du message ok\n");
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct addrinfo *finfo;
-    struct addrinfo hints;
     
-    bzero(&hints,sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    adress_sock.sin_port = htons((*u).ent->next_uport1);
+    int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
     
-    char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
-		
-    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);
-    if(r==0)
+    if(inet == 1)
     {
-      if(finfo!=NULL)
+      //char* next_uport = intchar((*u).ent->next_uport1,4);
+      char** tab = split(buff,' ');
+      //printf("Value of firdt idm %s\n",tab[1]);
+      if(str_arrsize(tab)==2)
       {
-        struct sockaddr *saddr = finfo->ai_addr;
-        char** tab = split(buff,' ');
-        //printf("Value of firdt idm %s\n",tab[1]);
-        if(str_arrsize(tab)==2)
-        {
-          if (strcmp(tab[0],"WHOS")==0) {
-            if (strlen(tab[1])==8) {
-              //printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
-              if(isin(u,tab[1])==-1){
-                //Case where message never has been managed
-                char tampon[520];
-                strcat(tampon,"MEMB ");
-                char* idm = gen_idmess();
-                strcat(tampon,idm);
-                strcat(tampon," ");
-                strcat(tampon,(*u).ent->id);
-                strcat(tampon," ");
-                strcat(tampon,ip_addZero((*u).ent->my_ip));
-                strcat(tampon," ");
-                char* udp = intchar((*u).ent->my_uport,4);
-                if(udp != NULL){
-                  strcat(tampon,udp);
-                  
-                  //printf("Value of MEMB send %s\n\n",tampon);
-                  //We send message WHOS
-                  sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                  
-                  //We send the answer MEMB
-                  sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                  
-                  //Case for the second ring (duplication)
-                  if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
-                  && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
-                  {
-                    sprintf(next_uport,"%d",(*(u->ent)).next_uport2);
-                    
-                    r = getaddrinfo((*(u->ent)).next_ip2,next_uport,&hints,&finfo);
-                    if(r==0)
-                    {
-                      if(finfo!=NULL)
-                      {
-                        struct sockaddr *saddr = finfo->ai_addr;
-                        //We send message WHOS
-                        sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                        
-                        //We send the answer MEMB
-                        sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                        
-                        //Store idm tab[1] on array rec
-                        add_umess(u,0,tab[1]);
-                        add_umess(u,1,tab[1]);
-                        //Store idm on array env
-                        add_umess(u,0,idm);
-                        
-                        close(sock);
-                        free(tab);
-                        free(finfo);
-                        return 0;
-                      }else{
-                        fprintf(stderr,"whos : Problem with get_addrinfo for the second ring struct sockaddrinfo *finfo is NULL \n");
-                        return -1;
-                      }
-                    }else{
-                      perror("whos : Problem with get_addrinfo for the second ring  ");
-                      return -1;
-                    }
-                  }
-                  //Store idm tab[1] on array rec
-                  add_umess(u,0,tab[1]);
-                  add_umess(u,1,tab[1]);
-                  //Store idm on array env
-                  add_umess(u,0,idm);
-                  
-                  close(sock);
-                  free(tab);
-                  free(finfo);
-                  return 0;
-                }
-              }
-            }else{
-              fprintf(stderr,"whos : Wrong idmess %s\n",tab[1]);
-            }
-          }    
-        }      
-      }else{
-        fprintf(stderr,"whos : Problem with get_addrinfo struct sockaddrinfo *finfo is NULL \n");
-      }
-    }else{
-      perror("whos : Problem with get_addrinfo  ");
-    }
-  }else if (strlen(buff)==43)
-  {
-    int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct addrinfo *finfo;
-    struct addrinfo hints;
-    
-    bzero(&hints,sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    
-    char* next_uport = malloc(sizeof(char)*100);
-    sprintf(next_uport,"%d",(*(u->ent)).next_uport1);
-		
-    int r = getaddrinfo((*(u->ent)).next_ip1,next_uport,&hints,&finfo);
-    if (r==0)
-    {
-      if (finfo!=NULL)
-      {
-        //struct sockaddr *saddr = finfo->ai_addr;
-        char** tab = split(buff,' ');
-        if(str_arrsize(tab)==5)
-        {
-          if(strcmp(tab[0],"MEMB")==0)
-          {
-            //Case where we received MEMB
-            if(strlen(tab[1])==8){
-              if(isin(u,tab[1])==-1){
-                //Case where message has never been manage
-                printf("whos_answer : %s\n",buff);
+        if (strcmp(tab[0],"WHOS")==0) {
+          if (strlen(tab[1])==8) {
+            //printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
+            if(isin(u,tab[1])==-1){
+              //Case where message never has been managed
+              char tampon[520] = "MEMB ";
+              char* idm = gen_idmess();
+              strcat(tampon,idm);
+              strcat(tampon," ");
+              strcat(tampon,(*u).ent->id);
+              strcat(tampon," ");
+              strcat(tampon,ip_addZero((*u).ent->my_ip));
+              strcat(tampon," ");
+              char* udp = intchar((*u).ent->my_uport,4);
+              if(udp != NULL){
+                strcat(tampon,udp);
                 
-                struct sockaddr *saddr = finfo->ai_addr;
+                //printf("Value of MEMB send %s\n\n",tampon);
                 //We send message WHOS
-                sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
+                sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+                printf("whos : Message sent %s\n",buff);
+                
+                //We send the answer MEMB
+                sendto(sock,tampon,strlen(tampon),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+                printf("whos : Message sent %s\n",tampon);
                 
                 //Case for the second ring (duplication)
                 if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
                 && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
                 {
-                  sprintf(next_uport,"%d",(*(u->ent)).next_uport2);
+                  //char* next_uport=intchar((*u).ent->next_uport2,4);
+                  adress_sock.sin_port = htons((*u).ent->next_uport2);
+                  int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
                   
-                  r = getaddrinfo((*(u->ent)).next_ip2,next_uport,&hints,&finfo);
-                  if (r==0)
+                  if(inet == 1)
                   {
-                    if(finfo!=NULL){
-                      struct sockaddr *saddr = finfo->ai_addr;
-                      //We send message WHOS
-                      sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                      
-                      //Store idm tab[1] on array rec
-                      add_umess(u,0,tab[1]);
-                      add_umess(u,1,tab[1]);
-                      close(sock);
-                      free(tab);
-                      free(finfo);
-                      return 0;
-                    }else{
-                      fprintf(stderr,"whos_answer : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL\n");
-                      return -1;
-                    }
+                    //We send message WHOS
+                    sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+                    printf("whos : Message sent on the second ring %s\n",buff);
+                    
+                    //We send the answer MEMB
+                    sendto(sock,tampon,strlen(tampon),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+                    printf("whos : Message sent on the second ring %s\n",tampon);
+                    
+                    //Store idm tab[1] on array rec
+                    add_umess(u,0,tab[1]);
+                    add_umess(u,1,tab[1]);
+                    //Store idm on array env
+                    add_umess(u,0,idm);
+                    
+                    close(sock);
+                    free(tab);
+                    return 0;
                   }else{
-                    perror("whos_answer : Problem with getaddrinfo for the second ring  ");
+                    perror("whos : ");
                     return -1;
-                  }                  
+                  }  
                 }
-                
                 //Store idm tab[1] on array rec
                 add_umess(u,0,tab[1]);
                 add_umess(u,1,tab[1]);
+                //Store idm on array env
+                add_umess(u,0,idm);
+                
                 close(sock);
                 free(tab);
-                free(finfo);
                 return 0;
               }
-            }else{
-              fprintf(stderr,"whos_answer : Wrong id message %s\n",tab[1]);
             }
+          }else{
+            fprintf(stderr,"whos : Wrong idmess %s\n",tab[1]);
+          }
+        }    
+      }
+    }else{
+      perror("whos : ");
+    }
+  }else if (strlen(buff)==43)
+  {
+    int sock = socket(PF_INET,SOCK_DGRAM,0);
+
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    adress_sock.sin_port = htons((*u).ent->next_uport1);
+    int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+    
+    if(inet == 1)
+    {
+      //char* next_uport = intchar((*u).ent->next_uport1,4);
+      char** tab = split(buff,' ');
+      if(str_arrsize(tab)==5)
+      {
+        if(strcmp(tab[0],"MEMB")==0)
+        {
+          //Case where we received MEMB
+          if(strlen(tab[1])==8){
+            if(isin(u,tab[1])==-1){
+              //Case where message has never been manage
+              printf("whos_answer : %s\n",buff);
+              
+              //We send message WHOS
+              sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+              
+              //Case for the second ring (duplication)
+              if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+              && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
+              {
+                //char *next_uport=intchar((*u).ent->next_uport2,4);
+                
+                adress_sock.sin_port = htons((*u).ent->next_uport2);
+                inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+      
+                if(inet == 1)
+                {
+                  //We send message WHOS
+                  sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                  printf("whos_anwser : Message sent on the second ring %s\n",buff);
+                  
+                  //Store idm tab[1] on array rec
+                  add_umess(u,0,tab[1]);
+                  add_umess(u,1,tab[1]);
+                  close(sock);
+                  free(tab);
+                  return 0;
+                }else{
+                  perror("whos : ");
+                  return -1;
+                }
+              }
+              
+              //Store idm tab[1] on array rec
+              add_umess(u,0,tab[1]);
+              add_umess(u,1,tab[1]);
+              close(sock);
+              free(tab);
+              return 0;
+            }
+          }else{
+            fprintf(stderr,"whos_answer : Wrong id message %s\n",tab[1]);
           }
         }
-      }else{
-        fprintf(stderr,"whos_answer : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
-      }      
+      }
     }else{
-      perror("whos_answer : Problem with getaddrinfo ");
+      perror("whos : ");
+      return -1;
     }
   }
   return -1;
 }
 
-/*
- * Function managing GBYE udp message protocol
- */
+
+//Function managing GBYE udp message protocol
 int gbye(uEntity* u, char* buff){
   if(strlen(buff)==55)
   {
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct addrinfo *finfo;
-    struct addrinfo hints;
-    bzero(&hints,sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
     
-    char* next_uport = intchar((*u).ent->next_uport1,4);
-    int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-    if (r==0)
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    adress_sock.sin_port = htons((*u).ent->next_uport1);
+    int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+    
+    if(inet == 1)
     {
-      if (finfo!=NULL)
+      //char* next_uport = intchar((*u).ent->next_uport1,4);
+      char** tab = split(buff,' ');
+      if(str_arrsize(tab)==6)
       {
-        struct sockaddr *saddr = finfo->ai_addr;
-        char** tab = split(buff,' ');
-        if(str_arrsize(tab)==6)
+        if(strcmp(tab[0],"GBYE")==0)
         {
-          if(strcmp(tab[0],"GBYE")==0)
+          if (strlen(tab[1])==8)
           {
-            if (strlen(tab[1])==8)
-            {
-              if(isin(u,tab[1])==-1){
-                //Case where the message has never been seen
-                char* ip = tab[2];
-                int port = atoi(tab[3]);
-                char* ipsucc = tab[4];
-                int portsucc = atoi(tab[5]);
-                if(strlen(ip)==15 && strlen(ipsucc)==15
-                  && port>0 && port<=9999
-                  && portsucc>0 && portsucc<=9999)
+            if(isin(u,tab[1])==-1){
+              //Case where the message has never been seen
+              char* ip = tab[2];
+              int port = atoi(tab[3]);
+              char* ipsucc = tab[4];
+              int portsucc = atoi(tab[5]);
+              if(strlen(ip)==15 && strlen(ipsucc)==15
+                && port>0 && port<=9999
+                && portsucc>0 && portsucc<=9999)
+              {
+                if (check_ip(ip)!=-1 && check_ip(ipsucc)!=-1)
                 {
-                  if (check_ip(ip)!=-1 && check_ip(ipsucc)!=-1)
+                  if (strcmp(ip,(*u).ent->next_ip1)==0 
+                  && (*u).ent->next_uport1==port)
                   {
-                    if (strcmp(ip,(*u).ent->next_ip1)==0 
-                    && (*u).ent->next_uport1==port)
+                    //Case previous entity
+                    strcpy((*u).ent->next_ip1,ipsucc);
+                    (*u).ent->next_uport1=portsucc;
+                    char tampon[120] = "EYBG ";
+                    char* idm = gen_idmess();
+                    strcat(tampon,idm);
+                    sendto(sock,tampon,strlen(tampon),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                    printf("gbye : Message sent %s\n",tampon);
+                    free(tab);
+                    close(sock);
+                    return 0;
+                  }else if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+                  && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
+                    //Case for the second ring (duplication)
+                    
+                    if (strcmp(ip,(*u).ent->next_ip2)==0 
+                        && (*u).ent->next_uport2==port)
                     {
-                      //Case previous entity
-                      strcpy((*u).ent->next_ip1,ipsucc);
-                      (*u).ent->next_uport1=portsucc;
-                      char* tampon = malloc(sizeof(char)*120);
-                      strcat(tampon,"EYBG ");
-                      char* idm = gen_idmess();
-                      strcat(tampon,idm);
-                      sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                      free(tab);
-                      free(tampon);
-                      close(sock);
-                      return 0;
-                    }else if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
-                    && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
-                      //Case for the second ring (duplication)
+                      adress_sock.sin_port = htons((*u).ent->next_uport2);
+                      inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
                       
-                      if (strcmp(ip,(*u).ent->next_ip2)==0 
-                          && (*u).ent->next_uport2==port)
+                      if(inet == 1)
                       {
-                        next_uport = intchar((*u).ent->next_uport2,4);
-                        r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-                        if (r==0)
-                        {
-                          if (finfo!=NULL)
-                          {
-                            saddr = finfo->ai_addr;
-                            //Case previous entity
-                            strcpy((*u).ent->next_ip2,ipsucc);
-                            (*u).ent->next_uport2=portsucc;
-                            char* tampon = malloc(sizeof(char)*120);
-                            strcat(tampon,"EYBG ");
-                            char* idm = gen_idmess();
-                            strcat(tampon,idm);
-                            sendto(sock,tampon,strlen(tampon),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                            free(tab);
-                            free(tampon);
-                            close(sock);
-                            return 0;
-                          }else{
-                            fprintf(stderr,"gbye : Problem with getaddrinfo for the second ring struct sockaddrinfo *finfo is NULL\n");
-                            return -1;
-                          }
-                        }else{
-                          perror("gbye : Problem with getaddrinfo for the second ring  ");    
-                          return -1;
-                        }
+                        //next_uport = intchar((*u).ent->next_uport2,4);
+                        //Case previous entity
+                        strcpy((*u).ent->next_ip2,ipsucc);
+                        (*u).ent->next_uport2=portsucc;
+                        char tampon[120] = "EYBG ";
+                        char* idm = gen_idmess();
+                        strcat(tampon,idm);
+                        sendto(sock,tampon,strlen(tampon),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                        printf("gbye : Message sent on the second ring %s\n",tampon);
+                        
+                        free(tab);
+                        close(sock);
+                        return 0;
+                      }else{
+                        perror("gbye : On the second ring ");
+                        return -1;
                       }
-                
-                    }else{
-                      //Case where entity is not concern by the message
-                      
-                      sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                      
-                      //Case for the second ring (duplication)
-                      if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
-                        && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
-                      
-                        next_uport = intchar((*u).ent->next_uport2,4);
-                        r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-                        if (r==0)
-                        {
-                          if (finfo!=NULL)
-                          {
-                            saddr = finfo->ai_addr;
-                            sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                            free(tab);
-                            free(finfo);
-                            close(sock);
-                            return 0;
-                          }else{
-                            fprintf(stderr,"gbye : Problem with getaddrinfo for the second ring struct sockaddrinfo *finfo is NULL\n");
-                            return -1;
-                          }
-                        }else{
-                          perror("gbye : Problem with getaddrinfo for the second ring  ");    
-                          return -1;
-                        }
-                      }
-                      free(tab);
-                      free(finfo);
-                      close(sock);
-                      return 0;
                     }
+              
                   }else{
-                    fprintf(stderr,"gbye : Unvalid ip %s or ipsucc %s\n",ip,ipsucc);
+                    //Case where entity is not concern by the message
+                    
+                    sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                    printf("gbye : Message sent %s\n",buff);
+                    
+                    //Case for the second ring (duplication)
+                    if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+                      && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
+                    
+                      //char *next_uport = intchar((*u).ent->next_uport2,4);
+                      
+                      adress_sock.sin_port = htons((*u).ent->next_uport2);
+                      inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                      
+                      if(inet == 1)
+                      {
+                        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                        printf("gbye : Message sent on the second ring %s\n",buff);
+                        
+                        free(tab);
+                        close(sock);
+                        return 0;
+                        
+                      }else{
+                        perror("gbye : On the second ring ");
+                        return -1;
+                      }
+                    }
+                    free(tab);
+                    close(sock);
+                    return 0;
                   }
                 }else{
-                  fprintf(stderr,"gbye : Wrong form of the message received, containing invalid arguments %s\n",buff);
+                  fprintf(stderr,"gbye : Unvalid ip %s or ipsucc %s\n",ip,ipsucc);
                 }
+              }else{
+                fprintf(stderr,"gbye : Wrong form of the message received, containing invalid arguments %s\n",buff);
               }
             }
           }
         }
-      }else{
-        fprintf(stderr,"gbye : Problem with getaddrinfo struct sockaddrinfo *finfo is NULL\n");
       }
     }else{
-      perror("gbye : Problem with getaddrinfo  ");    
+      perror("gbye : ");
+      return -1;
     }
   }else if(strlen(buff)==13){
     char** tab = split(buff,' ');
@@ -540,9 +481,9 @@ int gbye(uEntity* u, char* buff){
   return -1;
 }
 
-/*
- * Function managing TEST udp message protocol
- */
+
+
+//Function managing TEST udp message protocol
 int testring(uEntity* u, char* buff){
   if (strlen(buff)==34)
   {
@@ -564,32 +505,21 @@ int testring(uEntity* u, char* buff){
                 if(strcmp(ipdiff,(*u).ent->cast_ip1)==0 && portdiff==(*u).ent->cast_port1)
                 {
                   int sock = socket(PF_INET,SOCK_DGRAM,0);
-                  struct addrinfo *finfo;
-                  struct addrinfo hints;
-                  bzero(&hints,sizeof(struct addrinfo));
-                  hints.ai_family = AF_INET;
-                  hints.ai_socktype = SOCK_DGRAM;
+                  struct sockaddr_in adress_sock;
+                  adress_sock.sin_family = AF_INET;
+                  adress_sock.sin_port = htons((*u).ent->next_uport1);
+                  int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
                   
-                  char* next_uport = intchar((*u).ent->next_uport1,4);
-                  int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-                  if (r==0)
-                  {
-                    if (finfo!=NULL){
-                      struct sockaddr *saddr = finfo->ai_addr;
-                      sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                      add_umess(u,0,tab[1]);
-                      add_umess(u,1,tab[1]);
-                      free(tab);
-                      free(finfo);
-                      close(sock);
-                      return 0;
-                    }else{
-                      fprintf(stderr,"testring : Problem with getaddrinfo struct addrinfo finfo is NULL");
-                      return -1;
-                    }
+                  if(inet == 1)
+                  {               
+                    sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                    add_umess(u,0,tab[1]);
+                    add_umess(u,1,tab[1]);
+                    free(tab);
+                    close(sock);
+                    return 0;                  
                   }else{
-                    perror("testring : Problem with getaddrinfo  \n");
-                    return -1;
+                    perror("testring : ");
                   }
                 }else if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
                         && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
@@ -597,32 +527,21 @@ int testring(uEntity* u, char* buff){
                   if(strcmp(ipdiff,(*u).ent->cast_ip2)==0 && portdiff==(*u).ent->cast_port2)
                   {
                     int sock = socket(PF_INET,SOCK_DGRAM,0);
-                    struct addrinfo *finfo;
-                    struct addrinfo hints;
-                    bzero(&hints,sizeof(struct addrinfo));
-                    hints.ai_family = AF_INET;
-                    hints.ai_socktype = SOCK_DGRAM;
+                    struct sockaddr_in adress_sock;
+                    adress_sock.sin_family = AF_INET;
+                    adress_sock.sin_port = htons((*u).ent->next_uport2);
+                    int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
                     
-                    char* next_uport = intchar((*u).ent->next_uport2,4);
-                    int r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-                    if (r==0)
-                    {
-                      if (finfo!=NULL){
-                        struct sockaddr *saddr = finfo->ai_addr;
-                        sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                        add_umess(u,0,tab[1]);
-                        add_umess(u,1,tab[1]);
-                        free(tab);
-                        free(finfo);
-                        close(sock);
-                        return 0;
-                      }else{
-                        fprintf(stderr,"testring : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL");
-                        return -1;
-                      }
+                    if(inet == 1)
+                    {   
+                      sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                      add_umess(u,0,tab[1]);
+                      add_umess(u,1,tab[1]);
+                      free(tab);
+                      close(sock);
+                      return 0;
                     }else{
-                      perror("testring : Problem with getaddrinfo for the second ring ");
-                      return -1;
+                      perror("testring : ");
                     }
                   }else{
                     return -1;
@@ -632,7 +551,7 @@ int testring(uEntity* u, char* buff){
                 fprintf(stderr,"testring : Wrong message form, problem with ip_diff %s\n",ipdiff);
               }
             }else{
-              fprintf(stderr,"testring : Wrong message form, probleme with legnth of one the arguments\n");
+              fprintf(stderr,"testring : Wrong message form, probleme with length of one the arguments\n");
             }
           }
         }
@@ -643,7 +562,7 @@ int testring(uEntity* u, char* buff){
 }
 
 
-/*Global fonction for udp message*/
+//Global fonction for udp message
 void* rec_udp(void* uent){
   printf("Je lance le serveur de reception udp\n");
   uEntity* u = (uEntity*)uent;
@@ -657,17 +576,19 @@ void* rec_udp(void* uent){
     if(inet == 1){
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
-        char buff[512];
+        char* buff = malloc(sizeof(char)*512);
         while (1) {
           int rec = recv(sock,buff,512,0);
           if(rec>0){
             buff[rec]='\0';
             printf("\nrec_udp : Message received %s\n\n",buff);
+            /*
             double var = (*u).count_time;
             if((*u).count_time!=0){
               (*u).count_time = (double)(clock()-var)/CLOCKS_PER_SEC;
             }
-            /*reste à coder */
+            */
+            //reste à coder 
             if(app_mess(u,buff)!=0)
             {
               if(whos(u,buff)!=0)
@@ -701,7 +622,7 @@ void* rec_udp(void* uent){
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////ENVOI////////////////////////////////////////////////////////////
 
-
+/*
 int gen_appmess(uEntity* u, char* mess){
   if(mess!=NULL && strlen(mess)<=488 && strlen(mess)>0)
   {
@@ -1064,3 +985,4 @@ void* envoi_udp(void* e){
     }
   }
 }
+*/

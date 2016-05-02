@@ -45,9 +45,13 @@ int main(int argc, char *argv[])
     //(*u).ent->next_ip1 = "127.0.0.1";
     (*u).ent->next_uport1 = 1030;
     (*u).id_app = "12345679";
-    app_mess(u,"APPL 12345678 12345678 ceci est un test");
-    whos(u,"WHOS 12345555");
-    gbye(u,"GBYE 12344444 127.000.000.001 1025 127.000.000.001 1030");
+    gen_appmess(u,"Yoho");
+    gen_whosmess(u);
+    gen_gbyemess(u,1);
+    gen_testmess(u,1);
+    //app_mess(u,"APPL 12345678 12345678 ceci est un test");
+    //whos(u,"WHOS 12345555");
+    //gbye(u,"GBYE 12344444 127.000.000.001 1025 127.000.000.001 1030");
   }
   return 0;
 }

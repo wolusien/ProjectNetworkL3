@@ -622,73 +622,58 @@ void* rec_udp(void* uent){
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////ENVOI////////////////////////////////////////////////////////////
 
-/*
+
 int gen_appmess(uEntity* u, char* mess){
   if(mess!=NULL && strlen(mess)<=488 && strlen(mess)>0)
   {
     if((*u).id_app!=NULL && (*u).ent->next_ip1!=NULL &&
        (*u).ent->next_uport1>0 ){
       char* idm = gen_idmess();
+      
       int sock = socket(PF_INET,SOCK_DGRAM,0);
-      struct addrinfo *finfo;
-      struct addrinfo hints;
-      bzero(&hints,sizeof(struct addrinfo));
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = SOCK_DGRAM;
-      char* next_uport = intchar((*u).ent->next_uport1,4);
-      int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-      if (r==0) 
+      struct sockaddr_in adress_sock;
+      adress_sock.sin_family = AF_INET;
+      adress_sock.sin_port = htons((*u).ent->next_uport1);
+      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+      
+      if(inet == 1)
       {
-        if (finfo!=NULL) 
-        {
-          struct sockaddr *saddr = finfo->ai_addr;
-          char* buff = "APPL ";
-          strcat(buff,idm);
-          strcat(buff," ");
-          strcat(buff,(*u).id_app);
-          strcat(buff," ");
-          strcat(buff,mess);
-          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
+        char buff[512] = "APPL ";
+        strcat(buff,idm);
+        strcat(buff," ");
+        strcat(buff,(*u).id_app);
+        strcat(buff," ");
+        strcat(buff,mess);
+        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+        
+        if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+                    && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
+          //char* next_uport = intchar((*u).ent->next_uport2,4);
+         
+          adress_sock.sin_port = htons((*u).ent->next_uport2);
+          inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
           
-          if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
-                      && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
-            next_uport = intchar((*u).ent->next_uport2,4);
-            r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-            if (r==0) 
-            {
-              if (finfo!=NULL) 
-              {
-                struct sockaddr *saddr = finfo->ai_addr;
-                
-                sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-                printf("gen_appmess : Message sent %s\n",buff);
-                
-                add_umess(u,0,idm);
-                add_umess(u,1,idm);
-                free(finfo);
-                close(sock);
-                return 0;
-              }else{
-                fprintf(stderr,"gen_appmess : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL\n");
-                return -1;
-              }
-            }else{
-              fprintf(stderr,"gen_appmess : Problem with getaddrinfo for the second ring %d\n",r);
-              return -1;
-            }
-          }else{
+          if(inet == 1)
+          {
+            sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
             printf("gen_appmess : Message sent %s\n",buff);
+            
+            add_umess(u,0,idm);
+            add_umess(u,1,idm);
+            close(sock);
+            return 0;          
+          }else{
+              perror("gen_appmess : ");
           }
-          add_umess(u,0,idm);
-          add_umess(u,1,idm);
-          free(finfo);
-          close(sock);
-          return 0;
         }else{
-          fprintf(stderr,"gen_appmess : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
+          printf("gen_appmess : Message sent %s\n",buff);
         }
+        add_umess(u,0,idm);
+        add_umess(u,1,idm);
+        close(sock);
+        return 0;
       }else{
-        fprintf(stderr,"gen_appmess : Problem with getaddrinfo %d\n",r);
+        perror("gen_appmess : ");
       }
     }
   }else{
@@ -697,70 +682,57 @@ int gen_appmess(uEntity* u, char* mess){
   return -1;
 }
 
+
 int gen_whosmess(uEntity* u){
   if((*u).ent->next_ip1!=NULL &&
        (*u).ent->next_uport1>0 ){
     char* idm = gen_idmess();
     int sock = socket(PF_INET,SOCK_DGRAM,0);
-    struct addrinfo *finfo;
-    struct addrinfo hints;
-    bzero(&hints,sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    char* next_uport = intchar((*u).ent->next_uport1,4);
-    int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-    if (r==0) 
+    
+    struct sockaddr_in adress_sock;
+    adress_sock.sin_family = AF_INET;
+    adress_sock.sin_port = htons((*u).ent->next_uport1);
+    int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+    
+    if(inet == 1)
     {
-      if (finfo!=NULL) 
-      {
-        struct sockaddr *saddr = finfo->ai_addr;
-        char* buff = "WHOS ";
-        strcat(buff,idm);
-        sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
+      char buff[512] = "WHOS ";
+      strcat(buff,idm);
+      sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+      
+      if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
+                  && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
+        //char* next_uport = intchar((*u).ent->next_uport2,4);
         
-        if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL 
-                    && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0){
-          next_uport = intchar((*u).ent->next_uport2,4);
-          r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-          if (r==0) 
-          {
-            if (finfo!=NULL) 
-            {
-              struct sockaddr *saddr = finfo->ai_addr;
-              
-              sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-              printf("gen_whosmess : Message sent %s\n",buff);
-              
-              add_umess(u,0,idm);
-              add_umess(u,1,idm);
-              free(finfo);
-              close(sock);
-              return 0;
-            }else{
-              fprintf(stderr,"gen_whosmess : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL\n");
-              return -1;
-            }
-          }else{
-            fprintf(stderr,"gen_whosmess : Problem with getaddrinfo for the second ring %d\n",r);
-            return -1;
-          }
-        }else{
+        adress_sock.sin_port = htons((*u).ent->next_uport2);
+        inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+        
+        if(inet == 1)
+        {
+          sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
           printf("gen_whosmess : Message sent %s\n",buff);
+          
+          add_umess(u,0,idm);
+          add_umess(u,1,idm);
+          close(sock);
+          return 0;
+        }else{
+          perror("gen_whosmess : ");
         }
-        add_umess(u,0,idm);
-        add_umess(u,1,idm);
-        free(finfo);
-        close(sock);
-        return 0;
       }else{
-        fprintf(stderr,"gen_whosmess : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
+        printf("gen_whosmess : Message sent %s\n",buff);
       }
+      add_umess(u,0,idm);
+      add_umess(u,1,idm);
+      close(sock);
+      return 0;
     }else{
-      fprintf(stderr,"gen_whosmess : Problem with getaddrinfo %d\n",r);
-    }     
+      perror("gen_whosmess : ");
+    }
   }
   return -1;
 }
+
 
 int gen_gbyemess(uEntity* u, int ring){
   if(ring==1){
@@ -769,43 +741,36 @@ int gen_gbyemess(uEntity* u, int ring){
          && (*u).ent->next_uport1<=9999 && (*u).ent->my_uport<=9999){
       char* idm = gen_idmess();
       int sock = socket(PF_INET,SOCK_DGRAM,0);
-      struct addrinfo *finfo;
-      struct addrinfo hints;
-      bzero(&hints,sizeof(struct addrinfo));
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = SOCK_DGRAM;
-      char* next_uport = intchar((*u).ent->next_uport1,4);
-      int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-      if (r==0) 
+      
+      struct sockaddr_in adress_sock;
+      adress_sock.sin_family = AF_INET;
+      adress_sock.sin_port = htons((*u).ent->next_uport1);
+      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+      
+      if(inet == 1)
       {
-        if (finfo!=NULL) 
-        {
-          struct sockaddr *saddr = finfo->ai_addr;
-          char* buff = "GBYE ";
-          strcat(buff,idm);
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->my_ip));
-          strcat(buff," ");
-          strcat(buff,intchar((*u).ent->my_uport,4));
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->next_ip1));
-          strcat(buff," ");
-          strcat(buff,next_uport);
-          
-          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-          printf("gen_gbyemess : Message sent %s\n",buff);
-          
-          add_umess(u,0,idm);
-          add_umess(u,1,idm);
-          free(finfo);
-          close(sock);
-          return 0;
-        }else{
-          fprintf(stderr,"gen_gbyemess : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
-        }
+        char* next_uport = intchar((*u).ent->next_uport1,4);
+        char buff[512] = "GBYE ";
+        strcat(buff,idm);
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->my_ip));
+        strcat(buff," ");
+        strcat(buff,intchar((*u).ent->my_uport,4));
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->next_ip1));
+        strcat(buff," ");
+        strcat(buff,next_uport);
+        
+        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+        printf("gen_gbyemess : Message sent %s\n",buff);
+        
+        add_umess(u,0,idm);
+        add_umess(u,1,idm);
+        close(sock);
+        return 0;
       }else{
-        fprintf(stderr,"gen_gbyemess : Problem with getaddrinfo %d\n",r);
-      }     
+          perror("gen_gbyemess : ");
+      }
     }else{
       fprintf(stderr,"gen_gbyemess : Problem with arguments of entity\n");
     }
@@ -814,50 +779,46 @@ int gen_gbyemess(uEntity* u, int ring){
          (*u).ent->next_uport2>0 && (*u).ent->my_uport>0
          && (*u).ent->next_uport2<=9999 && (*u).ent->my_uport<=9999){
       char* idm = gen_idmess();
+      
       int sock = socket(PF_INET,SOCK_DGRAM,0);
-      struct addrinfo *finfo;
-      struct addrinfo hints;
-      bzero(&hints,sizeof(struct addrinfo));
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = SOCK_DGRAM;
-      char* next_uport = intchar((*u).ent->next_uport2,4);
-      int r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-      if (r==0) 
+      
+      struct sockaddr_in adress_sock;
+      adress_sock.sin_family = AF_INET;
+      adress_sock.sin_port = htons((*u).ent->next_uport2);
+      int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+      
+      if(inet == 1)
       {
-        if (finfo!=NULL) 
-        {
-          struct sockaddr *saddr = finfo->ai_addr;
-          char* buff = "GBYE ";
-          strcat(buff,idm);
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->my_ip));
-          strcat(buff," ");
-          strcat(buff,intchar((*u).ent->my_uport,4));
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->next_ip2));
-          strcat(buff," ");
-          strcat(buff,next_uport);
-          
-          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-          printf("gen_gbyemess : Message sent %s\n",buff);
-          
-          add_umess(u,0,idm);
-          add_umess(u,1,idm);
-          free(finfo);
-          close(sock);
-          return 0;
-        }else{
-          fprintf(stderr,"gen_gbyemess : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL\n");
-        }
+        char* next_uport = intchar((*u).ent->next_uport2,4);
+        char buff[512] = "GBYE ";
+        strcat(buff,idm);
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->my_ip));
+        strcat(buff," ");
+        strcat(buff,intchar((*u).ent->my_uport,4));
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->next_ip2));
+        strcat(buff," ");
+        strcat(buff,next_uport);
+        
+        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+        printf("gen_gbyemess : Message sent %s\n",buff);
+        
+        add_umess(u,0,idm);
+        add_umess(u,1,idm);
+        close(sock);
+        return 0;
       }else{
-        fprintf(stderr,"gen_gbyemess : Problem with getaddrinfo for the second ring %d\n",r);
-      }     
+        perror("gen_gbyemess : ");
+      }
     }else{
       fprintf(stderr,"gen_gbyemess : Problem with arguments of entity\n");
     }
   }
   return -1;
 }
+
+
 
 int gen_testmess(uEntity* u, int ring){
   if(ring==1){
@@ -866,42 +827,35 @@ int gen_testmess(uEntity* u, int ring){
       && (*u).ent->next_uport1<=9999 && (*u).ent->cast_port1<=9999)
     {
       char* idm = gen_idmess();
+      
       int sock = socket(PF_INET,SOCK_DGRAM,0);
-      struct addrinfo *finfo;
-      struct addrinfo hints;
-      bzero(&hints,sizeof(struct addrinfo));
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = SOCK_DGRAM;
-      char* next_uport = intchar((*u).ent->next_uport1,4);
-      int r = getaddrinfo((*u).ent->next_ip1,next_uport,&hints,&finfo);
-      if (r==0) 
+      
+      struct sockaddr_in adress_sock;
+      adress_sock.sin_family = AF_INET;
+      adress_sock.sin_port = htons((*u).ent->next_uport1);
+      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+      
+      if(inet == 1)
       {
-        if (finfo!=NULL) 
-        {
-          struct sockaddr *saddr = finfo->ai_addr;
-          char* buff = "TEST ";
-          strcat(buff,idm);
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->cast_ip1));
-          strcat(buff," ");
-          strcat(buff,intchar((*u).ent->cast_port1,4));
-          
-          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-          printf("gen_testmess : Message sent %s\n",buff);
-          
-          (*u).count_time = (double) clock()/CLOCKS_PER_SEC;
-                    
-          add_umess(u,0,idm);
-          //add_umess(u,1,idm);
-          free(finfo);
-          close(sock);
-          return 0;
-        }else{
-          fprintf(stderr,"gen_testmess : Problem with getaddrinfo struct addrinfo finfo is NULL\n");
-        }
+        char buff[512] = "TEST ";
+        strcat(buff,idm);
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->cast_ip1));
+        strcat(buff," ");
+        strcat(buff,intchar((*u).ent->cast_port1,4));
+        
+        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+        printf("gen_testmess : Message sent %s\n",buff);
+        
+        (*u).count_time = (double) clock()/CLOCKS_PER_SEC;
+                  
+        add_umess(u,0,idm);
+        //add_umess(u,1,idm);
+        close(sock);
+        return 0;
       }else{
-        fprintf(stderr,"gen_testmess : Problem with getaddrinfo %d\n",r);
-      }     
+        perror("gen_testmess :  ");
+      }
     }else{
       fprintf(stderr,"gen_testmess : Problem with arguments of entity\n");
     }
@@ -912,40 +866,33 @@ int gen_testmess(uEntity* u, int ring){
       && (*u).ent->next_uport2<=9999 && (*u).ent->cast_port2<=9999)
     {
       char* idm = gen_idmess();
+      
       int sock = socket(PF_INET,SOCK_DGRAM,0);
-      struct addrinfo *finfo;
-      struct addrinfo hints;
-      bzero(&hints,sizeof(struct addrinfo));
-      hints.ai_family = AF_INET;
-      hints.ai_socktype = SOCK_DGRAM;
-      char* next_uport = intchar((*u).ent->next_uport2,4);
-      int r = getaddrinfo((*u).ent->next_ip2,next_uport,&hints,&finfo);
-      if (r==0) 
+      
+      struct sockaddr_in adress_sock;
+      adress_sock.sin_family = AF_INET;
+      adress_sock.sin_port = htons((*u).ent->next_uport2);
+      int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+      
+      if(inet == 1)
       {
-        if (finfo!=NULL) 
-        {
-          struct sockaddr *saddr = finfo->ai_addr;
-          char* buff = "TEST ";
-          strcat(buff,idm);
-          strcat(buff," ");
-          strcat(buff, ip_addZero((*u).ent->cast_ip2));
-          strcat(buff," ");
-          strcat(buff,intchar((*u).ent->cast_port2,4));
-          
-          sendto(sock,buff,strlen(buff),0,saddr,(socklen_t)sizeof(struct sockaddr_in));
-          printf("gen_testmess : Message sent %s\n",buff);
-          
-          add_umess(u,0,idm);
-          add_umess(u,1,idm);
-          free(finfo);
-          close(sock);
-          return 0;
-        }else{
-          fprintf(stderr,"gen_testmess : Problem with getaddrinfo for the second ring struct addrinfo finfo is NULL\n");
-        }
+        char buff[512] = "TEST ";
+        strcat(buff,idm);
+        strcat(buff," ");
+        strcat(buff, ip_addZero((*u).ent->cast_ip2));
+        strcat(buff," ");
+        strcat(buff,intchar((*u).ent->cast_port2,4));
+        
+        sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+        printf("gen_testmess : Message sent %s\n",buff);
+        
+        add_umess(u,0,idm);
+        add_umess(u,1,idm);
+        close(sock);
+        return 0;
       }else{
-        fprintf(stderr,"gen_testmess : Problem with getaddrinfo for the second ring %d\n",r);
-      }     
+        perror("gen_testmess : ");
+      }
     }else{
       fprintf(stderr,"gen_testmess : Problem with arguments of entity\n");
     }
@@ -985,4 +932,4 @@ void* envoi_udp(void* e){
     }
   }
 }
-*/
+

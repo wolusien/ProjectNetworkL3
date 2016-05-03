@@ -82,3 +82,8 @@ char* gen_testmess(uEntity* u, int ring);
 void* envoi_udp(void* e);
 
 void* gentest_udp(void* e);
+
+
+
+
+void* rec_multi_udp(void* uent);

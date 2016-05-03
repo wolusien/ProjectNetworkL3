@@ -1059,3 +1059,87 @@ void* gentest_udp(void* e){
     }
   }
 }
+
+
+//Global fonction for udp message
+void* rec_multi_udp(void* uent){
+  printf("Je lance le serveur de reception multi-cast udp\n");
+  uEntity* u = (uEntity*)uent;
+  int sock = socket(PF_INET,SOCK_DGRAM,0);
+  struct sockaddr_in address_sock;
+  address_sock.sin_family = AF_INET;
+  
+  int sock1 = socket(PF_INET,SOCK_DGRAM,0);
+  struct sockaddr_in adress_soc;
+  adress_soc.sin_family = AF_INET;
+  if((*u).ent->cast_port1<=9999 && (*u).ent->cast_port1>0
+    && (*u).ent->cast_ip1 != NULL){
+    //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
+    address_sock.sin_port = htons((*u).ent->cast_port1);
+    int inet = inet_aton((*u).ent->cast_ip1,&(address_sock.sin_addr));
+    if(inet == 1){
+      
+      int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
+      if (r==0) {
+        if((*u).ent->cast_port2>0 && (*u).ent->cast_ip2 != NULL){
+          adress_soc.sin_port = htons((*u).ent->cast_port2);
+          int inet1 = inet_aton((*u).ent->cast_ip2,&(address_sock.sin_addr));
+          if(inet1 == 1){
+            int r1 = bind(sock1,(struct sockaddr*)&adress_soc,sizeof(struct sockaddr_in));
+            if (r1==0) {
+              char buff[512];
+              char buf[512];
+              while (1) {
+                int rec = recv(sock,buff,512,0);
+                if(rec>0){
+                  buff[rec]='\0';
+                  printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+                }
+                int rec1 = recv(sock1,buf,512,0);
+                if(rec1>0){
+                  buf[rec1]='\0';
+                  printf("\nrec_multiudp : Message received on the second ring %s\n\n",buf);
+                }
+              }
+            }else{
+              perror(" rec_multiudp :  ");
+            }
+            char buff[512];
+            while (1) {
+              int rec = recv(sock,buff,512,0);
+              if(rec>0){
+                buff[rec]='\0';
+                printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+              }
+            }
+          }else{
+            char buff[512];
+            while (1) {
+              int rec = recv(sock,buff,512,0);
+              if(rec>0){
+                buff[rec]='\0';
+                printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+              }
+            }
+          }
+        }else{
+          char buff[512];
+          while (1) {
+            int rec = recv(sock,buff,512,0);
+            if(rec>0){
+              buff[rec]='\0';
+              printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+            }
+          }
+        }
+      }else {
+        perror("rec_multiudp bind: Problem with socket binding");
+      }
+    }else{
+      fprintf(stderr,"rec_multiudp : Problem for inet_aton with ip\n");
+    }
+  }else{
+    fprintf(stderr,"rec_multiudp : Wrong udp port entity\n");
+  }
+  return NULL;
+}

@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     (*u).ent->my_uport = 1025;
     (*u).ent->next_ip1 = (*u).ent->my_ip;
     (*u).ent->next_uport1 = 1030;
+    (*u).ent->cast_port1 = 1030;
     (*u).id_app = "12345679";
     /*
     gen_appmess(u,"Yoho");
@@ -41,12 +42,12 @@ int main(int argc, char *argv[])
     gen_gbyemess(u,1);
     gen_testmess(u,1);
     */
-    static pthread_cond_t cond_stock = PTHREAD_COND_INITIALIZER;
+    //static pthread_cond_t cond_stock = PTHREAD_COND_INITIALIZER;
     pthread_t th1;
     pthread_t th2;
     pthread_create(&th2,NULL,gentest_udp,u);
-    pthread_create(&th1,NULL,envoi_udp,u);
-    pthread_join(th1,NULL);
+    //pthread_create(&th1,NULL,envoi_udp,u);
+    //pthread_join(th1,NULL);
     pthread_join(th2,NULL);
   }
   return 0;

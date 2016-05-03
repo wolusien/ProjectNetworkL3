@@ -18,13 +18,14 @@ public class message implements Runnable {
 	private boolean quit=false;
 	Entity ent;
 	ArrayList<String> listidm;
+	private String test;
 
 	public message(Entity ent){
 		this.ent=ent;
 		listidm=new ArrayList<String>();
 
 	}
-	
+
 	public void quit(){
 		quit=true;
 	}
@@ -36,6 +37,7 @@ public class message implements Runnable {
 				dso=new DatagramSocket(port);
 				ent.setUdp_port(port);
 				ent.setNextudp(port);
+				System.out.println("port udp : "+port);
 				break;
 			}
 			catch(Exception e){
@@ -64,7 +66,7 @@ public class message implements Runnable {
 			return true;
 		}
 		else{*/
-		
+
 		//message deja recu
 		if(decomp.length<2 || contientid(decomp[1])){
 			System.out.println("message deja recu");
@@ -76,7 +78,7 @@ public class message implements Runnable {
 			sendMessage(data);
 			return true;
 		}
-		
+
 		//sort de l anneau
 		if(tools.verif_mess_eybg(decomp)){
 			listidm.add(decomp[1]);
@@ -114,6 +116,9 @@ public class message implements Runnable {
 		}
 		//verifie si l anneau est casse
 		if(tools.verif_mess_test(decomp)){
+			if(test!=null && test.equals(decomp[1])){
+				test=null;
+			}
 			listidm.add(decomp[1]);
 			sendMessage(data);
 			return true;
@@ -129,7 +134,7 @@ public class message implements Runnable {
 			return true;
 		}
 		//}
-	return false;
+		return false;
 	}
 
 	public void run() {
@@ -178,7 +183,41 @@ public class message implements Runnable {
 			down();
 		}
 	}
-	
+
+	public boolean test(){
+		try{
+			if(ent.getdupl()){
+				System.out.println("impossible de tester car est une duplication");
+				return true;
+			}
+			else{
+				DatagramSocket dso= new DatagramSocket();
+				byte[] data= new byte[255];
+				String s=tools.mess_test(ent);
+				test= s.trim().split(" ")[1];
+				data=s.getBytes();
+				InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(),ent.getNextudp());
+				DatagramPacket paquet= new DatagramPacket(data, data.length, ia);
+				dso.send(paquet);
+				int count=0;
+				while(test!=null){
+					Thread.sleep(100);
+					if(count==100){
+						dso.close();
+						return false;
+					}
+					count++;
+				}
+				dso.close();
+				return true;
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	public void down(){
 		try{
 			DatagramSocket dso=new DatagramSocket();

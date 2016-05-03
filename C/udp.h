@@ -18,7 +18,10 @@ typedef struct uEntity{
   char* id_app;
   
   //Compteur de temps
-  double count_time;
+  double count_time1;
+  double count_time2;
+  int down1;
+  int down2;
 }uEntity;
 
 
@@ -74,6 +77,8 @@ int gen_whosmess(uEntity* u);
 
 int gen_gbyemess(uEntity* u, int ring);
 
-int gen_testmess(uEntity* u, int ring);
+char* gen_testmess(uEntity* u, int ring);
 
 void* envoi_udp(void* e);
+
+void* gentest_udp(void* e);

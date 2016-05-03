@@ -150,6 +150,7 @@ public class message implements Runnable {
 				}else{
 					//System.out.println("mauvais message "+st);
 				}
+				test();
 			}
 			dso.close();
 			System.out.println("message fermer");
@@ -171,7 +172,7 @@ public class message implements Runnable {
 				dso.send(packet);
 			}
 			if(ent.getdupl() && ent.duplactif){
-				System.out.println("envoye a :"+ent.getdupl_udp_port());
+				System.out.println("envoye a dupl :"+ent.getdupl_udp_port());
 				InetSocketAddress ia= new InetSocketAddress(ent.getdupl_udp_ip(), ent.getdupl_udp_port());
 				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
 				dso.send(packet);
@@ -190,6 +191,10 @@ public class message implements Runnable {
 				System.out.println("impossible de tester car est une duplication");
 				return true;
 			}
+			if(test!=null){
+				System.out.println("impossible de tester car un test est deja en cours");
+				return true;
+			}
 			else{
 				DatagramSocket dso= new DatagramSocket();
 				byte[] data= new byte[255];
@@ -199,16 +204,17 @@ public class message implements Runnable {
 				InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(),ent.getNextudp());
 				DatagramPacket paquet= new DatagramPacket(data, data.length, ia);
 				dso.send(paquet);
+				dso.close();
 				int count=0;
-				while(test!=null){
+				while(true){
 					Thread.sleep(100);
-					if(count==100){
-						dso.close();
+					if(test!=null) break;
+					if(count==30){
+						down();
 						return false;
 					}
 					count++;
 				}
-				dso.close();
 				return true;
 			}
 		}

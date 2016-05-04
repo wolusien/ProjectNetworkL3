@@ -1022,7 +1022,7 @@ void* gentest_udp(void* e){
           {
             char buff[512] = "DOWN";
             int send = sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
-            printf("test_protocol : I sent %s and value of send %d\n",send,buff);
+            printf("test_protocol : I sent %s and value of send %d\n",buff,send);
             close(sock);
             (*u).down1 = -1;
             printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");

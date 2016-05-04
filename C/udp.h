@@ -24,6 +24,10 @@ typedef struct uEntity{
   int down2;
 }uEntity;
 
+typedef struct uTest{
+  uEntity* u;
+  char* buff;
+}uTest;
 
 /*Function adding a char* mess to an array of an uEntity
  * depends on option given : 0 for env array

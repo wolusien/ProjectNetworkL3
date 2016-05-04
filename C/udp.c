@@ -94,8 +94,8 @@ int app_mess(uEntity* u, char* buff){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&(adress_sock.sin_addr));
-        if(inet == 1)
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&(adress_sock.sin_addr));
+        if(inet != 0)
         {
           //char* next_uport = intchar((*u).ent->next_uport1,4);
           char** tab = split(buff,' ');
@@ -122,10 +122,10 @@ int app_mess(uEntity* u, char* buff){
                       if((*u).ent->cast_ip2!=NULL && (*u).ent->next_ip2!=NULL && (*u).ent->cast_port2!=0 && (*u).ent->next_uport2!=0)
                       { 
                         adress_sock.sin_port = htons((*u).ent->next_uport2);
-                        inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                        inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
                         //char* next_uport = intchar((*u).ent->next_uport2,4);
                         
-                        if(inet == 1)
+                        if(inet != 0)
                         {
                           sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
                           printf("app_mess :  Message send on the second ring %s\n",buff);
@@ -183,9 +183,9 @@ int whos(uEntity* u, char* buff){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
         
-        if(inet == 1)
+        if(inet != 0)
         {
           //char* next_uport = intchar((*u).ent->next_uport1,4);
           char** tab = split(buff,' ');
@@ -224,9 +224,9 @@ int whos(uEntity* u, char* buff){
                     {
                       //char* next_uport=intchar((*u).ent->next_uport2,4);
                       adress_sock.sin_port = htons((*u).ent->next_uport2);
-                      int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                      int inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
                       
-                      if(inet == 1)
+                      if(inet != 0)
                       {
                         //We send message WHOS
                         sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
@@ -280,9 +280,9 @@ int whos(uEntity* u, char* buff){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
         
-        if(inet == 1)
+        if(inet != 0)
         {
           //char* next_uport = intchar((*u).ent->next_uport1,4);
           char** tab = split(buff,' ');
@@ -306,9 +306,9 @@ int whos(uEntity* u, char* buff){
                     //char *next_uport=intchar((*u).ent->next_uport2,4);
                     
                     adress_sock.sin_port = htons((*u).ent->next_uport2);
-                    inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                    inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
           
-                    if(inet == 1)
+                    if(inet != 0)
                     {
                       //We send message WHOS
                       sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
@@ -363,9 +363,9 @@ int gbye(uEntity* u, char* buff){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
-        
-        if(inet == 1)
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
+        printf("inet %d\n",inet);
+        if(inet != 0)
         {
           //char* next_uport = intchar((*u).ent->next_uport1,4);
           char** tab = split(buff,' ');
@@ -409,9 +409,9 @@ int gbye(uEntity* u, char* buff){
                             && (*u).ent->next_uport2==port)
                         {
                           adress_sock.sin_port = htons((*u).ent->next_uport2);
-                          inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                          inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
                           
-                          if(inet == 1)
+                          if(inet != 0)
                           {
                             //next_uport = intchar((*u).ent->next_uport2,4);
                             //Case previous entity
@@ -445,9 +445,9 @@ int gbye(uEntity* u, char* buff){
                           //char *next_uport = intchar((*u).ent->next_uport2,4);
                           
                           adress_sock.sin_port = htons((*u).ent->next_uport2);
-                          inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                          inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
                           
-                          if(inet == 1)
+                          if(inet != 0)
                           {
                             sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
                             printf("gbye : Message sent on the second ring %s\n",buff);
@@ -476,7 +476,7 @@ int gbye(uEntity* u, char* buff){
             }
           }
         }else{
-          perror("gbye : ");
+          perror("gbye perror: ");
           return -1;
         }    
       }else{
@@ -505,37 +505,48 @@ int gbye(uEntity* u, char* buff){
 
 //Function managing TEST udp message protocol
 int testring(uEntity* u, char* buff){
-  if((*u).down1){
+  printf("CK0000\n");
+  if((*u).down1>-1){
+    printf("CK0\n");
     if (strlen(buff)==34)
     {
+      printf("CK1\n");
       if((*u).ent->next_ip1 != NULL && (*u).ent->next_uport1>1023){
-        
+        printf("CK2\n");
         char** tab = split(buff, ' ');
         if(str_arrsize(tab)==4)
         {
+          printf("CK3\n");
           if(strcmp(tab[0],"TEST")==0)
           {
+            printf("CK4\n");
             if(strlen(tab[1])==8)
             {
+              printf("CK5\n");
               if(isin(u,tab[1])==-1)
               {
+                printf("CK6\n");
                 char* ipdiff = tab[2];
                 int portdiff = atoi(tab[3]);
                 if(strlen(ipdiff)==15 && portdiff>0 && portdiff<=9999)
                 {
                   if(check_ip(ipdiff)!=-1)
                   {
+                    printf("CK7\n");
                     if(strcmp(ipdiff,(*u).ent->cast_ip1)==0 && portdiff==(*u).ent->cast_port1)
                     {
+                      printf("CK8\n");
                       int sock = socket(PF_INET,SOCK_DGRAM,0);
                       struct sockaddr_in adress_sock;
                       adress_sock.sin_family = AF_INET;
                       adress_sock.sin_port = htons((*u).ent->next_uport1);
-                      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+                      int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
                       
-                      if(inet == 1)
-                      {               
+                      if(inet != 0)
+                      { 
+                        printf("CJE\n");              
                         sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                        printf("***********************\ntestring : Message sent %s\n*************************\n",buff);
                         add_umess(u,0,tab[1]);
                         add_umess(u,1,tab[1]);
                         free(tab);
@@ -553,11 +564,12 @@ int testring(uEntity* u, char* buff){
                         struct sockaddr_in adress_sock;
                         adress_sock.sin_family = AF_INET;
                         adress_sock.sin_port = htons((*u).ent->next_uport2);
-                        int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+                        int inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
                         
-                        if(inet == 1)
+                        if(inet != 0)
                         {   
                           sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
+                          printf("***********************\ntestring : Message sent %s\n*************************\n",buff);
                           add_umess(u,0,tab[1]);
                           add_umess(u,1,tab[1]);
                           free(tab);
@@ -600,8 +612,8 @@ void* rec_udp(void* uent){
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
     //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->my_uport);
-    int inet = inet_aton((*u).ent->my_ip,&(address_sock.sin_addr));
-    if(inet == 1){
+    int inet = inet_aton(ip_removeZero((*u).ent->my_ip),&(address_sock.sin_addr));
+    if(inet != 0){
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
         char* buff = malloc(sizeof(char)*512);
@@ -651,7 +663,7 @@ void* rec_udp(void* uent){
 /////////////////////////////////ENVOI////////////////////////////////////////////////////////////
 
 
-int gen_appmess(uEntity* u, char* mess){
+ int gen_appmess(uEntity* u, char* mess){
   if(mess!=NULL && strlen(mess)<=488 && strlen(mess)>0)
   {
     if((*u).id_app!=NULL && (*u).ent->next_ip1!=NULL &&
@@ -662,9 +674,9 @@ int gen_appmess(uEntity* u, char* mess){
       struct sockaddr_in adress_sock;
       adress_sock.sin_family = AF_INET;
       adress_sock.sin_port = htons((*u).ent->next_uport1);
-      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+      int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
       
-      if(inet == 1)
+      if(inet != 0)
       {
         char buff[512] = "APPL ";
         strcat(buff,idm);
@@ -679,9 +691,9 @@ int gen_appmess(uEntity* u, char* mess){
           //char* next_uport = intchar((*u).ent->next_uport2,4);
          
           adress_sock.sin_port = htons((*u).ent->next_uport2);
-          inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+          inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
           
-          if(inet == 1)
+          if(inet != 0)
           {
             sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
             printf("gen_appmess : Message sent %s\n",buff);
@@ -691,7 +703,7 @@ int gen_appmess(uEntity* u, char* mess){
             close(sock);
             return 0;          
           }else{
-              perror("gen_appmess : ");
+              perror("gen_appmess perror : ");
           }
         }else{
           printf("gen_appmess : Message sent %s\n",buff);
@@ -721,9 +733,9 @@ int gen_whosmess(uEntity* u){
       struct sockaddr_in adress_sock;
       adress_sock.sin_family = AF_INET;
       adress_sock.sin_port = htons((*u).ent->next_uport1);
-      int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
+      int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
       
-      if(inet == 1)
+      if(inet != 0)
       {
         char buff[512] = "WHOS ";
         strcat(buff,idm);
@@ -734,9 +746,9 @@ int gen_whosmess(uEntity* u){
           //char* next_uport = intchar((*u).ent->next_uport2,4);
           
           adress_sock.sin_port = htons((*u).ent->next_uport2);
-          inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+          inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
           
-          if(inet == 1)
+          if(inet != 0)
           {
             sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
             printf("gen_whosmess : Message sent %s\n",buff);
@@ -746,7 +758,7 @@ int gen_whosmess(uEntity* u){
             close(sock);
             return 0;
           }else{
-            perror("gen_whosmess : ");
+            perror("gen_whosmess perror : ");
           }
         }else{
           printf("gen_whosmess : Message sent %s\n",buff);
@@ -776,9 +788,9 @@ int gen_gbyemess(uEntity* u, int ring){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
-        
-        if(inet == 1)
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
+        printf("inet %d ip use %s\n",inet,(*u).ent->next_ip1);
+        if(inet != 0)
         {
           char* next_uport = intchar((*u).ent->next_uport1,4);
           char buff[512] = "GBYE ";
@@ -800,7 +812,7 @@ int gen_gbyemess(uEntity* u, int ring){
           close(sock);
           return 0;
         }else{
-            perror("gen_gbyemess : ");
+            perror("gen_gbyemess perror : ");
         }
       }else{
         fprintf(stderr,"gen_gbyemess : Problem with arguments of entity\n");
@@ -819,9 +831,9 @@ int gen_gbyemess(uEntity* u, int ring){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport2);
-        int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
-        
-        if(inet == 1)
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
+        printf("inet %d\n",inet);
+        if(inet != 0)
         {
           char* next_uport = intchar((*u).ent->next_uport2,4);
           char buff[512] = "GBYE ";
@@ -843,7 +855,7 @@ int gen_gbyemess(uEntity* u, int ring){
           close(sock);
           return 0;
         }else{
-          perror("gen_gbyemess : ");
+          perror("gen_gbyemess perror : ");
         }
       }else{
         fprintf(stderr,"gen_gbyemess : Problem with arguments of entity\n");
@@ -870,8 +882,9 @@ char* gen_testmess(uEntity* u, int ring){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
-        int inet = inet_aton((*u).ent->next_ip1,&adress_sock.sin_addr);
-        if(inet == 1)
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
+        printf("inet %d\n",inet);
+        if(inet != 0)
         {
           char buff[512] = "TEST ";
           strcat(buff,idm);
@@ -890,7 +903,7 @@ char* gen_testmess(uEntity* u, int ring){
           printf("I will return idm");
           return idm;
         }else{
-          perror("gen_testmess :  ");
+          perror("gen_testmess perror :  ");
         }
       }else{
         fprintf(stderr,"gen_testmess : Problem with arguments of entity\n");
@@ -910,9 +923,9 @@ char* gen_testmess(uEntity* u, int ring){
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport2);
-        int inet = inet_aton((*u).ent->next_ip2,&adress_sock.sin_addr);
+        int inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
         
-        if(inet == 1)
+        if(inet != 0)
         {
           char buff[512] = "TEST ";
           strcat(buff,idm);
@@ -949,22 +962,32 @@ void* envoi_udp(void* e){
      
   while(1){
     printf("Envoi msg : \n");
-    char *buff=malloc(sizeof(char)*512);
+    char buff[512];
     read(STDIN_FILENO, buff, 512);
-    
-    //printf("envoi_udp : Message recu %s",buff);
     tab = split(buff,' ');
+    printf("envoi_udp : Message recu %s taille %d\n",buff,str_arrsize(tab));
     taille=str_arrsize(tab);
     if(taille==2){
-      if(strcmp(tab[0],"APP")==0) {gen_appmess( u, tab[1]);}
+      if(strcmp(tab[0],"APPL")==0) {
+        gen_appmess( u, tab[1]);
+        //printf("pd d'\n");
+      }
       ring= atoi(tab[1]);
       if(ring==1||ring==2){
         if(strcmp(tab[0],"GBYE")==0) gen_gbyemess( u,ring);
+        if(strcmp(tab[0],"TEST")==0){
+          uTest* t = malloc(sizeof(uTest));
+          (*t).u = u;
+          (*t).buff = buff;
+          pthread_t th1;
+          pthread_create(&th1,NULL,gentest_udp,t);
+          pthread_join(th1,NULL);
+        }
       }
     }
     if(taille==1){
       
-      if(strcmp(tab[0],"WHOS")==0){  
+      if(strcmp(tab[0],"WHOS\n")==0){  
         //printf("I will use whose\n");
         gen_whosmess( u);
       }
@@ -977,87 +1000,87 @@ void* envoi_udp(void* e){
 
 
 void* gentest_udp(void* e){
-  uEntity* u = (uEntity*)e;
-  while(1){
-    printf("Envoi_test : \n");
-    char *buff=malloc(sizeof(char)*512);
-    read(STDIN_FILENO, buff, 512);
-    
-    //printf("envoi_test : Message recu %s",buff);
-    char** tab = split(buff,' ');
-    int taille=str_arrsize(tab);
-    //printf("%d\n",str_arrsize(tab));
-    if(taille==2){
-      if(strcmp(tab[0],"TEST")==0){
-        char* gen = gen_testmess(u,atoi(tab[1]));
-        if((*u).count_time1>0){
-          double initial = (*u).count_time1;
-          double curr = (double) clock()/CLOCKS_PER_SEC;
-          (*u).count_time1 = curr - initial;
-          while((*u).count_time1<0.6){
-            //printf("test_protocol : Tps écoulé %f\n",(*u).count_time1);
-            curr = (double) clock()/CLOCKS_PER_SEC;
-            (*u).count_time1 = curr -initial;
-          }
-          
-          int sock = socket(PF_INET,SOCK_DGRAM,0);
-          
-          struct sockaddr_in adress_sock;
-          adress_sock.sin_family = AF_INET;
-          adress_sock.sin_port = htons((*u).ent->cast_port1);
-          int inet = inet_aton((*u).ent->cast_ip1,&adress_sock.sin_addr);
-          if(gen!= NULL && isin(u,gen)!=1){
-            if(inet == 1)
-            {
-              char buff[512] = "DOWN";
-              sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
-              close(sock);
-              (*u).down1 = -1;
-              printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
-            }else{
-              perror("test_protocol : ");
-            }
-          }else{
-            printf("test_protocol : State Ring 1 : ok\n");
-            (*u).count_time2 = 0;
-          }
+  uTest* t = (uTest*)e;
+  uEntity* u = (*t).u;
+  char* buff = (*t).buff;
+  char** tab = split(buff,' ');
+  int taille=str_arrsize(tab);
+  //printf("%d\n",str_arrsize(tab));
+  if(taille==2){
+    if(strcmp(tab[0],"TEST")==0){
+      char* gen = gen_testmess(u,atoi(tab[1]));
+      if((*u).count_time1>0){
+        double initial = (*u).count_time1;
+        double curr = (double) clock()/CLOCKS_PER_SEC;
+        (*u).count_time1 = curr - initial;
+        while((*u).count_time1<0.2){
+          printf("test_protocol : Tps écoulé %f\n\n",(*u).count_time1);
+          curr = (double) clock()/CLOCKS_PER_SEC;
+          (*u).count_time1 = curr -initial;
         }
-        if((*u).count_time2>0){
-          double initial = (*u).count_time2;
-          double curr = (double) clock()/CLOCKS_PER_SEC;
-          (*u).count_time2 = curr - initial;
-          while((*u).count_time2<0.6){
-            printf("test_protocol : Tps écoulé %f\n",(*u).count_time2);
-            curr = (double) clock()/CLOCKS_PER_SEC;
-            (*u).count_time2 = curr -initial;
-          }
-          int sock = socket(PF_INET,SOCK_DGRAM,0);
-          
-          struct sockaddr_in adress_sock;
-          adress_sock.sin_family = AF_INET;
-          adress_sock.sin_port = htons((*u).ent->cast_port2);
-          int inet = inet_aton((*u).ent->cast_ip2,&adress_sock.sin_addr);
-          if(gen!= NULL && isin(u,gen)!=1){    
-            if(inet == 1)
-            {
-              char buff[512] = "DOWN";
-              sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
-              close(sock);
-              printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
-              (*u).down2 = -1;
-            }else{
-              perror("test_protocol : ");
-            }
+        
+        int sock = socket(PF_INET,SOCK_DGRAM,0);
+        
+        struct sockaddr_in adress_sock;
+        adress_sock.sin_family = AF_INET;
+        adress_sock.sin_port = htons((*u).ent->cast_port1);
+        int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&adress_sock.sin_addr);
+        if(gen!= NULL && isin(u,gen)!=1){
+          if(inet != 0)
+          {
+            char buff[512] = "DOWN";
+            sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+            close(sock);
+            (*u).down1 = -1;
+            printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
+            exit(0);
           }else{
-            printf("test_protocol : State Ring 2 : ok\n");
-            (*u).count_time2 = 0;
+            perror("test_protocol : ");
           }
+        }else{
+          printf("test_protocol : State Ring 1 : ok\n");
+          (*u).count_time2 = 0;
+          exit(0);
         }
       }
-    }else if(strcmp(buff,"END")==0){
-      exit(0);
+      if((*u).count_time2>0){
+        double initial = (*u).count_time2;
+        double curr = (double) clock()/CLOCKS_PER_SEC;
+        (*u).count_time2 = curr - initial;
+        while((*u).count_time2<0.6){
+          printf("test_protocol : Tps écoulé %f\n",(*u).count_time2);
+          curr = (double) clock()/CLOCKS_PER_SEC;
+          (*u).count_time2 = curr -initial;
+        }
+        int sock = socket(PF_INET,SOCK_DGRAM,0);
+        
+        struct sockaddr_in adress_sock;
+        adress_sock.sin_family = AF_INET;
+        adress_sock.sin_port = htons((*u).ent->cast_port2);
+        int inet = inet_aton(ip_removeZero((*u).ent->cast_ip2),&adress_sock.sin_addr);
+        if(gen!= NULL && isin(u,gen)!=1){    
+          if(inet != 0)
+          {
+            char buff[512] = "DOWN";
+            sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+            close(sock);
+            printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
+            (*u).down2 = -1;
+            exit(0);
+          }else{
+            perror("test_protocol : ");
+          }
+        }else{
+          printf("test_protocol : State Ring 2 : ok\n");
+          (*u).count_time2 = 0;
+          exit(0);
+        }
+      }
     }
+  }else if(strcmp(buff,"END")==0){
+    exit(0);
   }
+  exit(0);
 }
 
 
@@ -1077,13 +1100,13 @@ void* rec_multi_udp(void* uent){
     //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->cast_port1);
     int inet = inet_aton((*u).ent->cast_ip1,&(address_sock.sin_addr));
-    if(inet == 1){
+    if(inet != 0){
       
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
         if((*u).ent->cast_port2>0 && (*u).ent->cast_ip2 != NULL){
           adress_soc.sin_port = htons((*u).ent->cast_port2);
-          int inet1 = inet_aton((*u).ent->cast_ip2,&(address_sock.sin_addr));
+          int inet1 = inet_aton(ip_removeZero((*u).ent->cast_ip2),&(address_sock.sin_addr));
           if(inet1 == 1){
             int r1 = bind(sock1,(struct sockaddr*)&adress_soc,sizeof(struct sockaddr_in));
             if (r1==0) {

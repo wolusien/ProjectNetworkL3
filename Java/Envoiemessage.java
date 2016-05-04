@@ -14,7 +14,7 @@ public class Envoiemessage {
 			String s="WHOS "+tools.genereIdm();
 			byte[]data = new byte[512];
 			data=s.getBytes();
-			InetSocketAddress ia=new InetSocketAddress("172.28.2.52",1024);
+			InetSocketAddress ia=new InetSocketAddress("192.168.0.38",2048);
 			DatagramPacket paquet=new DatagramPacket(data,data.length,ia);
 			dso.send(paquet);
 			

@@ -1,8 +1,16 @@
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.io.OutputStream;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -69,14 +77,17 @@ public class message implements Runnable {
 
 		//message deja recu
 		if(decomp.length<2 || contientid(decomp[1])){
-			System.out.println("message deja recu");
 			return false;
 		}
 		//utilise une application
 		if(tools.verif_mess_app(decomp)){
 			listidm.add(decomp[1]);
+			if(decomp[2].startsWith("DIFF") && Integer.parseInt(decomp[3])==decomp[4].length()){
+				sendMessage(data);
+				return true;
+			}
 			sendMessage(data);
-			return true;
+			return false;
 		}
 
 		//sort de l anneau
@@ -117,6 +128,7 @@ public class message implements Runnable {
 		//verifie si l anneau est casse
 		if(tools.verif_mess_test(decomp)){
 			if(test!=null && test.equals(decomp[1])){
+				System.out.println("on est ici");
 				test=null;
 			}
 			listidm.add(decomp[1]);
@@ -150,7 +162,6 @@ public class message implements Runnable {
 				}else{
 					//System.out.println("mauvais message "+st);
 				}
-				test();
 			}
 			dso.close();
 			System.out.println("message fermer");
@@ -210,6 +221,7 @@ public class message implements Runnable {
 					Thread.sleep(100);
 					if(test==null) break;
 					if(count==30){
+						System.out.println("go down");
 						down();
 						return false;
 					}
@@ -246,5 +258,29 @@ public class message implements Runnable {
 			e.printStackTrace();
 		}
 
+	}
+
+	
+	// Ici pour APPL TRANS
+	
+	//lire un fichier
+	public byte[] readFile(String path){
+		if(!verif_file(path)) return null;
+		File file = new File(path);
+		try {
+			return Files.readAllBytes(file.toPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	
+	//verifie si un fichier existe
+	public boolean verif_file(String path){
+		File f=new File(path);
+		if(f.exists())
+			return true;
+		return false;
 	}
 }

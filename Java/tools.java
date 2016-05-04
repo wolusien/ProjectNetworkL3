@@ -211,8 +211,8 @@ fin
 			listNi=NetworkInterface.getNetworkInterfaces();
 			while(listNi.hasMoreElements()){
 				NetworkInterface nic=listNi.nextElement();
-				System.out.println("Network Interface :");
-				System.out.println(nic.toString());
+				//System.out.println("Network Interface :");
+				//System.out.println(nic.toString());
 				Enumeration<InetAddress> listIa=nic.getInetAddresses();
 				while(listIa.hasMoreElements()){
 					InetAddress iac=listIa.nextElement();
@@ -223,7 +223,7 @@ fin
 						System.out.println(iac.toString());
 					}*/
 					if(!iac.isLoopbackAddress()){
-						System.out.println("Loop Back Address");
+						System.out.println("adresse :"+iac.getHostAddress());
 						return remplissageIp(iac.getHostAddress());
 					}
 				}
@@ -237,7 +237,7 @@ fin
 		String c=Integer.toString(conv);
 		if(c.length()==t)return c;
 		else{
-			System.out.println((t-c.length()));
+			//System.out.println((t-c.length()));
 			int add=t-c.length();
 			for(int i=0;i<add;i++){
 				c="0"+c;
@@ -249,7 +249,7 @@ fin
 		if(id==null) return null;
 		if(id.length()==8)return id;
 		else{
-			System.out.println((8-id.length()));
+			//System.out.println((8-id.length()));
 			int add=8-id.length();
 			for(int i=0;i<add;i++){
 				id=Character.MIN_VALUE+id;
@@ -290,7 +290,7 @@ fin
 	}
 
 
-	public static void main (String[]argv)  { 
+	/*public static void main (String[]argv)  { 
 		String r=  remplissageId("reseau");
 
 		byte[]tab=r.getBytes();
@@ -298,5 +298,5 @@ fin
 
 		System.out.println(r.getBytes().length);
 
-	} 
+	} */
 }

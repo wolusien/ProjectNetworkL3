@@ -38,7 +38,9 @@ class Entity {
 		this.cast_port=cast_port;
 	}
 	 */
-	
+	public message getCli(){
+		return this.cli;
+	}
 	public boolean getdupl(){
 		return this.dupl;
 	}

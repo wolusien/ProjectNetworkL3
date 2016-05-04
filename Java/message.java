@@ -86,8 +86,24 @@ public class message implements Runnable {
 				sendMessage(data);
 				return true;
 			}
+			if( transfichier .verif_mess_app_transREQ(decomp)){
+				ArrayList l= transfichier .mess_transROC(decomp[5], decomp[4]);
+				String s=(String)l.get(l.size()-1);
+				byte[] data2= new byte[512];
+				data2=s.getBytes();
+				sendMessage(data2);
+				for(int k=0;k<l.size()-1;k++){
+					s=(String)l.get(k);
+					data2= new byte[512];
+					data2=s.getBytes();
+					sendMessage(data2);
+				}
+				return true;
+			}
+
 			sendMessage(data);
-			return false;
+			// on peut retourner faux car on ne peut pas lire l application
+			return true;
 		}
 
 		//sort de l anneau

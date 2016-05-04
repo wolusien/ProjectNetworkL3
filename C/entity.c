@@ -98,7 +98,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     (*e).nb_insert = 1;
                     (*e).tcp_port = free_tport((*e).my_ip);
                     printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
-                    //serv_tcp(e);
+                    serv_tcp(e);
                     return 0;
                   }else {
                     fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);
@@ -287,7 +287,7 @@ int serv_tcp(entity* e){
                             close(sock2);
                           }
                         }else{
-                          fprintf(stderr,"serv_tcp : Problem with the message received wrong form\n");
+                          fprintf(stderr,"serv_tcp : Problem with the message received wrong form serv %s\n",buff);
                           close(sock2);
                         }
                       }else{

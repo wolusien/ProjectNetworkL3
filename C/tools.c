@@ -219,6 +219,7 @@ int free_tport(){
       int con = connect(sock, (struct sockaddr *)&adress_sock,
                         sizeof(struct sockaddr_in));
       if(con != 0){
+        close(sock);
         return port;
       }
     }
@@ -236,36 +237,21 @@ int free_uport(){
   int i;
   char* host = get_ip();
   int sock = socket(PF_INET,SOCK_DGRAM,0);
+  
+  struct sockaddr_in adress_sock;
+  adress_sock.sin_family = AF_INET;
+  
+  if(host!=NULL){
+    int port = 1025;
 
-  struct hostent* h;
-  h=gethostbyname(host);
-  if(h==NULL){
-    printf("free_uport : Unknown host given\n");
-    return -1;
-  }
-  char* host_addr;
-  //Get list of addresses of the host
-  struct in_addr **addresses = (struct in_addr**)h->h_addr_list;
-  //We take the first address for testing the port
-  while(*addresses != NULL){
-    //inet_ntoa traduce struct in_addr to char*
-    host_addr = inet_ntoa(**addresses);
-    break;
-  }
-
-  if(host_addr!=NULL){
-    struct sockaddr_in adress_sock;
-    adress_sock.sin_family = AF_INET;
-    int port = 1024;
-
-    for (i = 0; i <= 9999-1024; i++) {
-      port += i;
-      adress_sock.sin_port = htons(port);
-      inet_aton(host_addr,&adress_sock.sin_addr);
+    for (i = 1026; i <= 9999; i++) {
+      adress_sock.sin_port = htons(i);
+      inet_aton(host,&adress_sock.sin_addr);
       int b = bind(sock, (struct sockaddr *)&adress_sock,
                    sizeof(struct sockaddr_in));
       if(b == 0){
-        return port;
+        close(sock);
+        return i;
       }
     }
   }else{
@@ -324,7 +310,6 @@ char * ip_libre_multi(){
 
 int port_libre_multi(char* ip){
   int sock=socket(PF_INET,SOCK_DGRAM,0);
-  sock=socket(PF_INET,SOCK_DGRAM,0);
   int ok=1;
   int r=setsockopt(sock,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
   struct sockaddr_in address_sock;

@@ -41,14 +41,14 @@ int insertion(entity* e, char* host, int e1_tcp ){
     adressin.sin_family = AF_INET;
     adressin.sin_port = htons(e1_tcp);
     int inet = inet_aton(host,&(adressin.sin_addr));
-    if(inet == 1){
+    if(inet != 0){
       int con = connect(sock,(struct sockaddr*)&adressin,(socklen_t)sizeof(struct sockaddr_in));
       if(con == 0){
         char buff[100];
         int recu =  recv(sock,buff,99*sizeof(char),0);
         printf("recu %s\n",strerror(recu));
         if(recu>0){
-          printf("C1\n");
+          //printf("C1\n");
           //Managing the message received from the previous entity [WELC␣ip␣port␣ip-diff␣port-diff\n]
           buff[recu]='\0';
           printf("insertion : Message received from entity of the ring %s\n" ,buff);
@@ -173,7 +173,7 @@ int serv_tcp(entity* e){
       address_sock.sin_port = htons((*e).tcp_port);
       int inet = inet_aton((*e).my_ip,&address_sock.sin_addr);
       
-      if(inet == 1){
+      if(inet != 0){
         int r=bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
 
         if(r==0){
@@ -347,8 +347,8 @@ int duplication(entity* e, char* host, int e1_tcp ){
     adressin.sin_family = AF_INET;
     adressin.sin_port = htons(e1_tcp);
     
-    int inet = inet_aton(host,&(adressin.sin_addr));
-    if(inet == 1){
+    int inet = inet_aton(ip_removeZero(host),&(adressin.sin_addr));
+    if(inet != 0){
       int con = connect(sock,(struct sockaddr*)&adressin,(socklen_t)sizeof(struct sockaddr_in));
       if(con == 0){;
         char buff[100];

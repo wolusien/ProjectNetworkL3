@@ -208,7 +208,7 @@ public class message implements Runnable {
 				int count=0;
 				while(true){
 					Thread.sleep(100);
-					if(test!=null) break;
+					if(test==null) break;
 					if(count==30){
 						down();
 						return false;

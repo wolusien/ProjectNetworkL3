@@ -242,8 +242,6 @@ int free_uport(){
   adress_sock.sin_family = AF_INET;
   
   if(host!=NULL){
-    int port = 1025;
-
     for (i = 1026; i <= 9999; i++) {
       adress_sock.sin_port = htons(i);
       inet_aton(host,&adress_sock.sin_addr);
@@ -322,7 +320,10 @@ int port_libre_multi(char* ip){
     address_sock.sin_port=htons(port);
     address_sock.sin_addr.s_addr=htonl(INADDR_ANY);
     r=bind(sock,(struct sockaddr *)&address_sock,sizeof(struct sockaddr_in));
-    if(r==0||i==20)break;
+    if(r==0||i==20){
+      close(sock);
+      break;
+    } 
     else{i++; }
   }
   

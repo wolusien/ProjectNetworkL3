@@ -507,6 +507,7 @@ int testring(uEntity* u, char* buff){
   if((*u).down1 > -1){
     if (strlen(buff)==34)
     {
+      printf("C1\n");
       if((*u).ent->next_ip1 != NULL && (*u).ent->next_uport1>1023){
         char** tab = split(buff, ' ');
         if(str_arrsize(tab)==4)
@@ -625,6 +626,7 @@ void* rec_udp(void* uent){
               {
                 if(gbye(u,buff)!=0)
                 {
+                  printf("C1de\n");
                   if(testring(u,buff)!=0)
                   {
                     fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
@@ -1092,8 +1094,9 @@ void* rec_multi_udp(void* uent){
     && (*u).ent->cast_ip1 != NULL){
     //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->cast_port1);
+    printf("remove ip %s\n",ip_removeZero((*u).ent->cast_ip1));
     int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&(address_sock.sin_addr));
-    printf("inet %d \n",inet);
+    //printf("inet %d \n",inet);
     if(inet != 0){
       
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));

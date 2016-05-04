@@ -823,7 +823,7 @@ int gen_gbyemess(uEntity* u, int ring){
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport2);
         int inet = inet_aton(ip_removeZero((*u).ent->next_ip2),&adress_sock.sin_addr);
-        printf("inet %d\n",inet);
+        //printf("inet %d\n",inet);
         if(inet != 0)
         {
           char* next_uport = intchar((*u).ent->next_uport2,4);
@@ -1021,7 +1021,8 @@ void* gentest_udp(void* e){
           if(inet != 0)
           {
             char buff[512] = "DOWN";
-            sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+            int send = sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+            printf("test_protocol : I sent %s and value of send %d\n",send,buff);
             close(sock);
             (*u).down1 = -1;
             printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
@@ -1094,11 +1095,11 @@ void* rec_multi_udp(void* uent){
     && (*u).ent->cast_ip1 != NULL){
     //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->cast_port1);
-    printf("remove ip %s\n",ip_removeZero((*u).ent->cast_ip1));
+    //printf("remove ip %s\n",ip_removeZero((*u).ent->cast_ip1));
     int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&(address_sock.sin_addr));
     //printf("inet %d \n",inet);
     if(inet != 0){
-      
+      printf("C1\n");
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
         if((*u).ent->cast_port2>0 && (*u).ent->cast_ip2 != NULL){

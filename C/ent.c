@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   uEntity* u= malloc(sizeof(uEntity));
   int r = init_uEntity(u);
   if (r==0) {
-    //(*u).ent->my_uport = 1025;
+    (*u).ent->my_uport = 1030;
     //(*u).ent->next_ip1 = (*u).ent->my_ip;
     //(*u).ent->next_uport1 = 1030;
     (*u).id_app = "12345679";

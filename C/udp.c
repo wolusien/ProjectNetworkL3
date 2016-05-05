@@ -605,7 +605,7 @@ void* rec_udp(void* uent){
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
-    //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
+    printf("rec_udp : Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->my_uport);
     int inet = inet_aton(ip_removeZero((*u).ent->my_ip),&(address_sock.sin_addr));
     if(inet != 0){
@@ -616,7 +616,7 @@ void* rec_udp(void* uent){
           int rec = recv(sock,buff,512,0);
           if(rec>0){
             buff[rec]='\0';
-            printf("\nrec_udp : Message received %s\n\n",buff);
+            printf("rec_udp : Message received %s\n\n",buff);
             /*
             double var = (*u).count_time;
             if((*u).count_time!=0){
@@ -626,10 +626,13 @@ void* rec_udp(void* uent){
             //reste à coder 
             if(app_mess(u,buff)!=0)
             {
+              printf("rec_udp : pas app\n");
               if(whos(u,buff)!=0)
               {
+                printf("rec_udp : pas whos\n");
                 if(gbye(u,buff)!=0)
                 {
+                  printf("rec_udp : pas gbye\n");
                   if(testring(u,buff)!=0)
                   {
                     fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
@@ -959,16 +962,19 @@ void* envoi_udp(void* e){
     char buff[512];
     read(STDIN_FILENO, buff, 512);
     tab = split(buff,' ');
-    //printf("envoi_udp : Message recu %s taille %d\n",buff,str_arrsize(tab));
+    printf("envoi_udp : Message recu ...%s...\ttaille %d\n",buff,str_arrsize(tab));
     taille=str_arrsize(tab);
     if(taille==2){
       if(strcmp(tab[0],"APPL")==0) {
         gen_appmess( u, tab[1]);
-        //printf("pd d'\n");
+        printf("APPL envoi _dup ok\n");
       }
       ring= atoi(tab[1]);
       if(ring==1||ring==2){
-        if(strcmp(tab[0],"GBYE")==0) gen_gbyemess( u,ring);
+        if(strcmp(tab[0],"GBYE")==0){
+          gen_gbyemess( u,ring);
+          printf("GBYE envoi _dup ok\n");
+        }
         if(strcmp(tab[0],"TEST")==0){
           uTest* t = malloc(sizeof(uTest));
           (*t).u = u;
@@ -976,6 +982,7 @@ void* envoi_udp(void* e){
           pthread_t th1;
           pthread_create(&th1,NULL,gentest_udp,t);
           pthread_join(th1,NULL);
+          printf("TEST envoi _dup ok\n");
         }
       }
     }

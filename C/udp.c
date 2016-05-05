@@ -507,17 +507,19 @@ int testring(uEntity* u, char* buff){
   if((*u).down1 > -1){
     if (strlen(buff)==34)
     {
-      printf("C1\n");
+      //printf("C1\n");
       if((*u).ent->next_ip1 != NULL && (*u).ent->next_uport1>1023){
         char** tab = split(buff, ' ');
         if(str_arrsize(tab)==4)
         {
           if(strcmp(tab[0],"TEST")==0)
           {
+            printf("TEST tester 1\n");
             if(strlen(tab[1])==8)
             {
               if(isin(u,tab[1])==-1 || isin(u,tab[1])==0)
               {
+                printf("TEST tester 2\n");
                 char* ipdiff = tab[2];
                 int portdiff = atoi(tab[3]);
                 if(strlen(ipdiff)==15 && portdiff>0 && portdiff<=9999)
@@ -526,6 +528,7 @@ int testring(uEntity* u, char* buff){
                   {
                     if(strcmp(ipdiff,ip_addZero((*u).ent->cast_ip1))==0 && portdiff==(*u).ent->cast_port1)
                     {
+                      printf("TEST tester 2\n");
                       int sock = socket(PF_INET,SOCK_DGRAM,0);
                       struct sockaddr_in adress_sock;
                       adress_sock.sin_family = AF_INET;
@@ -534,13 +537,14 @@ int testring(uEntity* u, char* buff){
                       
                       if(inet != 0)
                       { 
+                        printf("TEST tester 3\n");
                         sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
                         printf("*********************************************\n");
                         printf("testring : Message sent %s\n******************************\n",buff);
                         add_umess(u,0,tab[1]);
                         add_umess(u,1,tab[1]);
                         free(tab);
-                        printf("j'ai envoye sur %d\n",(*u).ent->next_uport1);
+                        //printf("j'ai envoye sur %d\n",(*u).ent->next_uport1);
                         close(sock);
                         return 0;                  
                       }else{
@@ -626,7 +630,6 @@ void* rec_udp(void* uent){
               {
                 if(gbye(u,buff)!=0)
                 {
-                  printf("C1de\n");
                   if(testring(u,buff)!=0)
                   {
                     fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
@@ -874,7 +877,7 @@ char* gen_testmess(uEntity* u, int ring){
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->next_uport1);
         int inet = inet_aton(ip_removeZero((*u).ent->next_ip1),&adress_sock.sin_addr);
-        printf("inet %d\n",inet);
+        //printf("inet %d\n",inet);
         if(inet != 0)
         {
           char buff[512] = "TEST ";
@@ -1015,6 +1018,7 @@ void* gentest_udp(void* e){
         
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
+        
         adress_sock.sin_port = htons((*u).ent->cast_port1);
         int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&adress_sock.sin_addr);
         if(gen!= NULL && isin(u,gen)!=1){
@@ -1088,9 +1092,16 @@ void* rec_multi_udp(void* uent){
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
   
+  int ok=1;
+  setsockopt(sock,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
+  
   int sock1 = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in adress_soc;
   adress_soc.sin_family = AF_INET;
+  
+  int ok1=1;
+  setsockopt(sock,SOL_SOCKET,SO_REUSEPORT,&ok1,sizeof(ok1));
+  
   if((*u).ent->cast_port1<=9999 && (*u).ent->cast_port1>0
     && (*u).ent->cast_ip1 != NULL){
     //printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
@@ -1102,12 +1113,24 @@ void* rec_multi_udp(void* uent){
       printf("C1\n");
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
+        
+        struct ip_mreq mreq;
+        mreq.imr_multiaddr.s_addr=inet_addr((*u).ent->cast_ip1);
+        mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+        setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+        
         if((*u).ent->cast_port2>0 && (*u).ent->cast_ip2 != NULL){
           adress_soc.sin_port = htons((*u).ent->cast_port2);
           int inet1 = inet_aton(ip_removeZero((*u).ent->cast_ip2),&(address_sock.sin_addr));
           if(inet1 == 1){
             int r1 = bind(sock1,(struct sockaddr*)&adress_soc,sizeof(struct sockaddr_in));
-            if (r1==0) {
+            if (r1==0) {                      
+              
+              struct ip_mreq mreq1;
+              mreq1.imr_multiaddr.s_addr=inet_addr((*u).ent->cast_ip2);
+              mreq1.imr_interface.s_addr=htonl(INADDR_ANY);
+              setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq1,sizeof(mreq1));
+                
               char buff[512];
               char buf[512];
               while (1) {

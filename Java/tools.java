@@ -137,6 +137,14 @@ verif les message circulant sur l'anneau
 		}
 		return false;
 	}
+	
+	public static  boolean verif_mess_app_transREQ(String[]decomp){
+		if (decomp.length!=6)return false;
+		if(!(decomp.equals("APPL")||decomp[2].equals("TRANS###")||decomp[3].equals("REQ")))return false;
+		return true;
+	}
+	
+	
 	public static boolean  verif_mess_who(String []decomp){
 		if(decomp[0].equals("WHOS")){
 			if(decomp.length==2){

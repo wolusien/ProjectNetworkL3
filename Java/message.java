@@ -82,12 +82,12 @@ public class message implements Runnable {
 		//utilise une application
 		if(tools.verif_mess_app(decomp)){
 			listidm.add(decomp[1]);
-			if(decomp[2].startsWith("DIFF") && Integer.parseInt(decomp[3])==decomp[4].length()){
+			if(decomp[2].equals("DIFF###") && Integer.parseInt(decomp[3])==decomp[4].length()){
 				sendMessage(data);
 				return true;
 			}
-			if( transfichier .verif_mess_app_transREQ(decomp)){
-				ArrayList l= transfichier .mess_transROC(decomp[5], decomp[4]);
+			/*if( transfichier.verif_mess_app_transREQ(decomp)){
+				ArrayList<String> l= transfichier.mess_transROC(decomp[5], decomp[4]);
 				String s=(String)l.get(l.size()-1);
 				byte[] data2= new byte[512];
 				data2=s.getBytes();
@@ -99,8 +99,17 @@ public class message implements Runnable {
 					sendMessage(data2);
 				}
 				return true;
+			}*/
+			
+			//verifie si le fichier est la, si oui envoie le fichier
+			if(tools.verif_mess_app_transREQ(decomp)){
+				if(verif_file(decomp[5])){
+					byte[] fic=readFile(decomp[5]);
+					envoiefichier(fic, decomp[4], decomp[5]);
+					System.out.println("bloque");
+					return true; // de cette manière il ne peut pas renvoyer REQ
+				}
 			}
-
 			sendMessage(data);
 			// on peut retourner faux car on ne peut pas lire l application
 			return true;
@@ -276,9 +285,9 @@ public class message implements Runnable {
 
 	}
 
-	
+
 	// Ici pour APPL TRANS
-	
+
 	//lire un fichier
 	public byte[] readFile(String path){
 		if(!verif_file(path)) return null;
@@ -291,12 +300,54 @@ public class message implements Runnable {
 		}
 	}
 
-	
+
 	//verifie si un fichier existe
 	public boolean verif_file(String path){
 		File f=new File(path);
 		if(f.exists())
 			return true;
 		return false;
+	}
+	
+	public void envoiefichier(byte[] fic, String sizenom, String nomfic){
+		String idtrans= tools.genereIdm();
+		String s= "APPL "+tools.genereIdm()+" ROK "+idtrans+" "+sizenom+" "+nomfic+" ";
+		String s2= "APPL "+tools.genereIdm()+" SEN "+idtrans+" ";
+		int taillemax=512-(s2.getBytes().length+4);
+		int nummess;
+		if(fic.length%taillemax==0)
+			nummess=fic.length/taillemax;
+		else
+			nummess=fic.length/taillemax+1;
+		int tailledernier=fic.length%taillemax;
+		s=s+Integer.toString(nummess);
+		byte[] go=new byte[512];
+		go=s.getBytes();
+		sendMessage(go);
+		int pointer=0;
+		byte[] sen;
+		for(int i=0; i<nummess;i++){
+			s2= "APPL "+tools.genereIdm()+" SEN "+idtrans+" ";
+			byte[] envoie;
+			if(i!=nummess-1){
+				envoie = new byte[512];
+				sen=(s2+Integer.toString(taillemax)+" ").getBytes();
+			}
+			else{
+				sen=(s2+Integer.toString(tailledernier)+" ").getBytes();
+				envoie=new byte[sen.length+tailledernier];
+			}
+			for(int j=0; j<sen.length;j++){
+				envoie[j]=sen[j];
+			}
+			int k=0;
+			while(sen.length+k<512){
+				if(pointer<fic.length)
+					envoie[sen.length+k]=fic[pointer];
+				pointer++;
+				k++;
+			}
+			sendMessage(envoie);
+		}
 	}
 }

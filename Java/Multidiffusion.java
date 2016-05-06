@@ -62,6 +62,7 @@ public class Multidiffusion implements Runnable{
 			String s="226."+Integer.toString(r1)+"."+Integer.toString(r2)+"."+Integer.toString(r3);
 			MulticastSocket mso=new MulticastSocket(port);
 			mso.joinGroup(InetAddress.getByName(s));
+			mso.close();
 			return tools.remplissageIp(s);
 		}catch(Exception e){
 			return iplibre();

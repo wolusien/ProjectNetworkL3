@@ -99,7 +99,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     (*e).nb_insert = 1;
                     (*e).tcp_port = free_tport((*e).my_ip);
                     printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
-                    serv_tcp(e);
+                    //serv_tcp(e);
                     return 0;
                   }else {
                     fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);
@@ -154,7 +154,10 @@ void* pth_insertion(void* arg){
     (*e).my_ip = ip;
     (*e).tcp_port = port;
     printf("Je vais lancer l'insertion\n");
-    insertion(e,host,tcp_port);
+    int r = insertion(e,host,tcp_port);
+    if(r == 0){
+      serv_tcp(e);
+    }
   }  
   return NULL;
 }

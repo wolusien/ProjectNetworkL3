@@ -83,6 +83,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                 //printf("insertion : Message envoyé %s\n",mess);
                 //Sending to the previous entity the message about current entity
                 send(sock,mess, strlen(mess)*sizeof(char),0);
+                printf("insertion : Message sent %s\n",mess);
                 
                 free(my_ip);
                 free(my_port);

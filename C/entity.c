@@ -4,9 +4,9 @@
 Function which initialize an entity, and prepare it for insertion
  */
 int init_entity(entity* ent){
-  int uport = free_uport(get_ip());
-  int tport = free_tport(get_ip());
   char* ip = get_ip();
+  int uport = free_uport(ip_removeZero(ip));
+  int tport = free_tport(ip_removeZero(ip));
   if(uport != -1 && ip!=NULL && tport!=-1){
     (*ent).id = gen_code();
     printf("\n################Entity####################################\n\ninit_entity : Id de l'entité %s\n",(*ent).id);
@@ -46,7 +46,6 @@ int insertion(entity* e, char* host, int e1_tcp ){
       if(con == 0){
         char buff[100];
         int recu =  recv(sock,buff,99*sizeof(char),0);
-        printf("recu %s\n",strerror(recu));
         if(recu>0){
           //printf("C1\n");
           //Managing the message received from the previous entity [WELC␣ip␣port␣ip-diff␣port-diff\n]
@@ -73,8 +72,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
               //Preparation of the current entity answer [NEWC␣ip␣port\n]
               char* mess = malloc(sizeof(char)*120);
               strcpy(mess,"NEWC ");
-              char* my_ip = ip_addZero((*e).my_ip);
-              strcat(mess, my_ip);
+              strcat(mess, ip_addZero((*e).my_ip));
               strcat(mess, " ");
               char* my_port = intchar((*e).my_uport,4);
               if(my_port!=NULL){
@@ -85,12 +83,12 @@ int insertion(entity* e, char* host, int e1_tcp ){
                 send(sock,mess, strlen(mess)*sizeof(char),0);
                 printf("insertion : Message sent %s\n",mess);
                 
-                free(my_ip);
                 free(my_port);
                 free(mess);
                 char buff2[100];
                 int recu2 =  recv(sock,buff2,99*sizeof(char),0);
                 if(recu2>0){
+                  
                   buff2[recu2] = '\0';
                   printf("insertion : Message received from the entity of the ring %s\n" ,buff2);
                   if(strcmp(buff2,"ACKC\n") == 0){
@@ -98,8 +96,10 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     free(tab);
                     (*e).nb_insert = 1;
                     (*e).tcp_port = free_tport((*e).my_ip);
+                    printf("********************************************\n");
                     printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
-                    //serv_tcp(e);
+                    printf("********************************************\n");
+                    serv_tcp(e);
                     return 0;
                   }else {
                     fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);
@@ -149,15 +149,12 @@ void* pth_insertion(void* arg){
   char* ip = get_ip();
   
   int tcp_port = (*e).tcp_port;
-  int port = free_tport();
+  int port = free_tport(ip);
   if(ip!=NULL && port!=-1){
     (*e).my_ip = ip;
     (*e).tcp_port = port;
     printf("Je vais lancer l'insertion\n");
-    int r = insertion(e,host,tcp_port);
-    if(r == 0){
-      serv_tcp(e);
-    }
+    insertion(e,host,tcp_port);
   }  
   return NULL;
 }
@@ -193,118 +190,113 @@ int serv_tcp(entity* e){
                 char* mess = malloc(sizeof(char)*120);
                 strcpy(mess,"WELC ");
                 //Establishing ip(next_ip)
-                char* next_ip = ip_addZero((*e).next_ip1);
-                if(next_ip!=NULL){
-                  strcat(mess, next_ip);
+                strcat(mess, ip_addZero((*e).next_ip1));
+                strcat(mess, " ");
+                //Establishing port(next_uport)
+                char* next_uport = intchar((*e).next_uport1,4);
+                if(next_uport!=NULL){
+                  strcat(mess, next_uport);
                   strcat(mess, " ");
-                  //Establishing port(next_uport)
-                  char* next_uport = intchar((*e).next_uport1,4);
-                  if(next_uport!=NULL){
-                    strcat(mess, next_uport);
+                  //Establishing ip_diff
+                  char* cast_ip =ip_addZero((*e).cast_ip1);
+                  if(cast_ip!=NULL){
+                    strcat(mess, cast_ip);
                     strcat(mess, " ");
-                    //Establishing ip_diff
-                    char* cast_ip =ip_addZero((*e).cast_ip1);
-                    if(cast_ip!=NULL){
-                      strcat(mess, cast_ip);
-                      strcat(mess, " ");
-                      //Establishing port_diff
-                      char* cast_port = intchar((*e).cast_port1,4);
-                      if(cast_port!=NULL){
+                    //Establishing port_diff
+                    char* cast_port = intchar((*e).cast_port1,4);
+                    if(cast_port!=NULL){
+                    
+                      strcat(mess, cast_port);
+                      strcat(mess, "\n");
                       
-                        strcat(mess, cast_port);
-                        strcat(mess, "\n");
-                        
-                        //Sending to the previous entity the message about current entity
-                        send(sock2,mess,strlen(mess)*sizeof(char),0);
-                        printf("serv_tcp : Message sent %s\n",mess);
-                        free(next_uport);
-                        free(cast_port);
-                        //Manage message reception
-                        char buff[100];
-                        int recu=recv(sock2,buff,99*sizeof(char),0);
-                        buff[recu]='\0';
-                        if (recu>0){
-                          char** tab = split(buff,' ');
-                          //Managing the insertion
-                          if (str_arrsize(tab)==3){
-                            if((*e).nb_insert==0){
-                              if(strcmp(tab[0],"NEWC")==0){
-                                int next_uport = atoi(tab[2]);
-                                if(check_ip(tab[1]) != -1 
-                                && next_uport<=9999 && next_uport>0){
-                                  (*e).next_ip1 = tab[1];
-                                  (*e).next_uport1 = next_uport;
-                                  printf("serv_tcp : Message recu : %s\n",buff);
-                                  mess = "ACKC\n";
-                                  
-                                  send(sock2,mess,strlen(mess)*sizeof(char),0);
-                                  (*e).nb_insert += 1;
-                                  printf("serv_tcp : Number of insertion %d\n",(*e).nb_insert);
+                      //Sending to the previous entity the message about current entity
+                      send(sock2,mess,strlen(mess)*sizeof(char),0);
+                      printf("serv_tcp : Message sent %s\n",mess);
+                      free(next_uport);
+                      free(cast_port);
+                      //Manage message reception
+                      char buff[100];
+                      int recu=recv(sock2,buff,99*sizeof(char),0);
+                      buff[recu]='\0';
+                      if (recu>0){
+                        char** tab = split(buff,' ');
+                        //Managing the insertion
+                        if (str_arrsize(tab)==3){
+                          if((*e).nb_insert<2){
+                            if(strcmp(tab[0],"NEWC")==0){
+                              int next_uport = atoi(tab[2]);
+                              if(check_ip(tab[1]) != -1 
+                              && next_uport<=9999 && next_uport>0){
+                                (*e).next_ip1 = tab[1];
+                                (*e).next_uport1 = next_uport;
+                                printf("serv_tcp : Message recu : %s\n",buff);
+                                mess = "ACKC\n";
+                                
+                                send(sock2,mess,strlen(mess)*sizeof(char),0);
+                                (*e).nb_insert = 1;
+                                printf("serv_tcp : Number of insertion %d\n",(*e).nb_insert);
+                                close(sock2);
+                              }
+                            }
+                          } 
+                          //Managing the duplication 
+                        }else if(str_arrsize(tab)==5){
+                          if((*e).nb_insert==1){
+                            if(strcmp(tab[0],"DUPL")==0){
+                              int next_port2 = atoi(tab[2]);
+                              int cast_port2 = atoi(tab[4]);
+                              if(next_port2<=9999 && next_port2>0
+                              && cast_port2<=9999 && cast_port2>0
+                              //&& cast_port2 != next_port2 && strcmp(tab[1],tab[3])!=0
+                              ){
+                                (*e).next_ip2 = tab[1];
+                                (*e).next_uport2 = next_port2;
+                                (*e).cast_ip2 = tab[3];
+                                (*e).cast_port2 = cast_port2;
+                                printf("serv_tcp : Message recu : %s\n",buff);
+              
+                                char msg[120]= "ACKD ";
+                                char* my_uport = intchar((*e).my_uport,4);
+                                //printf("Im here");
+                                if(strlen(my_uport)>0){
+                                  strcat(msg, my_uport);
+                                  strcat(msg, "\n");
+                                  //printf("message %s\n",msg);
+                                  send(sock2,msg, sizeof(char)*strlen(msg),0);
+                                  printf("serv_tcp : Message sent %s\n",msg);
+                                  free(my_uport);
+                                  (*e).nb_insert = 2;
                                   close(sock2);
                                 }
-                              }
-                            } 
-                            //Managing the duplication 
-                          }else if(str_arrsize(tab)==5){
-                            if((*e).nb_insert==1){
-                              if(strcmp(tab[0],"DUPL")==0){
-                                int next_port2 = atoi(tab[2]);
-                                int cast_port2 = atoi(tab[4]);
-                                if(next_port2<=9999 && next_port2>0
-                                && cast_port2<=9999 && cast_port2>0
-                                //&& cast_port2 != next_port2 && strcmp(tab[1],tab[3])!=0
-                                ){
-                                  (*e).next_ip2 = tab[1];
-                                  (*e).next_uport2 = next_port2;
-                                  (*e).cast_ip2 = tab[3];
-                                  (*e).cast_port2 = cast_port2;
-                                  printf("serv_tcp : Message recu : %s\n",buff);
-                
-                                  char msg[120]= "ACKD ";
-                                  char* my_uport = intchar((*e).my_uport,4);
-                                  //printf("Im here");
-                                  if(strlen(my_uport)>0){
-                                    strcat(msg, my_uport);
-                                    strcat(msg, "\n");
-                                    //printf("message %s\n",msg);
-                                    send(sock2,msg, sizeof(char)*strlen(msg),0);
-                                    printf("serv_tcp : Message sent %s\n",msg);
-                                    free(my_uport);
-                                    (*e).nb_insert = 2;
-                                    close(sock2);
-                                  }
-                                }else{
-                                  fprintf(stderr,"serv_tcp : Wrong arguments given for duplication\n");
-                                  return -1;
-                                }
                               }else{
-                                fprintf(stderr,"serv_tcp : Problem with the message received\n");
+                                fprintf(stderr,"serv_tcp : Wrong arguments given for duplication\n");
                                 return -1;
                               }
                             }else{
-                              fprintf(stderr,"serv_tcp : Number of duplications authorized is overpassed\n");
+                              fprintf(stderr,"serv_tcp : Problem with the message received\n");
                               return -1;
                             }
-                            
-                          }else{            
-                            fprintf(stderr,"serv_tcp : Problem with the message received wrong arguments\n");
-                            close(sock2);
+                          }else{
+                            fprintf(stderr,"serv_tcp : Number of duplications authorized is overpassed\n");
+                            return -1;
                           }
-                        }else{
-                          fprintf(stderr,"serv_tcp : Problem with the message received wrong form serv %s\n",buff);
+                          
+                        }else{            
+                          fprintf(stderr,"serv_tcp : Problem with the message received wrong arguments\n");
                           close(sock2);
                         }
                       }else{
-                        fprintf(stderr,"serv_tcp : Problem with entity cast port1 %d\n",(*e).cast_port1);
+                        fprintf(stderr,"serv_tcp : Problem with the message received wrong form serv %s\n",buff);
+                        close(sock2);
                       }
                     }else{
-                      fprintf(stderr,"serv_tcp : Problem with cast_ip1 %s\n",(*e).cast_ip1);
+                      fprintf(stderr,"serv_tcp : Problem with entity cast port1 %d\n",(*e).cast_port1);
                     }
                   }else{
-                    fprintf(stderr,"serv_tcp : Problem with next udp port1 %d\n",(*e).next_uport1);
+                    fprintf(stderr,"serv_tcp : Problem with cast_ip1 %s\n",(*e).cast_ip1);
                   }
                 }else{
-                  fprintf(stderr,"serv_tcp : Problem with next ip1 %s\n",(*e).next_ip1);
+                  fprintf(stderr,"serv_tcp : Problem with next udp port1 %d\n",(*e).next_uport1);
                 }
               }else{
                 perror("serv_tcp : Problem with the connection to the server ");

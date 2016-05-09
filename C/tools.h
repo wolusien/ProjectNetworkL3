@@ -56,13 +56,13 @@ char* gen_code();
 /*
 Function that allow to get free tcp port for an host
 */
-int free_tport();
+int free_tport(char* host);
 
 
 /*
 Function that allow to get free udp port for an host
 */
-int free_uport();
+int free_uport(char* host);
 
 /*
 Function that verify an ip_address

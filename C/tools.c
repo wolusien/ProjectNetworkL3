@@ -186,36 +186,24 @@ char* gen_code(){
 /*
   Allow to get a free tcp port on a host
 */
-int free_tport(){
+int free_tport(char* host){
   int i;
-  char* host = get_ip();
   int sock = socket(PF_INET,SOCK_STREAM,0);
-
-  struct hostent* h;
-  h=gethostbyname(host);
-  if(h==NULL){
-    printf("free_tport : Unknown host given\n");
-    return -1;
-  }
-  char* host_addr;
-  //Get list of addresses of the host
-  struct in_addr **addresses = (struct in_addr**)h->h_addr_list;
-  //We take the first address for testing the port
-  while(*addresses != NULL){
-    //inet_ntoa traduce struct in_addr to char*
-    host_addr = inet_ntoa(**addresses);
-    break;
-  }
-
-  if(host_addr!=NULL){
+  
+  if(host!=NULL){
     struct sockaddr_in adress_sock;
     adress_sock.sin_family = AF_INET;
     int port = 1025;
 
     for (i = 0; i < 9999-1025; i++) {
-      port += i;
+      char* r = gen_code();
+      char r1[2];
+      r1[0] = r[strlen(r)-1];
+      r1[1] = r[strlen(r)-2];
+      port += i + atoi(r1);
+      //printf("free_tport : Je teste ce port %d\n",port);
       adress_sock.sin_port = htons(port);
-      inet_aton(host_addr,&adress_sock.sin_addr);
+      inet_aton(host,&adress_sock.sin_addr);
       int con = connect(sock, (struct sockaddr *)&adress_sock,
                         sizeof(struct sockaddr_in));
       if(con != 0){
@@ -233,9 +221,8 @@ int free_tport(){
 /*
   Allow to get a free udp port on a host
 */
-int free_uport(){
+int free_uport(char* host){
   int i;
-  char* host = get_ip();
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   
   struct sockaddr_in adress_sock;
@@ -259,10 +246,11 @@ int free_uport(){
   return -1;
 }
 
-/*
-  Function that verify an ip_address
+
+/*Function that verify an ip_address
 */
 int check_ip(char* ip){
+  /*
   char* test = ip_removeZero(ip);
   struct sockaddr_in sa;
   int result = inet_pton(AF_INET, test, &(sa.sin_addr));
@@ -271,8 +259,11 @@ int check_ip(char* ip){
     result = inet_pton(AF_INET6, test, &(sa.sin_addr));
     if(result != 0)return 0;
   }
-  return -1;
+  */
+  return 0;
 }
+
+
 int rand_a_b(int a, int b){
   time_t t;
 

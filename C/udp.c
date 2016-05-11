@@ -611,9 +611,9 @@ void* rec_udp(void* uent){
     if(inet != 0){
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
-        char buff[512];
-        // = malloc(sizeof(char)*512);
         while (1) {
+					//char buff[512];
+					char* buff = malloc(sizeof(char)*512);
           int rec = recv(sock,buff,512,0);
           if(rec>0){
             buff[rec]='\0';
@@ -642,6 +642,7 @@ void* rec_udp(void* uent){
               }
             }
           }
+          free(buff);
         }
       }else {
         perror("rec_udp bind: Problem with socket binding");

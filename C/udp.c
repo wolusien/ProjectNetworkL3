@@ -626,13 +626,13 @@ void* rec_udp(void* uent){
             //reste à coder 
             if(app_mess(u,buff)!=0)
             {
-              printf("rec_udp : pas app\n");
+              //printf("rec_udp : pas app\n");
               if(whos(u,buff)!=0)
               {
-                printf("rec_udp : pas whos\n");
+                //printf("rec_udp : pas whos\n");
                 if(gbye(u,buff)!=0)
                 {
-                  printf("rec_udp : pas gbye\n");
+                  //printf("rec_udp : pas gbye\n");
                   if(testring(u,buff)!=0)
                   {
                     fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
@@ -1117,7 +1117,6 @@ void* rec_multi_udp(void* uent){
     int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&(address_sock.sin_addr));
     //printf("inet %d \n",inet);
     if(inet != 0){
-      printf("C1\n");
       int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
       if (r==0) {
         

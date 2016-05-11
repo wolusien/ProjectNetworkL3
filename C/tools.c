@@ -176,7 +176,7 @@ char* gen_code(){
         idm[i]=tmp[i];
       }
     }
-    printf("value of idm %s\n",idm);
+    //printf("value of idm %s\n",idm);
     char* idf = malloc(sizeof(char)*8);
     //printf("Value of idm %s\n",idm);
     for (i = 0; i < 8; i++)

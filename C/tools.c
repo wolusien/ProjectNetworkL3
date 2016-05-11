@@ -160,6 +160,7 @@ char* gen_code(){
   int r = clock_gettime(CLOCK_REALTIME,&start);
   if(r==0){
     char idm[8];
+    // = malloc(sizeof(char)*8);
     char* tab = "azertyuiopqsdfghjklmwxcvbn";
     srand((unsigned) time(&t));
     idm[0] = tab[rand()%26];
@@ -175,12 +176,17 @@ char* gen_code(){
         idm[i]=tmp[i];
       }
     }
+    printf("value of idm %s\n",idm);
     char* idf = malloc(sizeof(char)*8);
+    //printf("Value of idm %s\n",idm);
     for (i = 0; i < 8; i++)
 		{
-			idf[i]=idm[i];
+			if(strlen(idf)<8){
+				idf[i]=idm[i];
+			}
 		}
-    printf("Value of id_entity %s and length %d\n",idf,strlen(idf));
+		idf[8]='\0';
+    printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
     return idf;
   }
   return NULL;
@@ -337,6 +343,7 @@ char* gen_idmess(){
   int r = clock_gettime(CLOCK_REALTIME,&start);
   if(r==0){
     char idm[8];
+    // = malloc(sizeof(char)*8);
     char* tab = "azertyuiopqsdfghjklmwxcvbn";
     srand((unsigned) time(&t));
     idm[0] = tab[rand()%26];
@@ -353,11 +360,16 @@ char* gen_idmess(){
       }
     }
     char* idf = malloc(sizeof(char)*8);
+    //printf("Value of idm %s\n",idm);
     for (i = 0; i < 8; i++)
 		{
-			idf[i]=idm[i];
+			if(strlen(idf)<8){
+				idf[i]=idm[i];
+			}
 		}
-    printf("Value of gen_idm %s and length %d\n",idf,strlen(idf));
+		//free(idm);
+		idf[8]='\0';
+    printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
     return idf;
   }
   return NULL;

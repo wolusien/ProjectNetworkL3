@@ -186,7 +186,7 @@ char* gen_code(){
 			}
 		}
 		idf[8]='\0';
-    printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
+    //printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
     return idf;
   }
   return NULL;
@@ -367,9 +367,8 @@ char* gen_idmess(){
 				idf[i]=idm[i];
 			}
 		}
-		//free(idm);
 		idf[8]='\0';
-    printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
+    //printf("Value of id_entity gen_idmess %s and length %d\n",idf,strlen(idf));
     return idf;
   }
   return NULL;

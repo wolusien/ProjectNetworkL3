@@ -177,7 +177,7 @@ char* gen_code(){
     }
     char* idf = malloc(sizeof(char)*8);
     strcpy(idf,idm);
-    //printf("Value of id_entity %s\n",idf);
+    printf("Value of id_entity %s\n",idf);
     return idf;
   }
   return NULL;

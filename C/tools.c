@@ -176,8 +176,12 @@ char* gen_code(){
       }
     }
     char* idf = malloc(sizeof(char)*8);
-    strcpy(idf,idm);
+    for (i = 0; i < 8; i++)
+		{
+			idf[i]=idm[i];
+		}
     printf("Value of id_entity %s and length %d\n",idf,strlen(idf));
+    return idf;
   }
   return NULL;
 }
@@ -349,7 +353,10 @@ char* gen_idmess(){
       }
     }
     char* idf = malloc(sizeof(char)*8);
-    strcpy(idf,idm);
+    for (i = 0; i < 8; i++)
+		{
+			idf[i]=idm[i];
+		}
     printf("Value of gen_idm %s and length %d\n",idf,strlen(idf));
     return idf;
   }

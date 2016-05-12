@@ -135,11 +135,11 @@ class Entity {
 	public void lanceDupl(){
 		
 	}
-	public void Init(){
+	public void Init(String idapp){
 		this.setNextudp(udp_port);
 		this.setNextIp(tools.ip());
 		sev= new Server(this);
-		cli= new message(this);
+		cli= new message(this,idapp);
 		System.out.println(this.next_ip);
 		muldiff=new Multidiffusion(this);
 		//this.cast_ip="226.0.0.0";
@@ -205,11 +205,11 @@ class Entity {
 	}
 
 
-	public void insertion(String ip,int port) {
+	public void insertion(String ip,int port, String idapp) {
 		try{
 			Socket socket=new Socket(ip,port);
 			sev= new Server(this);
-			cli= new message(this);
+			cli= new message(this, idapp);
 			lance_entity( sev, cli);
 			System.out.println("entity ok");
 			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));

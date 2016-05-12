@@ -27,11 +27,13 @@ public class message implements Runnable {
 	Entity ent;
 	ArrayList<String> listidm;
 	private String test;
+	public String idapp="";
 
-	public message(Entity ent){
+	public message(Entity ent, String idapp){
 		this.ent=ent;
 		listidm=new ArrayList<String>();
-
+		this.idapp=tools.remplissageId(idapp);
+		System.out.println(idapp);
 	}
 
 	public void quit(){
@@ -82,37 +84,34 @@ public class message implements Runnable {
 		//utilise une application
 		if(tools.verif_mess_app(decomp)){
 			listidm.add(decomp[1]);
-			if(decomp[2].equals("DIFF###") && Integer.parseInt(decomp[3])==decomp[4].length()){
+			if(decomp[2].equals("DIFF####") 
+					&& decomp[2].equals(idapp) 
+					&& Integer.parseInt(decomp[3])==decomp[4].length()){
+
 				sendMessage(data);
 				return true;
-			}
-			/*if( transfichier.verif_mess_app_transREQ(decomp)){
-				ArrayList<String> l= transfichier.mess_transROC(decomp[5], decomp[4]);
-				String s=(String)l.get(l.size()-1);
-				byte[] data2= new byte[512];
-				data2=s.getBytes();
-				sendMessage(data2);
-				for(int k=0;k<l.size()-1;k++){
-					s=(String)l.get(k);
-					data2= new byte[512];
-					data2=s.getBytes();
-					sendMessage(data2);
-				}
-				return true;
-			}*/
-			
+			}			
 			//verifie si le fichier est la, si oui envoie le fichier
-			if(tools.verif_mess_app_transREQ(decomp)){
+			if(tools.verif_mess_app_transREQ(decomp) 
+					&& decomp[2].equals(idapp)){
 				if(verif_file(decomp[5])){
+
 					byte[] fic=readFile(decomp[5]);
 					envoiefichier(fic, decomp[4], decomp[5]);
 					System.out.println("bloque");
 					return true; // de cette manière il ne peut pas renvoyer REQ
 				}
+				sendMessage(data);
+				return true;
+			}
+			if(tools.verif_mess_app_trans(decomp)
+					&& decomp[2].equals(idapp)){
+				sendMessage(data);
+				return true;
 			}
 			sendMessage(data);
 			// on peut retourner faux car on ne peut pas lire l application
-			return true;
+			return false;
 		}
 
 		//sort de l anneau
@@ -308,33 +307,33 @@ public class message implements Runnable {
 			return true;
 		return false;
 	}
-	
+
 	public void envoiefichier(byte[] fic, String sizenom, String nomfic){
 		String idtrans= tools.genereIdm();
-		String s= "APPL "+tools.genereIdm()+" ROK "+idtrans+" "+sizenom+" "+nomfic+" ";
-		String s2= "APPL "+tools.genereIdm()+" SEN "+idtrans+" ";
-		int taillemax=512-(s2.getBytes().length+4);
+		String s= "APPL "+tools.genereIdm()+" TRANS### ROK "+idtrans+" "+sizenom+" "+nomfic+" ";
+		String s2= "APPL "+tools.genereIdm()+" TRANS### SEN "+idtrans+" ";
+		int taillemax=512-(s2.getBytes().length+8);
 		int nummess;
 		if(fic.length%taillemax==0)
 			nummess=fic.length/taillemax;
 		else
 			nummess=fic.length/taillemax+1;
 		int tailledernier=fic.length%taillemax;
-		s=s+Integer.toString(nummess);
+		s=s+nummess;
 		byte[] go=new byte[512];
 		go=s.getBytes();
 		sendMessage(go);
 		int pointer=0;
 		byte[] sen;
 		for(int i=0; i<nummess;i++){
-			s2= "APPL "+tools.genereIdm()+" SEN "+idtrans+" ";
+			s2= "APPL "+tools.genereIdm()+" TRANS### SEN "+idtrans+" "+tools.intToOctet(i, 3)+" ";
 			byte[] envoie;
 			if(i!=nummess-1){
 				envoie = new byte[512];
-				sen=(s2+Integer.toString(taillemax)+" ").getBytes();
+				sen=(s2+tools.intToOctet(taillemax, 3)+" ").getBytes();
 			}
 			else{
-				sen=(s2+Integer.toString(tailledernier)+" ").getBytes();
+				sen=(s2+tools.intToOctet(tailledernier,3)+" ").getBytes();
 				envoie=new byte[sen.length+tailledernier];
 			}
 			for(int j=0; j<sen.length;j++){
@@ -347,6 +346,7 @@ public class message implements Runnable {
 				pointer++;
 				k++;
 			}
+			//System.out.println(new String(envoie));
 			sendMessage(envoie);
 		}
 	}

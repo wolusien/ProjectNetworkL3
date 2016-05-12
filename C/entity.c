@@ -234,7 +234,7 @@ int serv_tcp(entity* e){
                                 
                                 send(sock2,mess,strlen(mess)*sizeof(char),0);
                                 (*e).nb_insert = 1;
-                                printf("serv_tcp : Number of insertion %d\n",(*e).nb_insert);
+                                printf("serv_tcp : Insertion succeed\n");
                                 close(sock2);
                               }
                             }

@@ -955,40 +955,18 @@ char* gen_testmess(uEntity* u, int ring){
 
 void* envoi_udp(void* e){
   uEntity* u = (uEntity*) e; 
-  char** tab;
+  int i;
   int taille;
   int ring;
      
   while(1){
     printf("Envoi msg : \n");
-    char buff[512];
-    read(STDIN_FILENO, buff, 512);
-    tab = split(buff,' ');
+    char* buff = malloc(sizeof(char)*530);
+    read(STDIN_FILENO, buff, 530);
+    char** tab = split(buff,' ');
     printf("envoi_udp : Message recu ...%s...\ttaille %d\n",buff,str_arrsize(tab));
     taille=str_arrsize(tab);
-    if(taille==2){
-      if(strcmp(tab[0],"APPL")==0) {
-        gen_appmess( u, tab[1]);
-        printf("APPL envoi _dup ok\n");
-      }
-      ring= atoi(tab[1]);
-      if(ring==1||ring==2){
-        if(strcmp(tab[0],"GBYE")==0){
-          gen_gbyemess( u,ring);
-          printf("GBYE envoi _dup ok\n");
-        }
-        if(strcmp(tab[0],"TEST")==0){
-          uTest* t = malloc(sizeof(uTest));
-          (*t).u = u;
-          (*t).buff = buff;
-          pthread_t th1;
-          pthread_create(&th1,NULL,gentest_udp,t);
-          pthread_join(th1,NULL);
-          printf("TEST envoi _dup ok\n");
-        }
-      }
-    }
-    if(taille==1){
+    if(taille == 1){
       
       if(strcmp(tab[0],"WHOS\n")==0){  
         //printf("I will use whose\n");
@@ -997,7 +975,63 @@ void* envoi_udp(void* e){
       if(strcmp(tab[0],"END")==0){
         exit(0);
       }
+    }else if(taille == 2){
+      ring= atoi(tab[1]);
+      if(ring==1||ring==2){
+        if(strcmp(tab[0],"GBYE")==0){
+          gen_gbyemess( u,ring);
+          //printf("GBYE envoi _dup ok\n");
+        }
+        if(strcmp(tab[0],"TEST")==0){
+          uTest* t = malloc(sizeof(uTest));
+          (*t).u = u;
+          (*t).buff = buff;
+          pthread_t th1;
+          pthread_create(&th1,NULL,gentest_udp,t);
+          pthread_join(th1,NULL);
+          //printf("TEST envoi _dup ok\n");
+        }
+      }
     }
+    if(taille >= 2)
+		{
+			if(strcmp(tab[0],"DIFF") == 0) {
+        (*u).id_app = "DIFF####";
+        char* diffmsg = malloc(sizeof(char)*(strlen(buff)-2));
+        char* diftmp = malloc(sizeof(char)*(strlen(buff)-5));
+        char* sizemess = intchar((int)strlen(buff)-6,3);
+        printf("Value of sizemess %s\n",sizemess);
+        strcat(diffmsg,sizemess);
+        strcat(diffmsg," ");
+        printf("Value of diffmsg avt copie %s\n",diffmsg);
+        for (i = 0; i < strlen(buff)-5; i++)
+				{
+					diftmp[i] = buff[i+5];
+				}
+				diftmp[strlen(buff)-5]='\0';
+				strcat(diffmsg,diftmp);
+				printf("Value of diffmsg après copie %s\n",diffmsg);
+        gen_appmess( u, diffmsg);
+        free(sizemess);
+        free(diftmp);
+        free(diffmsg);
+        //printf("DIFF envoi _dup ok\n");
+      }else if(strcmp(tab[0],"APPL") == 0) {
+        char* appmsg = malloc(sizeof(char)*(strlen(buff)-5));
+        for (i = 0; i < strlen(buff)-5; i++)
+				{
+					appmsg[i] = buff[i+5];
+				}
+				appmsg[strlen(buff)-5]='\0';
+				printf("Value of appmsg après copie %s\n",appmsg);
+        gen_appmess( u, appmsg);
+        //printf("APPL envoi _dup ok\n");
+        free(appmsg);
+      }
+		}
+		bzero(buff,sizeof(char)*530);
+		free(buff);
+		free(tab);	
   }
 }
 

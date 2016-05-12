@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     (*u).ent->tcp_port = atoi(argv[2]);
     //(*u).ent->my_uport = 1030;
     //(*u).ent->next_uport1 = 1025;
-    printf("voici mon port udp %d\n",(*u).ent->my_uport);
     (*u).id_app = "12345979";
     pthread_t th1;
     pthread_create(&th1,NULL,pth_insertion,(*u).ent);

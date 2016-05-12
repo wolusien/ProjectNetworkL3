@@ -382,12 +382,11 @@ char* intchar(int a, int b){
   sprintf(tmp,"%d",a);
   if(strlen(tmp)<b){
     char* res = malloc(sizeof(char)*b);
-    for(i=0; i<strlen(tmp); i++){
-      res[i]=tmp[i];
+    for(i=0; i<b-strlen(tmp); i++){
+      strcat(res,"0");
     }
-    for(i=strlen(tmp); i<strlen(res); i++){
-      res[i]='0';
-    }
+    strcat(res,tmp);
+    printf("Value of res dans intchar %s\n",res);
     free(tmp);
     return res;
   }else if(strlen(tmp)==b){

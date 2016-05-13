@@ -110,7 +110,11 @@ int app_mess(uEntity* u, char* buff){
                     if(strcmp((*u).id_app,tab[2])==0){
                       //Case where (*u).(*e) support the application
                       //code à écrire
-                      printf("Code à écrire, message de l'application %s\n",buff);
+                      if (strcmp((*u).id_app,"DIFF####") == 0)
+											{
+												sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
+												printf("app_mess : Message send %s\n",buff);
+											}
                       return 0;
                     }else{
                       //Case where we transmit the message to the next entity
@@ -135,7 +139,7 @@ int app_mess(uEntity* u, char* buff){
                     
                           close(sock);
                           free(tab);
-                          printf("J'ai fini");
+                          //printf("J'ai fini");
                           return 0;
                         
                         }else{
@@ -514,12 +518,12 @@ int testring(uEntity* u, char* buff){
         {
           if(strcmp(tab[0],"TEST")==0)
           {
-            printf("TEST tester 1\n");
+            //printf("TEST tester 1\n");
             if(strlen(tab[1])==8)
             {
               if(isin(u,tab[1])==-1 || isin(u,tab[1])==0)
               {
-                printf("TEST tester 2\n");
+                //printf("TEST tester 2\n");
                 char* ipdiff = tab[2];
                 int portdiff = atoi(tab[3]);
                 if(strlen(ipdiff)==15 && portdiff>0 && portdiff<=9999)
@@ -528,7 +532,7 @@ int testring(uEntity* u, char* buff){
                   {
                     if(strcmp(ipdiff,ip_addZero((*u).ent->cast_ip1))==0 && portdiff==(*u).ent->cast_port1)
                     {
-                      printf("TEST tester 2\n");
+                      //printf("TEST tester 2\n");
                       int sock = socket(PF_INET,SOCK_DGRAM,0);
                       struct sockaddr_in adress_sock;
                       adress_sock.sin_family = AF_INET;
@@ -537,10 +541,11 @@ int testring(uEntity* u, char* buff){
                       
                       if(inet != 0)
                       { 
-                        printf("TEST tester 3\n");
+                        //printf("TEST tester 3\n");
                         sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&(adress_sock),(socklen_t)sizeof(struct sockaddr_in));
-                        printf("*********************************************\n");
-                        printf("testring : Message sent %s\n******************************\n",buff);
+                        printf("**********************************************************\n");
+                        printf("testring : Message sent %s\n",buff);
+                        printf("**********************************************************\n");
                         add_umess(u,0,tab[1]);
                         add_umess(u,1,tab[1]);
                         free(tab);
@@ -599,13 +604,13 @@ int testring(uEntity* u, char* buff){
 
 //Global fonction for udp message
 void* rec_udp(void* uent){
-  printf("Reception udp : Je lance le serveur de reception udp\n");
+  printf("Reception udp : Start of udp server\n");
   uEntity* u = (uEntity*)uent;
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in address_sock;
   address_sock.sin_family = AF_INET;
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
-    printf("rec_udp : Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
+    //printf("rec_udp : Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
     address_sock.sin_port = htons((*u).ent->my_uport);
     int inet = inet_aton(ip_removeZero((*u).ent->my_ip),&(address_sock.sin_addr));
     if(inet != 0){
@@ -737,6 +742,7 @@ int gen_whosmess(uEntity* u){
       
       if(inet != 0)
       {
+				//printf("whos : ok");
         char buff[512] = "WHOS ";
         strcat(buff,idm);
         sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
@@ -899,7 +905,7 @@ char* gen_testmess(uEntity* u, int ring){
                     
           add_umess(u,0,idm);
           close(sock);
-          printf("I will return idm");
+          //printf("I will return idm");
           return idm;
         }else{
           perror("gen_testmess perror :  ");
@@ -960,78 +966,83 @@ void* envoi_udp(void* e){
   int ring;
      
   while(1){
-    printf("Envoi msg : \n");
+    //printf("Envoi msg : \n");
     char* buff = malloc(sizeof(char)*530);
-    read(STDIN_FILENO, buff, 530);
-    char** tab = split(buff,' ');
-    printf("envoi_udp : Message recu ...%s...\ttaille %d\n",buff,str_arrsize(tab));
-    taille=str_arrsize(tab);
-    if(taille == 1){
-      
-      if(strcmp(tab[0],"WHOS\n")==0){  
-        //printf("I will use whose\n");
-        gen_whosmess( u);
-      }
-      if(strcmp(tab[0],"END")==0){
-        exit(0);
-      }
-    }else if(taille == 2){
-      ring= atoi(tab[1]);
-      if(ring==1||ring==2){
-        if(strcmp(tab[0],"GBYE")==0){
-          gen_gbyemess( u,ring);
-          //printf("GBYE envoi _dup ok\n");
-        }
-        if(strcmp(tab[0],"TEST")==0){
-          uTest* t = malloc(sizeof(uTest));
-          (*t).u = u;
-          (*t).buff = buff;
-          pthread_t th1;
-          pthread_create(&th1,NULL,gentest_udp,t);
-          pthread_join(th1,NULL);
-          //printf("TEST envoi _dup ok\n");
-        }
-      }
-    }
-    if(taille >= 2)
-		{
-			if(strcmp(tab[0],"DIFF") == 0) {
-        (*u).id_app = "DIFF####";
-        char* diffmsg = malloc(sizeof(char)*(strlen(buff)-2));
-        char* diftmp = malloc(sizeof(char)*(strlen(buff)-5));
-        char* sizemess = intchar((int)strlen(buff)-6,3);
-        printf("Value of sizemess %s\n",sizemess);
-        strcat(diffmsg,sizemess);
-        strcat(diffmsg," ");
-        printf("Value of diffmsg avt copie %s\n",diffmsg);
-        for (i = 0; i < strlen(buff)-5; i++)
-				{
-					diftmp[i] = buff[i+5];
+    int r = read(STDIN_FILENO, buff, 530);
+    if(r>0){
+			buff[r-1]='\0';
+			char** tab = split(buff,' ');
+			//printf("envoi_udp : Message recu ...%s...\ttaille %d\n",buff,str_arrsize(tab));
+			taille=str_arrsize(tab);
+			if(taille == 1){
+				if (strcmp(tab[0],"INFO")==0){
+					info_entity((*u).ent);
 				}
-				diftmp[strlen(buff)-5]='\0';
-				strcat(diffmsg,diftmp);
-				printf("Value of diffmsg après copie %s\n",diffmsg);
-        gen_appmess( u, diffmsg);
-        free(sizemess);
-        free(diftmp);
-        free(diffmsg);
-        //printf("DIFF envoi _dup ok\n");
-      }else if(strcmp(tab[0],"APPL") == 0) {
-        char* appmsg = malloc(sizeof(char)*(strlen(buff)-5));
-        for (i = 0; i < strlen(buff)-5; i++)
-				{
-					appmsg[i] = buff[i+5];
+				if(strcmp(tab[0],"WHOS")==0){
+					gen_whosmess(u);
 				}
-				appmsg[strlen(buff)-5]='\0';
-				printf("Value of appmsg après copie %s\n",appmsg);
-        gen_appmess( u, appmsg);
-        //printf("APPL envoi _dup ok\n");
-        free(appmsg);
-      }
-		}
-		bzero(buff,sizeof(char)*530);
-		free(buff);
-		free(tab);	
+				if(strcmp(tab[0],"END")==0){
+					exit(0);
+				}
+			}else if(taille >= 2){
+				ring= atoi(tab[1]);
+				if(ring==1||ring==2){
+					if(taille == 2){
+						if(strcmp(tab[0],"GBYE")==0){
+						gen_gbyemess( u,ring);
+						//printf("GBYE envoi _dup ok\n");
+						}
+						if(strcmp(tab[0],"TEST")==0){
+							uTest* t = malloc(sizeof(uTest));
+							(*t).u = u;
+							(*t).buff = buff;
+							pthread_t th1;
+							pthread_create(&th1,NULL,gentest_udp,t);
+							pthread_join(th1,NULL);
+							//printf("TEST envoi _dup ok\n");
+						}
+					}
+				}
+				//printf("value of DIFF ...%s... %d\n",tab[0],strcmp(tab[0],"DIFF"));
+				if(strcmp(tab[0],"DIFF") == 0) {
+					(*u).id_app = "DIFF####";
+					char* diffmsg = malloc(sizeof(char)*(strlen(buff)-2));
+					char* diftmp = malloc(sizeof(char)*(strlen(buff)-5));
+					char* sizemess = intchar((int)strlen(buff)-6,3);
+					//printf("Value of sizemess %s\n",sizemess);
+					strcat(diffmsg,sizemess);
+					strcat(diffmsg," ");
+					//printf("Value of diffmsg avt copie %s\n",diffmsg);
+					for (i = 0; i < strlen(buff)-5; i++)
+					{
+						diftmp[i] = buff[i+5];
+					}
+					diftmp[strlen(buff)-5]='\0';
+					strcat(diffmsg,diftmp);
+					//printf("Value of diffmsg après copie %s\n",diffmsg);
+					gen_appmess( u, diffmsg);
+					free(sizemess);
+					free(diftmp);
+					free(diffmsg);
+					//(*u).id_app = gen_code();
+					//printf("DIFF envoi _dup ok\n");
+				}else if(strcmp(tab[0],"APPL") == 0) {
+					char* appmsg = malloc(sizeof(char)*(strlen(buff)-5));
+					for (i = 0; i < strlen(buff)-5; i++)
+					{
+						appmsg[i] = buff[i+5];
+					}
+					appmsg[strlen(buff)-5]='\0';
+					//printf("Value of appmsg après copie %s\n",appmsg);
+					gen_appmess( u, appmsg);
+					//printf("APPL envoi _dup ok\n");
+					free(appmsg);
+				}
+			}
+			bzero(buff,sizeof(char)*530);
+			free(buff);
+			free(tab);
+		}	
   }
 }
 
@@ -1129,7 +1140,7 @@ void* gentest_udp(void* e){
 
 //Global fonction for udp message
 void* rec_multi_udp(void* uent){
-  printf("Reception Multi-UDP : Je lance le serveur de reception multi-cast udp\n");
+  printf("Reception Multi-UDP : Start of reception multi-cast udp server\n");
   uEntity* u = (uEntity*)uent;
   int sock = socket(PF_INET,SOCK_DGRAM,0);
   struct sockaddr_in address_sock;
@@ -1173,12 +1184,13 @@ void* rec_multi_udp(void* uent){
               mreq1.imr_interface.s_addr=htonl(INADDR_ANY);
               setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq1,sizeof(mreq1));
                 
-              char buff[512];
-              char buf[512];
               while (1) {
+								char* buff = malloc(sizeof(char)*512);
+								char* buf = malloc(sizeof(char)*512);
                 int rec = recv(sock,buff,512,0);
                 if(rec>0){
                   buff[rec]='\0';
+                  //printf("Value of buff in rec multi udp %s\n",buff);
                   if(strcmp(buff,"DOWN")==0){
                     printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
                     exit(0);
@@ -1187,11 +1199,14 @@ void* rec_multi_udp(void* uent){
                 int rec1 = recv(sock1,buf,512,0);
                 if(rec1>0){
                   buf[rec1]='\0';
+                  //printf("Value of buf in rec multi udp %s\n",buf);
                   if(strcmp(buf,"DOWN")==0){
                     printf("\nrec_multiudp : Message received on the second ring %s\n\n",buf);
                     exit(0);
                   }
                 }
+                free(buff);
+                free(buf);
               }
             }else{
               perror(" rec_multiudp :  ");

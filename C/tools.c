@@ -386,7 +386,7 @@ char* intchar(int a, int b){
       strcat(res,"0");
     }
     strcat(res,tmp);
-    printf("Value of res dans intchar %s\n",res);
+    //printf("Value of res dans intchar %s\n",res);
     free(tmp);
     return res;
   }else if(strlen(tmp)==b){

@@ -34,6 +34,11 @@ typedef struct entity{
 }entity;
 
 /*
+Function give information about entity
+ */
+int info_entity(entity* ent);
+
+/*
 Function which initialize an entity
  */
 int init_entity(entity* ent);
@@ -59,3 +64,7 @@ int serv_tcp(entity* e);
 /*Function for dupliaction into a ring
  */
 int duplication(entity* e, char* host, int e1_tcp);
+
+/*Function for using thread for the duplication
+ */
+void* pth_dupl(void* arg);

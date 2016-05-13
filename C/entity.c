@@ -1,6 +1,30 @@
 #include "entity.h"
 
 /*
+Function give information about entity
+ */
+int info_entity(entity* ent){
+	printf("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n++Info_entity++ : Id de l'entité %s\n",(*ent).id);
+	printf("++Info_entity++ : Port TCP l'entité %d\n",(*ent).tcp_port);
+	printf("++Info_entity++ : Ip de l'entité %s\n",(*ent).my_ip);
+	printf("++Info_entity++ : Port UDP de l'entité %d\n",(*ent).my_uport);
+	printf("++Info_entity++ : Adresse IP de l'entité suivante sur l'anneau 1 %s\n",(*ent).next_ip1);
+	printf("++Info_entity++ : Port UDP de l'entité suivante sur l'anneau 1 %d\n",(*ent).next_uport1);
+	printf("++Info_entity++ : Adresse IP MULTI de l'entité sur l'anneau 1 %s\n",(*ent).cast_ip1);
+	printf("++Info_entity++ : Port UDP MULTI de l'entité  sur l'anneau 1 %d\n",(*ent).cast_port1);
+	if((*ent).cast_ip2 != NULL){			
+		printf("++Info_entity++ : Adresse IP de l'entité suivante sur l'anneau 2 %s\n",(*ent).next_ip2);
+		printf("++Info_entity++ : Port UDP de l'entité suivante sur l'anneau 2 %d\n",(*ent).next_uport2);
+		printf("++Info_entity++ : Adresse IP MULTI de l'entité sur l'anneau 2 %s\n",(*ent).cast_ip2);
+		printf("++Info_entity++ : Port UDP MULTI de l'entité  sur l'anneau 2 %d\n",(*ent).cast_port2);
+	}
+	printf("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
+	return 0;
+}
+
+
+
+/*
 Function which initialize an entity, and prepare it for insertion
  */
 int init_entity(entity* ent){
@@ -153,7 +177,7 @@ void* pth_insertion(void* arg){
   if(ip!=NULL && port!=-1){
     (*e).my_ip = ip;
     (*e).tcp_port = port;
-    printf("Je vais lancer l'insertion\n");
+    printf("Start of insertion\n");
     insertion(e,host,tcp_port);
   }  
   return NULL;
@@ -325,7 +349,7 @@ int serv_tcp(entity* e){
  */
  void* pth_tserv(void* arg){
   entity* e = (entity*)arg; 
-  printf("Je vais lancer le serveur\n");
+  printf("Start of tcp server\n");
   serv_tcp(e);
   return NULL; 
  }
@@ -432,4 +456,22 @@ int duplication(entity* e, char* host, int e1_tcp ){
     fprintf(stderr,"duplication : Number of duplication authorized is not what is required\n");
   }
   return -1;
+}
+
+/*Function for using thread for the duplication
+ */
+void* pth_dupl(void* arg){
+  entity* e = (entity*)arg;
+  char* host = (*e).my_ip;
+  char* ip = get_ip();
+  
+  int tcp_port = (*e).tcp_port;
+  int port = free_tport(ip);
+  if(ip!=NULL && port!=-1){
+    (*e).my_ip = ip;
+    (*e).tcp_port = port;
+    printf("Start of duplication\n");
+    duplication(e,host,tcp_port);
+  }  
+  return NULL;
 }

@@ -1035,6 +1035,7 @@ void* envoi_udp(void* e){
 					}
 					appmsg[strlen(buff)-5]='\0';
 					//printf("Value of appmsg après copie %s\n",appmsg);
+					(*u).id_app = gen_code();
 					gen_appmess( u, appmsg);
 					//printf("APPL envoi _dup ok\n");
 					free(appmsg);

@@ -942,8 +942,9 @@ char* gen_testmess(uEntity* u, int ring){
           sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
           printf("gen_testmess : Message sent %s\n",buff);
           
+          (*u).count_time2 = (double) clock()/CLOCKS_PER_SEC;
+          
           add_umess(u,0,idm);
-          add_umess(u,1,idm);
           close(sock);
           return idm;
         }else{
@@ -1058,16 +1059,7 @@ void* gentest_udp(void* e){
     if(strcmp(tab[0],"TEST")==0){
       char* gen = gen_testmess(u,atoi(tab[1]));
       if((*u).count_time1>0){
-        /*double initial = (*u).count_time1;
-        double curr = (double) clock()/CLOCKS_PER_SEC;
-        (*u).count_time1 = curr - initial;
-        while((*u).count_time1<0.2){
-          printf("test_protocol : Tps écoulé %f\n\n",(*u).count_time1);
-          curr = (double) clock()/CLOCKS_PER_SEC;
-          (*u).count_time1 = curr -initial;
-        }
-        */
-        sleep(8);
+        sleep(10);
         int sock = socket(PF_INET,SOCK_DGRAM,0);
         
         struct sockaddr_in adress_sock;
@@ -1075,12 +1067,11 @@ void* gentest_udp(void* e){
         
         adress_sock.sin_port = htons((*u).ent->cast_port1);
         int inet = inet_aton(ip_removeZero((*u).ent->cast_ip1),&adress_sock.sin_addr);
-        if(gen!= NULL && isin(u,gen)!=1){
+        if(gen != NULL && isin(u,gen) != 1){
           if(inet != 0)
           {
             char buff[512] = "DOWN";
-            int send = sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
-            printf("test_protocol : I sent %s and value of send %d\n",buff,send);
+            sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
             close(sock);
             (*u).down1 = -1;
             printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
@@ -1095,30 +1086,20 @@ void* gentest_udp(void* e){
         }
       }
       if((*u).count_time2>0){
-        /*
-        double initial = (*u).count_time2;
-        double curr = (double) clock()/CLOCKS_PER_SEC;
-        (*u).count_time2 = curr - initial;
-        while((*u).count_time2<0.6){
-          printf("test_protocol : Tps écoulé %f\n",(*u).count_time2);
-          curr = (double) clock()/CLOCKS_PER_SEC;
-          (*u).count_time2 = curr -initial;
-        }
-        * */
-        sleep(8);
+        sleep(10);
         int sock = socket(PF_INET,SOCK_DGRAM,0);
         
         struct sockaddr_in adress_sock;
         adress_sock.sin_family = AF_INET;
         adress_sock.sin_port = htons((*u).ent->cast_port2);
         int inet = inet_aton(ip_removeZero((*u).ent->cast_ip2),&adress_sock.sin_addr);
-        if(gen!= NULL && isin(u,gen)!=1){    
+        if(gen != NULL && isin(u,gen) != 1){    
           if(inet != 0)
           {
             char buff[512] = "DOWN";
             sendto(sock,buff,strlen(buff),0,(struct sockaddr*)&adress_sock,(socklen_t)sizeof(struct sockaddr_in));
             close(sock);
-            printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
+            printf("test_protocol : State Ring 2 : corrupted\nRing1 will shut down\n");
             (*u).down2 = -1;
             exit(0);
           }else{

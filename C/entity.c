@@ -287,7 +287,8 @@ int serv_tcp(entity* e){
                                   strcat(msg, "\n");
                                   //printf("message %s\n",msg);
                                   send(sock2,msg, sizeof(char)*strlen(msg),0);
-                                  printf("serv_tcp : Message sent %s\n",msg);
+                                  //printf("serv_tcp : Message sent %s\n",msg);
+                                  printf("serv_tcp : Duplication succeed\n");
                                   free(my_uport);
                                   (*e).nb_insert = 2;
                                   close(sock2);
@@ -390,7 +391,11 @@ int duplication(entity* e, char* host, int e1_tcp ){
                && port_e2<=9999 && port_e2>0
                && port_cast<=9999 && port_cast>0
                ){
-              //Preparation of the current entity answer [NEWC␣ip␣port\n]
+								(*e).next_ip1 = ip_e2;
+								(*e).next_uport1 = port_e2;
+								(*e).cast_ip1 = ip_cast;  
+								(*e).cast_port1 = port_cast; 
+              //Preparation of the current entity answer [DUPL␣...\n]
               char* mess = malloc(sizeof(char)*120);
               strcpy(mess,"DUPL ");
               strcat(mess, ip_addZero((*e).my_ip));
@@ -422,7 +427,10 @@ int duplication(entity* e, char* host, int e1_tcp ){
                       (*e).next_uport1 = port;  
                       close(sock);
                       free(tab);
-                      (*e).nb_insert = 2;
+                      (*e).nb_insert = 1;                      
+											printf("--------------------------------------------------\n");
+											printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
+											printf("--------------------------------------------------\n");
                       serv_tcp(e);
                       return 0;
                     }else{

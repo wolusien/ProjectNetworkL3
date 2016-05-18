@@ -393,8 +393,8 @@ int duplication(entity* e, char* host, int e1_tcp ){
                ){
 								(*e).next_ip1 = ip_e2;
 								(*e).next_uport1 = port_e2;
-								(*e).cast_ip1 = ip_cast;  
-								(*e).cast_port1 = port_cast; 
+								//(*e).cast_ip1 = ip_cast;  
+								//(*e).cast_port1 = port_cast; 
               //Preparation of the current entity answer [DUPL␣...\n]
               char* mess = malloc(sizeof(char)*120);
               strcpy(mess,"DUPL ");

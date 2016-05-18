@@ -607,55 +607,145 @@ void* rec_udp(void* uent){
   printf("Reception udp : Start of udp server\n");
   uEntity* u = (uEntity*)uent;
   int sock = socket(PF_INET,SOCK_DGRAM,0);
-  struct sockaddr_in address_sock;
-  address_sock.sin_family = AF_INET;
+  struct sockaddr_in adress_sock;
+  adress_sock.sin_family = AF_INET;
+  
+  int sock1 = socket(PF_INET,SOCK_DGRAM,0);
+  struct sockaddr_in adress_sock1;
+  adress_sock1.sin_family = AF_INET;
+  
+  int ok=1;
+  setsockopt(sock1,SOL_SOCKET,SO_REUSEPORT,&ok,sizeof(ok));
+  
+  int sock2 = socket(PF_INET,SOCK_DGRAM,0);
+  struct sockaddr_in adress_sock2;
+  adress_sock2.sin_family = AF_INET;
+  
+  int ok1=1;
+  setsockopt(sock2,SOL_SOCKET,SO_REUSEPORT,&ok1,sizeof(ok1));
+  
+  fd_set fdset;
+  
+  //Pour la réception udp
   if((*u).ent->my_uport<=9999 && (*u).ent->my_uport>0){
     //printf("rec_udp : Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
-    address_sock.sin_port = htons((*u).ent->my_uport);
-    int inet = inet_aton(ip_removeZero((*u).ent->my_ip),&(address_sock.sin_addr));
+    adress_sock.sin_port = htons((*u).ent->my_uport);
+   
+    int inet = inet_aton(ip_removeZero((*u).ent->my_ip),&(adress_sock.sin_addr));
     if(inet != 0){
-      int r = bind(sock,(struct sockaddr*)&address_sock,sizeof(struct sockaddr_in));
-      if (r==0) {
-        while (1) {
-					//char buff[512];
-					char* buff = malloc(sizeof(char)*512);
-          int rec = recv(sock,buff,512,0);
-          if(rec>0){
-            buff[rec]='\0';
-            printf("rec_udp : Message received %s\n\n",buff);
-            /*
-            double var = (*u).count_time;
-            if((*u).count_time!=0){
-              (*u).count_time = (double)(clock()-var)/CLOCKS_PER_SEC;
-            }
-            */
-            //reste à coder 
-            if(app_mess(u,buff)!=0)
-            {
-              //printf("rec_udp : pas app\n");
-              if(whos(u,buff)!=0)
-              {
-                //printf("rec_udp : pas whos\n");
-                if(gbye(u,buff)!=0)
-                {
-                  //printf("rec_udp : pas gbye\n");
-                  if(testring(u,buff)!=0)
-                  {
-                    fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
-                  }
-                }
-              }
-            }
-          }
-          free(buff);
-        }
-      }else {
+			
+      int r = bind(sock,(struct sockaddr*)&adress_sock,sizeof(struct sockaddr_in));
+			
+			if(r==0){
+				//Pour la reception multi-cast sur l'anneau 1
+				if((*u).ent->cast_port1<=9999 && (*u).ent->cast_port1>0
+						&& (*u).ent->cast_ip1 != NULL){
+					//printf("Je traite l'addresse %s et le port udp %d\n",(*u).ent->my_ip,(*u).ent->my_uport);
+					adress_sock1.sin_port = htons((*u).ent->cast_port1);
+					//printf("remove ip %s\n",ip_removeZero((*u).ent->cast_ip1));
+					int inet1 = inet_aton(ip_removeZero((*u).ent->cast_ip1),&(adress_sock1.sin_addr));
+					//printf("inet %d \n",inet);
+					if(inet1 != 0){
+						
+						int r1 = bind(sock1,(struct sockaddr*)&adress_sock1,sizeof(struct sockaddr_in));
+						
+						if (r1==0) {
+							struct ip_mreq mreq;
+							mreq.imr_multiaddr.s_addr=inet_addr((*u).ent->cast_ip1);
+							mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+							setsockopt(sock1,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq));
+						
+						}
+					}
+				}
+				//Pour la réception multicast sur l'anneau 2
+				if((*u).ent->cast_port2>0 && (*u).ent->cast_ip2 != NULL){
+					adress_sock2.sin_port = htons((*u).ent->cast_port2);
+					int inet2 = inet_aton(ip_removeZero((*u).ent->cast_ip2),&(adress_sock2.sin_addr));
+					if(inet2 == 1){
+						int r2 = bind(sock2,(struct sockaddr*)&adress_sock2,sizeof(struct sockaddr_in));
+						
+						if (r2==0) {                      
+							
+							struct ip_mreq mreq1;
+							mreq1.imr_multiaddr.s_addr=inet_addr((*u).ent->cast_ip2);
+							mreq1.imr_interface.s_addr=htonl(INADDR_ANY);
+							setsockopt(sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq1,sizeof(mreq1));
+						}
+					}
+				}
+				while(1){
+					
+					FD_ZERO(&fdset);
+					FD_SET(sock,&fdset);
+					FD_SET(sock1,&fdset);
+					FD_SET(sock2,&fdset);
+					select(max(sock,sock1,sock2)+1,&fdset,NULL,NULL,NULL);
+					
+					if(FD_ISSET(sock,&fdset)){
+						char* buff = malloc(sizeof(char)*512);
+						int rec = recv(sock,buff,512,0);
+						if(rec>0){
+							buff[rec]='\0';
+							printf("rec_udp : Message received %s\n\n",buff);
+							 
+							if(app_mess(u,buff)!=0)
+							{
+								//printf("rec_udp : pas app\n");
+								if(whos(u,buff)!=0)
+								{
+									//printf("rec_udp : pas whos\n");
+									if(gbye(u,buff)!=0)
+									{
+										//printf("rec_udp : pas gbye\n");
+										if(testring(u,buff)!=0)
+										{
+											fprintf(stderr,"rec_udp : No protocol for manage the message or the message has already been treated %s\n",buff);
+										}
+									}
+								}
+							}
+						}
+						free(buff);
+					}
+					if(FD_ISSET(sock1,&fdset)){
+						char* buff = malloc(sizeof(char)*512);
+						int rec = recv(sock1,buff,512,0);
+						if(rec>0){
+							buff[rec]='\0';
+							//printf("Value of buff in rec multi udp %s\n",buff);
+							if(strcmp(buff,"DOWN")==0){
+								printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+								free(buff);
+								exit(0);
+							}
+							free(buff);
+						}
+						free(buff);
+					}
+					if(FD_ISSET(sock2,&fdset)){
+						char* buff = malloc(sizeof(char)*512);
+						int rec = recv(sock2,buff,512,0);
+						if(rec>0){
+							buff[rec]='\0';
+							//printf("Value of buff in rec multi udp %s\n",buff);
+							if(strcmp(buff,"DOWN")==0){
+								printf("\nrec_multiudp : Message received on first ring %s\n\n",buff);
+								free(buff);
+								exit(0);
+							}
+							free(buff);
+						}
+						free(buff);
+					}
+				}
+			}else {
         perror("rec_udp bind: Problem with socket binding");
       }
-    }else{
+		}else{
       fprintf(stderr,"rec_udp : Problem for inet_aton with ip\n");
     }
-  }else{
+	}else{
     fprintf(stderr,"rec_udp : Wrong udp port entity\n");
   }
   return NULL;
@@ -967,7 +1057,7 @@ void* envoi_udp(void* e){
   int ring;
      
   while(1){
-    //printf("Envoi msg : \n");
+    printf("Start of envoi_udp\n");
     char* buff = malloc(sizeof(char)*530);
     int r = read(STDIN_FILENO, buff, 530);
     if(r>0){
@@ -1009,7 +1099,7 @@ void* envoi_udp(void* e){
 					(*u).id_app = "DIFF####";
 					char* diffmsg = malloc(sizeof(char)*(strlen(buff)-2));
 					char* diftmp = malloc(sizeof(char)*(strlen(buff)-5));
-					char* sizemess = intchar((int)strlen(buff)-6,3);
+					char* sizemess = intchar((int)strlen(buff)-5,3);
 					//printf("Value of sizemess %s\n",sizemess);
 					strcat(diffmsg,sizemess);
 					strcat(diffmsg," ");
@@ -1136,7 +1226,7 @@ void* rec_multi_udp(void* uent){
   adress_soc.sin_family = AF_INET;
   
   int ok1=1;
-  setsockopt(sock,SOL_SOCKET,SO_REUSEPORT,&ok1,sizeof(ok1));
+  setsockopt(sock1,SOL_SOCKET,SO_REUSEPORT,&ok1,sizeof(ok1));
   
   if((*u).ent->cast_port1<=9999 && (*u).ent->cast_port1>0
     && (*u).ent->cast_ip1 != NULL){

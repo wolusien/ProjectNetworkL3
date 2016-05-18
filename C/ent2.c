@@ -14,12 +14,12 @@ int main(int argc, char *argv[])
     pthread_create(&th2,NULL,envoi_udp,u);
     pthread_t th3;
     pthread_create(&th3,NULL,rec_udp,u);
-    pthread_t th4;
-    pthread_create(&th4,NULL,rec_multi_udp,u);
+    //pthread_t th4;
+    //pthread_create(&th4,NULL,rec_multi_udp,u);
     pthread_join(th1,NULL);
     pthread_join(th2,NULL);
     pthread_join(th3,NULL);
-    pthread_join(th4,NULL);
+    //pthread_join(th4,NULL);
   }
   return 0;
 }

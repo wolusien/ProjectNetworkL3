@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -74,12 +75,17 @@ int check_ip(char* ip);
 char* gen_idmess();
 
 
-/*Fonction convert int a into char* of size b if it is possible else return NULL*/
+/*Function convert int a into char* of size b if it is possible else return NULL*/
 char* intchar(int a, int b);
 
 
 int rand_a_b(int a, int b);
 
+/*Function generates ip multicast*/
 char * ip_libre_multi();
 
+/*Function generate port multicast*/
 int port_libre_multi();
+
+/*Function max*/
+int max(int a, int b, int c);

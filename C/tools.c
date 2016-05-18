@@ -394,3 +394,13 @@ char* intchar(int a, int b){
   }
   return NULL;
 }
+
+int max(int a, int b, int c){
+	if(a>b){
+		if(a>c) return a;
+		else return c;
+	}else{
+		if(b>c) return c;
+		else return b;
+	}
+}

@@ -93,6 +93,10 @@ public class tools{
 	 */
 	public static  String mess_app(String id_app,String mess){
 		String idm=genereIdm();//genere alea
+		if(id_app.equals("TRANS###"))
+			return "APPL "+remplissageId(idm)+" "+remplissageId(id_app)+" REQ "+mess.length()+" "+mess;
+		if(id_app.equals("DIFF####"))
+			return "APPL "+remplissageId(idm)+" "+remplissageId(id_app)+" "+mess.length()+" "+mess;
 		return "APPL "+remplissageId(idm)+" "+remplissageId(id_app)+" "+mess;
 	}
 	public static  String mess_who(){

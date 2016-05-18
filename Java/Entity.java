@@ -15,6 +15,7 @@ class Entity {
 	private Server sev;
 	private message cli;
 	private Multidiffusion muldiff;
+	private Client client;
 	public boolean actif=true;
 	
 	//debut duplication
@@ -147,9 +148,20 @@ class Entity {
 		this.cast_port=muldiff.portlibre();
 		this.cast_ip=muldiff.iplibre();
 		muldiff.setIp(this.cast_ip);
-
+		client= new Client(this);
 		lance_entity(sev,cli);
 		lance_multidiffusion(muldiff);
+		lanceClient(client);
+	}
+	
+	public void lanceClient(Client client){
+		try{
+			Thread t= new Thread(client);
+			t.start();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public void lance_dupl_multidiffusion(Multidiffusion muldiff){
@@ -210,7 +222,9 @@ class Entity {
 			Socket socket=new Socket(ip,port);
 			sev= new Server(this);
 			cli= new message(this, idapp);
+			client= new Client(this);
 			lance_entity( sev, cli);
+			lanceClient(client);
 			System.out.println("entity ok");
 			BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintWriter pw=new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));

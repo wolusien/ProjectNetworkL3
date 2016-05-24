@@ -48,6 +48,8 @@ public class Client implements Runnable{
 			String[] m=mess.split(" ");
 			if(m.length>=2){
 				String s=tools.mess_app(ent.getCli().idapp, mess.substring(5));
+				if(ent.getCli().idapp.equals("TRANS###"))
+					ent.getCli().attend=s.split(" ")[1];
 				ent.getCli().sendMessage(s.getBytes());
 			}
 		}

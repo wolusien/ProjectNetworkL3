@@ -29,6 +29,8 @@ public class message implements Runnable {
 	ArrayList<String> listidm;
 	private String test;
 	public String idapp="";
+	public String attend="";
+	public int restant=0;
 
 	public message(Entity ent, String idapp){
 		this.ent=ent;
@@ -98,16 +100,33 @@ public class message implements Runnable {
 				if(verif_file(decomp[5])){
 
 					byte[] fic=readFile(decomp[5]);
-					envoiefichier(fic, decomp[4], decomp[5]);
-					System.out.println("bloque");
+					envoiefichier(fic, decomp[4], decomp[5], decomp[1]);
 					return true; // de cette manière il ne peut pas renvoyer REQ
 				}
-				sendMessage(data);
+				else if(decomp[1].equals(attend)) {
+					attend="";
+					System.out.println("Le fichier n a pas ete trouve");
+				}
+				else
+					sendMessage(data);
 				return true;
 			}
 			if(tools.verif_mess_app_trans(decomp)
-					&& decomp[2].equals(idapp)){
-				sendMessage(data);
+					&& decomp[2].equals(idapp)
+					&& decomp[4].equals(attend)){
+				if(decomp[3].equals("ROK")){
+					restant=Integer.parseInt(decomp[7]);
+				}
+				else if(decomp[3].equals("SEN")){
+					restant--;
+					System.out.println(restant);
+					if(restant<=0){
+						attend="";
+						restant=0;
+					}
+				}
+				else
+					sendMessage(data);
 				return true;
 			}
 			sendMessage(data);
@@ -309,8 +328,8 @@ public class message implements Runnable {
 		return false;
 	}
 
-	public void envoiefichier(byte[] fic, String sizenom, String nomfic){
-		String idtrans= tools.genereIdm();
+	public void envoiefichier(byte[] fic, String sizenom, String nomfic, String idtrans){
+		//String idtrans= tools.genereIdm();
 		String s= "APPL "+tools.genereIdm()+" TRANS### ROK "+idtrans+" "+sizenom+" "+nomfic+" ";
 		String s2= "APPL "+tools.genereIdm()+" TRANS### SEN "+idtrans+" ";
 		int taillemax=512-(s2.getBytes().length+8);

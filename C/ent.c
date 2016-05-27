@@ -6,7 +6,9 @@ int main(int argc, char *argv[])
   uEntity* u= malloc(sizeof(uEntity));
   int r = init_uEntity(u);
   if (r==0) {
+    (*u).ent->id = argv[1];
     (*u).id_app = "12345679";
+    
     pthread_t th1;
     pthread_create(&th1,NULL,pth_tserv,(*u).ent);
     pthread_t th2;

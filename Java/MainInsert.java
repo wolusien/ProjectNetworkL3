@@ -3,9 +3,8 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 
-
 public class MainInsert {
-
+    
 	public static void main(String[] args) {
 		/*Scanner sc= new Scanner(System.in);
 		System.out.println("Quel est ip ? ");
@@ -17,7 +16,7 @@ public class MainInsert {
 		String appl=sc.nextLine();
 		sc.close();*/
 		Entity ent= new Entity();
-		ent.insertion("172.028.047.058", 1024,"DIFF####");
+		ent.insertion("192.168.70.111", 1024,"TRANS###");
 		/*try{
 			DatagramSocket dso=new DatagramSocket();
 			byte[]data = new byte[512];
@@ -31,5 +30,4 @@ public class MainInsert {
 			e.printStackTrace();
 		}*/
 	}
-
 }

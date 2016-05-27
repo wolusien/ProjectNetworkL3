@@ -123,7 +123,7 @@ int insertion(entity* e, char* host, int e1_tcp ){
                     printf("********************************************\n");
                     printf("insertion : This my tcp_port %d\n",(*e).tcp_port);
                     printf("********************************************\n");
-                    serv_tcp(e);
+                    //serv_tcp(e);
                     return 0;
                   }else {
                     fprintf(stderr,"insertion : Problem with message received from the entity of ring %s\n",buff2);

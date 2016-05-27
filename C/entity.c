@@ -387,8 +387,8 @@ int duplication(entity* e, char* host, int e1_tcp) {
                                 && port_e2 <= 9999 && port_e2 > 0
                                 && port_cast <= 9999 && port_cast > 0
                                 ) {
-                            (*e).next_ip1 = ip_e2;
-                            (*e).next_uport1 = port_e2;
+                            (*e).next_ip1 = host;
+                            //(*e).next_uport1 = port_e2;
                             //(*e).cast_ip1 = ip_cast;  
                             //(*e).cast_port1 = port_cast; 
                             //Preparation of the current entity answer [DUPL␣...\n]

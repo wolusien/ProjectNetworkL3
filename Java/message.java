@@ -31,6 +31,7 @@ public class message implements Runnable {
 	public String idapp="";
 	public String attend="";
 	public int restant=0;
+	public int port;
 
 	public message(Entity ent, String idapp){
 		this.ent=ent;
@@ -50,6 +51,7 @@ public class message implements Runnable {
 				dso=new DatagramSocket(port);
 				ent.setUdp_port(port);
 				ent.setNextudp(port);
+				this.port=port;
 				System.out.println("port udp : "+port);
 				break;
 			}

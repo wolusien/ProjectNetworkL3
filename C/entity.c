@@ -388,6 +388,7 @@ int duplication(entity* e, char* host, int e1_tcp) {
                                 && port_cast <= 9999 && port_cast > 0
                                 ) {
                             (*e).next_ip1 = host;
+                            //printf("(*e).next_ip1 dans duplication value %s\n",(*e).next_ip1);
                             //(*e).next_uport1 = port_e2;
                             //(*e).cast_ip1 = ip_cast;  
                             //(*e).cast_port1 = port_cast; 

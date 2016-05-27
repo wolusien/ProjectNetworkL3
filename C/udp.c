@@ -506,7 +506,6 @@ int testring(uEntity* u, char* buff) {
                                 if (strlen(ipdiff) == 15 && portdiff > 0 && portdiff <= 9999) {
                                     if (check_ip(ipdiff) != -1) {
                                         if (strcmp(ipdiff, ip_addZero((*u).ent->cast_ip1)) == 0 && portdiff == (*u).ent->cast_port1) {
-                                            printf("testring C1\n");
                                             //printf("TEST tester 2\n");
                                             int sock = socket(PF_INET, SOCK_DGRAM, 0);
                                             struct sockaddr_in adress_sock;
@@ -517,11 +516,11 @@ int testring(uEntity* u, char* buff) {
                                             if (inet != 0) {
                                                 //printf("TEST tester 3\n");
                                                 sendto(sock, buff, strlen(buff), 0, (struct sockaddr*) &(adress_sock), (socklen_t)sizeof (struct sockaddr_in));
-                                                printf("testring C2\n");
+                                              
                                                 printf("**********************************************************\n");
                                                 printf("testring : Message sent %s\n", buff);
                                                 printf("**********************************************************\n");
-                                                printf("testring C3\n");
+                                               
                                                 add_umess(u, 0, tab[1]);
                                                 add_umess(u, 1, tab[1]);
                                                 free(tab);
@@ -658,17 +657,17 @@ void* rec_udp(void* uent) {
                     if (FD_ISSET(sock, &fdset)) {
                         char* buff = malloc(sizeof (char)*512);
                         int rec = recv(sock, buff, 512, 0);
-                        printf("rec_udp %s\n",buff);
+                        printf("rec_udp : Message received %s\n",buff);
                         if (rec > 0) {
                             buff[rec] = '\0';
-                            printf("rec_udp : Message received %s\n\n", buff);
+                            //printf("rec_udp : Message received %s\n\n", buff);
 
                             if (app_mess(u, buff) != 0) {
-                                printf("rec_udp : pas app\n");
+                                //printf("rec_udp : pas app\n");
                                 if (whos(u, buff) != 0) {
-                                    printf("rec_udp : pas whos\n");
+                                    //printf("rec_udp : pas whos\n");
                                     if (gbye(u, buff) != 0) {
-                                        printf("rec_udp : pas gbye\n");
+                                        //printf("rec_udp : pas gbye\n");
                                         if (testring(u, buff) != 0) {
                                             fprintf(stderr, "rec_udp : No protocol for manage the message or the message has already been treated %s\n", buff);
                                         }
@@ -1114,7 +1113,7 @@ void* gentest_udp(void* e) {
         if (strcmp(tab[0], "TEST") == 0) {
             char* gen = gen_testmess(u, atoi(tab[1]));
             if ((*u).count_time1 > 0) {
-                sleep(10);
+                sleep(3);
                 int sock = socket(PF_INET, SOCK_DGRAM, 0);
 
                 struct sockaddr_in adress_sock;
@@ -1129,7 +1128,15 @@ void* gentest_udp(void* e) {
                         close(sock);
                         (*u).down1 = -1;
                         printf("test_protocol : State Ring 1 : corrupted\nRing1 will shut down\n");
-                        exit(0);
+                        if((*u).ent->cast_ip2 == NULL || (*u).ent->cast_port2 <1024 ){
+                            exit(0);
+                        }else{
+                            (*u).ent->next_ip1 = NULL;
+                            (*u).ent->next_uport1 = -1;
+                            (*u).ent->cast_ip1 = NULL;
+                            (*u).ent->cast_port1 = -1;
+                            return 0;
+                        }
                     } else {
                         perror("test_protocol : ");
                     }
@@ -1154,7 +1161,15 @@ void* gentest_udp(void* e) {
                         close(sock);
                         printf("test_protocol : State Ring 2 : corrupted\nRing1 will shut down\n");
                         (*u).down2 = -1;
-                        exit(0);
+                        if((*u).ent->cast_ip1 == NULL || (*u).ent->cast_port1 <1024 ){
+                            exit(0);
+                        }else{
+                            (*u).ent->next_ip2 = NULL;
+                            (*u).ent->next_uport2 = -1;
+                            (*u).ent->cast_ip2 = NULL;
+                            (*u).ent->cast_port2 = -1;
+                            return 0;
+                        }
                     } else {
                         perror("test_protocol : ");
                     }

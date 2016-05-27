@@ -1,7 +1,9 @@
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
@@ -32,7 +34,9 @@ public class message implements Runnable {
 	public String attend="";
 	public int restant=0;
 	public int port;
-
+	int ite=0;
+	public 	String fic;
+	public String  contenu="";
 	public message(Entity ent, String idapp){
 		this.ent=ent;
 		listidm=new ArrayList<String>();
@@ -118,14 +122,14 @@ public class message implements Runnable {
 					&& decomp[4].equals(attend)){
 				if(decomp[3].equals("ROK")){
 					restant=Integer.parseInt(decomp[7]);
+					fic=decomp[7];
+					ite=0;
+
 				}
 				else if(decomp[3].equals("SEN")){
-					restant--;
-					System.out.println(restant);
-					if(restant<=0){
-						attend="";
-						restant=0;
-					}
+					traite(mess);
+					if(ite==restant)remplitab(contenu);
+
 				}
 				else
 					sendMessage(data);
@@ -249,7 +253,7 @@ public class message implements Runnable {
 			down();
 		}
 	}
-	
+
 	// 0 - envoie a non duppl
 	// 1 - envoie a duppl
 	public void sendMessage(byte[] data, int i){
@@ -405,4 +409,30 @@ public class message implements Runnable {
 			sendMessage(envoie);
 		}
 	}
+
+	public  void remplitab(String tab){
+		try{
+		    BufferedWriter writer=new BufferedWriter(new FileWriter(new File("transfert")));
+			writer.write(tab);
+			writer.close();
+		}
+		catch(Exception e){
+
+		}
+
+	}
+	public void  traite(String mess){
+
+		String[] dec=mess.split(" ", 8);
+		contenu=contenu+dec[dec.length-1];
+		System.out.println("dec : "+dec[6]);
+		System.out.println("ite : "+ite);
+		if(Integer.parseInt(dec[5])!=ite){
+			System.out.println("fichier envoyer dans le desordre") ;    	 
+		}
+		ite++;
+
+	}
 }
+
+

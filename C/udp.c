@@ -490,21 +490,29 @@ int gbye(uEntity* u, char* buff) {
 
 int testring(uEntity* u, char* buff) {
     if ((*u).down1 > -1) {
+        printf("Value dans testring %s\n",buff);
         if (strlen(buff) == 34) {
             //printf("C1\n");
             if ((*u).ent->next_ip1 != NULL && (*u).ent->next_uport1 > 1023) {
                 char** tab = split(buff, ' ');
+                printf("testring C1\n");
                 if (str_arrsize(tab) == 4) {
+                    printf("testring C2\n");
                     if (strcmp(tab[0], "TEST") == 0) {
+                        printf("testring C3\n");
                         //printf("TEST tester 1\n");
                         if (strlen(tab[1]) == 8) {
+                            printf("testring C4\n");
                             if (isin(u, tab[1]) == -1 || isin(u, tab[1]) == 0) {
                                 //printf("TEST tester 2\n");
+                                printf("testring C5\n");
                                 char* ipdiff = tab[2];
                                 int portdiff = atoi(tab[3]);
                                 if (strlen(ipdiff) == 15 && portdiff > 0 && portdiff <= 9999) {
                                     if (check_ip(ipdiff) != -1) {
+                                        printf("testring C6\n");
                                         if (strcmp(ipdiff, ip_addZero((*u).ent->cast_ip1)) == 0 && portdiff == (*u).ent->cast_port1) {
+                                            printf("testring C7\n");
                                             //printf("TEST tester 2\n");
                                             int sock = socket(PF_INET, SOCK_DGRAM, 0);
                                             struct sockaddr_in adress_sock;

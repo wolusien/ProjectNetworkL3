@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class MainInsert {
 
 	public static void main(String[] args) {
-		Scanner sc= new Scanner(System.in);
+		/*Scanner sc= new Scanner(System.in);
 		System.out.println("Quel est ip ? ");
 		String ip=sc.nextLine();
 		System.out.println("Quel est le port ? ");
@@ -15,9 +15,9 @@ public class MainInsert {
 		int por=Integer.parseInt(port);
 		System.out.println("Id APPL ? ");
 		String appl=sc.nextLine();
-		sc.close();
+		sc.close();*/
 		Entity ent= new Entity();
-		ent.insertion(ip, por,appl);
+		ent.insertion("172.028.047.058", 1024,"DIFF####");
 		/*try{
 			DatagramSocket dso=new DatagramSocket();
 			byte[]data = new byte[512];

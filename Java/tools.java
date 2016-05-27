@@ -105,7 +105,7 @@ public class tools{
 	}
 	public static  String mess_memb(Entity e){
 		String idm=genereIdm();//genere alea
-		return "MEMB "+idm+" "+remplissageId(e.getId())+" "+remplissageIp2(e.getNextIp())+" "+remplissageIp2(e.getNextIp());
+		return "MEMB "+idm+" "+remplissageId(e.getId())+" "+remplissageIp2(ip())+" "+e.getCli().port;
 	}
 	public static  String mess_gbye(Entity e,String ip,int port){
 		String idm=genereIdm();//genere alea

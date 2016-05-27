@@ -51,8 +51,8 @@ public class message implements Runnable {
 				dso=new DatagramSocket(port);
 				ent.setUdp_port(port);
 				ent.setNextudp(port);
-				this.port=port;
 				System.out.println("port udp : "+port);
+				this.port=port;
 				break;
 			}
 			catch(Exception e){

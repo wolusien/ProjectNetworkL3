@@ -40,10 +40,11 @@ public class Client implements Runnable{
 			ent.getCli().sendMessage(s.getBytes());
 		}
 		if(mess.equals("TEST")){
+			String s=tools.mess_test(ent);
 			ent.getCli().test();
 		}
 		if(mess.equals("GBYE")){
-			String s= tools.mess_gbye(ent,tools.ip() , ent.getCli().port);
+			String s= tools.mess_gbye(ent, tools.ip(), ent.getCli().port);
 			ent.getCli().sendMessage(s.getBytes());
 		}
 		if(mess.startsWith("APPL")){

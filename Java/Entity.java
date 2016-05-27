@@ -5,7 +5,7 @@ import java.io.*;
 
 class Entity {
 	//private byte[] id;
-	private String id;
+	private String id="Eymerick";
 	private int udp_port;
 	private int tcp_port;
 	private String next_ip;

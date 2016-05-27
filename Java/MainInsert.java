@@ -3,20 +3,18 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 
+
 public class MainInsert {
-    
+
 	public static void main(String[] args) {
-		/*Scanner sc= new Scanner(System.in);
-		System.out.println("Quel est ip ? ");
-		String ip=sc.nextLine();
-		System.out.println("Quel est le port ? ");
-		String port=sc.nextLine();
-		int por=Integer.parseInt(port);
-		System.out.println("Id APPL ? ");
-		String appl=sc.nextLine();
-		sc.close();*/
-		Entity ent= new Entity();
-		ent.insertion("192.168.70.111", 1024,"TRANS###");
+		if(args.length==3){
+			Entity ent= new Entity();
+			ent.insertion(args[0], Integer.parseInt(args[1]),args[2]);
+		}
+		else{
+			System.out.println("ou sont les arguments?");
+			System.out.println("ip port appl");
+		}
 		/*try{
 			DatagramSocket dso=new DatagramSocket();
 			byte[]data = new byte[512];
@@ -30,4 +28,5 @@ public class MainInsert {
 			e.printStackTrace();
 		}*/
 	}
+
 }

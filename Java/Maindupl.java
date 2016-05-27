@@ -2,10 +2,15 @@
 public class Maindupl {
 
 	public static void main(String[] args) {
-		Entity ent= new Entity();
-		ent.Init("");
-		ent.duplication("192.168.233.001", 1024);
-
+		if(args.length==3){
+			Entity ent= new Entity();
+			ent.Init(args[2]);
+			ent.duplication(args[0], Integer.parseInt(args[1]));
+		}
+		else{
+			System.out.println("non non non");
+			System.out.println("ip port appl");
+		}
 	}
 
 }

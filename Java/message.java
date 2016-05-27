@@ -208,7 +208,7 @@ public class message implements Runnable {
 				}
 			}
 			dso.close();
-			System.out.println("message fermer");
+			Thread.currentThread().interrupt();
 
 		}
 		catch(Exception e){

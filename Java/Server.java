@@ -75,7 +75,7 @@ public class Server implements Runnable{
 				socket.close();
 			}
 			Ssock.close();
-			System.out.println("server fermer");
+			Thread.currentThread().interrupt();
 		}
 		catch(Exception e){
 

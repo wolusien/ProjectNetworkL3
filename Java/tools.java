@@ -238,8 +238,9 @@ fin
 						System.out.println("IPV4");
 						System.out.println(iac.toString());
 					}*/
-					if(!iac.isLoopbackAddress()){
+					if(!iac.isLoopbackAddress() && iac instanceof Inet4Address){
 						System.out.println("adresse :"+iac.getHostAddress());
+						
 						return remplissageIp(iac.getHostAddress());
 					}
 				}

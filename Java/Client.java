@@ -24,6 +24,7 @@ public class Client implements Runnable{
 				verif(s);
 			}
 			sc.close();
+			Thread.currentThread().interrupt();
 		}
 		catch(Exception e){
 			e.printStackTrace();

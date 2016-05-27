@@ -214,6 +214,8 @@ class Entity {
 			muldiff.quit();
 		if(duplmuldiff!=null)
 			duplmuldiff.quit();
+		System.exit(0);
+		
 	}
 
 

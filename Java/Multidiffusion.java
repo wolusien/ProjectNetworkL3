@@ -105,7 +105,7 @@ public class Multidiffusion implements Runnable{
 			}
 			mso.leaveGroup(InetAddress.getByName(ip));
 			mso.close();
-			System.out.println("multidiffusion fermer");
+			Thread.currentThread().interrupt();
 
 		} catch(Exception e){
 			e.printStackTrace();

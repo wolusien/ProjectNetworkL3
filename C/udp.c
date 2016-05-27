@@ -189,15 +189,16 @@ int whos(uEntity* u, char* buff) {
                     //char* next_uport = intchar((*u).ent->next_uport1,4);
                     char** tab = split(buff, ' ');
                     //printf("Value of firdt idm %s\n",tab[1]);
-                    printf("WHOS C1\n");
-                    printf("WHOS .......%s......\n", buff);
-                    printf("WHOS Value of taille tab WHOS %d\n", str_arrsize(tab));
+                    //printf("WHOS C1\n");
+                    //printf("WHOS .......%s......\n", buff);
+                    //printf("WHOS Value of taille tab WHOS %d\n", str_arrsize(tab));
                     if (str_arrsize(tab) == 2) {
-                        printf("WHOS C2\n");
+                        //printf("WHOS C2\n");
                         if (strcmp(tab[0], "WHOS") == 0) {
                             if (strlen(tab[1]) == 8) {
-                                printf("WHOS C3\n");
+                                //printf("WHOS C3\n");
                                 //printf("Taille de idm ok  et valeur de isin %d\n",isin(u,tab[1]));
+                                //printf("WHOS value of isin %d\n",isin(u, tab[1]));
                                 if (isin(u, tab[1]) == -1) {
                                     //Case where message never has been managed
                                     char tampon[520] = "MEMB ";
@@ -214,7 +215,7 @@ int whos(uEntity* u, char* buff) {
 
                                         //printf("Value of MEMB send %s\n\n",tampon);
                                         //We send message WHOS
-                                        printf("WHOS C4\n");
+                                        //printf("WHOS C4\n");
                                         sendto(sock, buff, strlen(buff), 0, (struct sockaddr*) &adress_sock, (socklen_t)sizeof (struct sockaddr_in));
                                         printf("whos : Message sent %s\n", buff);
 

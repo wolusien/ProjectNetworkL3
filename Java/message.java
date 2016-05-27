@@ -158,7 +158,15 @@ public class message implements Runnable {
 				String s=tools.mess_eybg();
 				byte[] data2= new byte[512];
 				data2=s.getBytes();
-				sendMessage(data2);
+				sendMessage(data2,0);
+				ent.setNextIp(decomp[4]);
+				ent.setNextudp(Integer.parseInt(decomp[5]));
+			}
+			if(ent.duplactif && decomp[2].equals(ent.getdupl_udp_ip()) && decomp[3].equals(Integer.toString(ent.getdupl_udp_port()))){
+				String s=tools.mess_eybg();
+				byte[] data2= new byte[512];
+				data2=s.getBytes();
+				sendMessage(data2,1);
 				ent.setNextIp(decomp[4]);
 				ent.setNextudp(Integer.parseInt(decomp[5]));
 			}
@@ -229,6 +237,31 @@ public class message implements Runnable {
 				dso.send(packet);
 			}
 			if(ent.getdupl() && ent.duplactif){
+				System.out.println("envoye a dupl :"+ent.getdupl_udp_port());
+				InetSocketAddress ia= new InetSocketAddress(ent.getdupl_udp_ip(), ent.getdupl_udp_port());
+				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
+				dso.send(packet);
+			}
+			dso.close();
+		}
+		catch(Exception e){
+			//e.printStackTrace();
+			down();
+		}
+	}
+	
+	// 0 - envoie a non duppl
+	// 1 - envoie a duppl
+	public void sendMessage(byte[] data, int i){
+		try{
+			DatagramSocket dso= new DatagramSocket();
+			if(ent.actif && i==0){
+				System.out.println("envoye a :"+ent.getNextudp());
+				InetSocketAddress ia= new InetSocketAddress(ent.getNextIp(), ent.getNextudp());
+				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
+				dso.send(packet);
+			}
+			if(ent.getdupl() && ent.duplactif && i==1){
 				System.out.println("envoye a dupl :"+ent.getdupl_udp_port());
 				InetSocketAddress ia= new InetSocketAddress(ent.getdupl_udp_ip(), ent.getdupl_udp_port());
 				DatagramPacket packet= new DatagramPacket(data, data.length, ia);
